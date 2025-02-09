@@ -1,0 +1,36 @@
+/* Base Navbar Styles */
+.custom-navbar {
+  background-color: rgba(0, 0, 0, 0.223); /* Transparent by default */
+  padding: 15px 20px;
+  transition: background-color 0.3s ease, padding 0.3s ease; /* Smooth transition */
+  border-bottom: 2px solid grey;
+}
+
+/* Solid Navbar Styles (after scrolling) */
+.custom-navbar.solid-navbar {
+  background-color: #333; /* Solid color after scrolling */
+  border-bottom: 2px solid #656565; /* Optional: Add a border */
+  padding: 10px 20px; /* Optional: Reduce padding for a sleeker look */
+}
+
+/* Navbar Brand (Logo) */
+.custom-navbar .navbar-brand img {
+  max-height: 50px;
+}
+
+/* Navbar Links */
+.custom-navbar .nav-link {
+  color: white;
+  padding: 10px 15px;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.custom-navbar .nav-link:hover {
+  color: #f1c40f; /* Gold color on hover */
+}
+
+/* Login Button */
+.nav-btn {
+  margin-left: 10px;
+}

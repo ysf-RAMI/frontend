@@ -1,0 +1,24 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#root,
+.App {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.footerSection {
+  margin-top: auto; /* Pushes the footer to the bottom */
+  box-shadow: 0 0 8px 0;
+  background-color: #051b35;
+  padding: 0.8  rem;
+  text-align: center;
+  color: white;
+}

@@ -1,0 +1,101 @@
+/* General Styling */
+.course-detail {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.course-detail h1 {
+  color: #333;
+  font-size: 2em;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.course-detail h2 {
+  color: #555;
+  font-size: 1.5em;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.course-detail h3 {
+  color: #777;
+  font-size: 1.2em;
+  margin-top: 20px;
+  font-weight: 500;
+}
+
+.course-detail h4 {
+  color: #888;
+  font-size: 1.1em;
+  margin-top: 15px;
+  font-weight: 400;
+}
+
+.course-detail ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 10px;
+}
+
+.course-detail li {
+  margin: 15px 0;
+}
+
+.course-detail li ul {
+  padding-left: 20px;
+}
+
+.course-detail a {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.course-detail a:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .course-detail h1 {
+    font-size: 1.8em;
+  }
+
+  .course-detail h2 {
+    font-size: 1.4em;
+  }
+
+  .course-detail h3 {
+    font-size: 1.1em;
+  }
+
+  .course-detail h4 {
+    font-size: 1em;
+  }
+
+  .course-detail li {
+    margin: 10px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .course-detail h1 {
+    font-size: 1.6em;
+  }
+
+  .course-detail h2 {
+    font-size: 1.2em;
+  }
+
+  .course-detail h3 {
+    font-size: 1em;
+  }
+
+  .course-detail h4 {
+    font-size: 0.9em;
+  }
+}
+
