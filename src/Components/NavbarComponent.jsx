@@ -30,8 +30,7 @@ const NavbarComponent = () => {
   };
 
   const handleFiliereClick = (e) => {
-    e.preventDefault(); // Prevent default link behavior
-    navigate("/", { state: { scrollToFiliere: true } }); // Navigate to Home with state
+    navigate("/filiere"); 
   };
 
   const handleHomeClick = (e) => {
@@ -41,6 +40,7 @@ const NavbarComponent = () => {
 
   return (
     <Navbar
+      style={{ userSelect: "none" }}
       expand="lg"
       fixed="top"
       className={`custom-navbar ${isSolid ? "solid-navbar" : ""}`} // Dynamic class based on scroll
@@ -55,7 +55,7 @@ const NavbarComponent = () => {
             <Nav.Link href="/" onClick={handleHomeClick}>
               Home
             </Nav.Link>
-            <Nav.Link href="#filiere" onClick={handleFiliereClick}>
+            <Nav.Link href="/filiere" onClick={handleFiliereClick}>
               Filière
             </Nav.Link>
             <Button

@@ -1,0 +1,92 @@
+/* Filière Section */
+.serviceMainTitle {
+  color: var(--primary-color);
+  margin-top: 5rem;
+  margin-bottom: 3rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+}
+
+.bottom {
+  background: var(--primary-color);
+  height: 5px;
+  width: 125px;
+  margin: -1.9rem auto 0;
+  margin-bottom: 2rem;
+}
+
+.serviceCard {
+  box-shadow: 1px 1px 8px 0 rgba(0, 0, 0, 0.1);
+  padding: 60px 30px;
+  margin: 6px;
+  height: 22rem;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
+  border-radius: 10px;
+  background-color: white;
+}
+
+.serviceCard:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background-color: #f9f9f9;
+}
+
+.serviceName {
+  color: var(--primary-color);
+  text-decoration: none;
+  margin-top: 1rem;
+  font-family: "Raleway", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.serviceDescription {
+  color: #505050;
+  margin-top: 1rem;
+  font-family: "Raleway", sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .serviceCard {
+    height: auto;
+    padding: 40px 20px;
+  }
+
+  .navbar-nav .nav-link {
+    font-size: 16px;
+  }
+}
+
+/* MUI Components Custom Styles */
+.MuiDialog-paper {
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.MuiAutocomplete-root {
+  margin-bottom: 20px;
+}
+
+.MuiCard-root {
+  margin: 10px 0;
+  border-radius: 8px;
+}
+
+.MuiListItem-root:hover {
+  background-color: #f1f1f1;
+}
+
+.MuiDialog-paper {
+  border-radius: 12px;
+}
+
+.list-item:hover {
+  background-color: #f7f7f7;
+}

@@ -10,8 +10,8 @@ import {
   Divider,
 } from "@mui/material";
 import { motion } from "framer-motion";
-import userImage from "../assets/9449194.png";
 import NavbarComponent from "../Components/NavbarComponent";
+import userImage from "../assets/9449194.png";
 import "../styles/Login.css";
 
 const Login = () => {
@@ -21,8 +21,11 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
+    }
+    console.log("Login submitted with:", { email, password });
   };
 
   return (
@@ -112,4 +115,3 @@ const Login = () => {
 };
 
 export default Login;
-  

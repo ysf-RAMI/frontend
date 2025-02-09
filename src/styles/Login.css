@@ -1,4 +1,4 @@
-/* Updated CSS (styles/Login.css) */
+/* Updated CSS for Login Component */
 .login-container {
   display: flex;
   justify-content: center;
@@ -42,6 +42,9 @@
   margin-top: 1rem;
   background-color: #0066ff;
   color: white;
+  &:hover {
+    background-color: #0051cc;
+  }
 }
 
 @media (max-width: 768px) {

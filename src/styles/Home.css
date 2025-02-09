@@ -5,10 +5,29 @@
   --hover-color: #f1c40f; /* Gold */
   --primary-color: #051b35;
   --secondary-color: #d9534f;
-  --transition-speed: 0.3s;
+  --transition-speed: 0.  3s;
   font-family: 'Poppins', sans-serif;
-  background-color: #f1f1f1;
 }
+/* General Styles */
+html, body {
+  height: 100%; /* Ensure full height */
+  margin: 0;    /* Remove margin */
+}
+
+/* Hero Section */
+.hero-section {
+  background: url("../assets/34199088656.png") no-repeat center center/cover;
+  height: 100vh; /* Full viewport height */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-color);
+  transition: all var(--transition-speed) ease;
+  margin-bottom: 0; /* Remove margin at the bottom */
+}
+
 
 /* General Styles */
 html {
@@ -105,70 +124,4 @@ body {
 
 .hero-content button:hover {
   background-color: var(--secondary-color);
-}
-
-/* Filière Section */
-.serviceMainTitle {
-  color: var(--primary-color);
-  margin-top: 5rem;
-  margin-bottom: 3rem;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  font-size: 28px;
-}
-
-.bottom {
-  background: var(--primary-color);
-  height: 5px;
-  width: 125px;
-  margin: -1.9rem auto 0;
-  margin-bottom: 2rem;
-}
-
-.serviceCard {
-  box-shadow: 1px 1px 8px 0 rgba(0, 0, 0, 0.1);
-  padding: 60px 30px;
-  margin: 6px;
-  height: 22rem;
-  transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease, background-color var(--transition-speed) ease;
-  border-radius: 10px;
-  background-color: white;
-}
-
-.serviceCard:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.serviceName {
-  color: var(--primary-color);
-  text-decoration: none;
-  margin-top: 1rem;
-  font-family: 'Raleway', sans-serif;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.serviceDescription {
-  color: #505050;
-  margin-top: 1rem;
-  font-family: 'Raleway', sans-serif;
-  font-size: 15px;
-  font-weight: 400;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .hero-content h1 {
-    font-size: 2.5rem;
-  }
-
-  .serviceCard {
-    height: auto;
-    padding: 40px 20px;
-  }
-
-  .navbar-nav .nav-link {
-    font-size: 16px;
-  }
 }

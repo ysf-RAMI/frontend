@@ -1,0 +1,118 @@
+:root {
+  --navbar-background: transparent;
+  --navbar-solid-background: rgba(0, 0, 0, 0.8);
+  --text-color: white;
+  --hover-color: #f1c40f;
+  --primary-color: #051b35;
+  --secondary-color: #d9534f;
+  --transition-speed: 0.3s;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* General Styles */
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: #f0f0f0;
+}
+
+/* Not Found Section */
+.notfound-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  position: relative;
+}
+
+.notfound-hero-section {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color);
+  transition: all var(--transition-speed) ease;
+}
+
+/* Background Overlay */
+.notfound-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 1;
+}
+
+/* Content Styling */
+.notfound-content {
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+.notfound-content h1 {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  font-family: 'Montserrat', sans-serif;
+  text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* Button */
+.notfound-content button {
+  font-size: 18px;
+  padding: 12px 25px;
+  border-radius: 5px;
+  font-weight: 600;
+  border: none;
+  transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease;
+}
+
+.notfound-content button:hover {
+  background-color: #56d9a1;
+  transform: scale(1.1);
+}
+
+/* Image Container */
+.notfound-images {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 250px;
+  height: 120px;
+}
+
+/* Large "40" */
+.notfound40 {
+  position: absolute;
+}
+
+/* Rotating "4" */
+.notfound4 {
+  position: absolute;
+  width: 100px;
+  animation: rotateImage 5s  linear infinite;
+  margin-left: 270px;
+ margin-bottom: 7px; 
+}
+
+/* Rotate Animation */
+@keyframes rotateImage {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

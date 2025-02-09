@@ -1,36 +1,91 @@
-/* Base Navbar Styles */
+/* ANIMATIONS */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* BASE NAVBAR */
 .custom-navbar {
-  background-color: rgba(0, 0, 0, 0.223); /* Transparent by default */
+  background-color: rgba(0, 0, 0, 0.223);
   padding: 15px 20px;
-  transition: background-color 0.3s ease, padding 0.3s ease; /* Smooth transition */
+  transition: background-color 0.3s ease, padding 0.3s ease;
   border-bottom: 2px solid grey;
 }
 
-/* Solid Navbar Styles (after scrolling) */
+/* NAVBAR APRÈS SCROLL */
 .custom-navbar.solid-navbar {
-  background-color: #333; /* Solid color after scrolling */
-  border-bottom: 2px solid #656565; /* Optional: Add a border */
-  padding: 10px 20px; /* Optional: Reduce padding for a sleeker look */
+  background-color: #333;
+  border-bottom: 2px solid #656565;
+  padding: 10px 20px;
 }
 
-/* Navbar Brand (Logo) */
+/* LOGO */
 .custom-navbar .navbar-brand img {
   max-height: 50px;
+  animation: slideInLeft 0.8s ease-out;
 }
 
-/* Navbar Links */
+/* LIENS */
 .custom-navbar .nav-link {
   color: white;
   padding: 10px 15px;
   font-size: 16px;
   transition: color 0.3s ease;
+  animation: slideInRight 0.8s ease-out;
 }
 
 .custom-navbar .nav-link:hover {
-  color: #f1c40f; /* Gold color on hover */
+  color: #f1c40f;
 }
 
-/* Login Button */
+/* BOUTON LOGIN */
 .nav-btn {
   margin-left: 10px;
+  transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  animation: slideInDown 0.8s ease-out;
+}
+
+.nav-btn:hover {
+  transform: scale(1.1);
+  background-color: #f1c40f;
+  color: #333;
+}
+
+/* ADAPTATION MOBILE */
+@media (max-width: 991px) {
+  .custom-navbar {
+    padding: 10px 15px;
+  }
+
+  .custom-navbar .nav-link {
+    font-size: 14px;
+  }
 }

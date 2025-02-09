@@ -1,0 +1,78 @@
+
+.footerSection {
+  margin-top: auto;
+  box-shadow: 0 0 8px 0;
+  background-color: #051b35;
+  padding: 0.8rem;
+  text-align: center;
+  color: white;
+}
+
+/* AppBar Styling */
+.AppBar {
+  background-color: #0066ff;
+}
+
+/* Main Content Area */
+.main-content {
+  padding: 20px;
+  margin-top: 80px; /* To make room for AppBar */
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Module List Section */
+.module-list {
+  margin-top: 20px;
+}
+
+.module-item {
+  cursor: pointer;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.module-item:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for Each Module Title */
+.module-item h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.module-item p {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* Card Styling for Modules */
+.moduleCard {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.moduleCard:hover {
+  transform: scale(1.05);
+}
+
+/* Typography for Module Details */
+.moduleCard .MuiTypography-body1 {
+  color: #555;
+  font-size: 1rem;
+}
+
+.moduleCard .MuiTypography-h5 {
+  font-weight: 700;
+  color: #333;
+}
+z
