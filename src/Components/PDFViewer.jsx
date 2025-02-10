@@ -9,7 +9,7 @@ export default function PDFViewer({ url }) {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "80vh",
+        height: "auto",
         backgroundColor: "#f4f4f9",
       }}
     >

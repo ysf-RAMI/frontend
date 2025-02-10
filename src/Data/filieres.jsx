@@ -11,7 +11,7 @@ export const filieres = [
           {
             name: "Introduction à HTML/CSS",
             type: "pdf",
-            url: "https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics",
+            url: "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf",
           },
           {
             name: "JavaScript pour Débutants",
