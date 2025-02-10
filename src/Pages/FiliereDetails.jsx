@@ -77,7 +77,6 @@ export default function FiliereDetails() {
 
   return (
     <>
-      <NavbarComponent />
 
       {selectedFiliere ? (
         <Container className="main-content" style={{marginTop:"100px"}}>

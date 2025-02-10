@@ -5,13 +5,14 @@
   --hover-color: #f1c40f; /* Gold */
   --primary-color: #051b35;
   --secondary-color: #d9534f;
-  --transition-speed: 0.  3s;
-  font-family: 'Poppins', sans-serif;
+  --transition-speed: 0 3s;
+  font-family: "Poppins", sans-serif;
 }
 /* General Styles */
-html, body {
+html,
+body {
   height: 100%; /* Ensure full height */
-  margin: 0;    /* Remove margin */
+  margin: 0; /* Remove margin */
 }
 
 /* Hero Section */
@@ -28,7 +29,6 @@ html, body {
   margin-bottom: 0; /* Remove margin at the bottom */
 }
 
-
 /* General Styles */
 html {
   scroll-behavior: smooth;
@@ -36,7 +36,7 @@ html {
 
 body {
   margin: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
@@ -98,7 +98,9 @@ body {
   max-width: 800px;
   opacity: 0;
   transform: translateY(50px);
-  transition: opacity 1s ease, transform 1s ease;
+  transition:
+    opacity 1s ease,
+    transform 1s ease;
 }
 
 .hero-content.visible {
@@ -110,7 +112,7 @@ body {
   font-size: 3rem;
   font-weight: bold;
   margin-bottom: 20px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
 }
 
@@ -124,4 +126,105 @@ body {
 
 .hero-content button:hover {
   background-color: var(--secondary-color);
+}
+/* Custom styles for the drawer */
+.MuiDrawer-paper {
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover effects for list items */
+.MuiListItem-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Icon colors */
+.MuiSvgIcon-root {
+  color: #3f51b5; /* Primary color */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .MuiDrawer-paper {
+    width: 100% !important;
+  }
+}
+
+
+/* Hover effects for Navbar links */
+.custom-navbar .nav-link:hover {
+  color: #f1c40f !important; /* Gold color on hover */
+  transform: scale(1.05); /* Slight zoom effect */
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover effects for Drawer list items */
+.MuiListItem-button:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important; /* Light background on hover */
+  transform: translateX(5px); /* Slight shift to the right */
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover effects for buttons */
+.nav-btn:hover {
+  background-color: #f1c40f !important; /* Gold background on hover */
+  color: #333 !important; /* Dark text on hover */
+  transform: scale(1.1); /* Slight zoom effect */
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover effects for icons */
+.MuiSvgIcon-root:hover {
+  color: #f1c40f !important; /* Gold color on hover */
+  transform: scale(1.1); /* Slight zoom effect */
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover effects for Accordion headers */
+.MuiAccordionSummary-root:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important; /* Light background on hover */
+  transition: background-color 0.3s ease;
+}
+/* Smooth transitions for all interactive elements */
+.custom-navbar .nav-link,
+.MuiListItem-button,
+.nav-btn,
+.MuiSvgIcon-root,
+.MuiAccordionSummary-root {
+  transition: all 0.3s ease;
+}
+/* Active Navbar link */
+.custom-navbar .nav-link.active {
+  color: #f1c40f !important; /* Gold color for active link */
+  font-weight: bold; /* Bold text for active link */
+}
+/* Custom scrollbar for Drawer */
+.MuiDrawer-paper::-webkit-scrollbar {
+  width: 8px; /* Scrollbar width */
+}
+
+.MuiDrawer-paper::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1); /* Light track */
+}
+
+.MuiDrawer-paper::-webkit-scrollbar-thumb {
+  background: #888; /* Scrollbar thumb */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.MuiDrawer-paper::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Darker thumb on hover */
+}
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .custom-navbar {
+    padding: 10px 15px; /* Smaller padding for mobile */
+  }
+
+  .custom-navbar .nav-link {
+    font-size: 14px; /* Smaller font size for mobile */
+  }
+
+  .MuiDrawer-paper {
+    width: 100% !important; /* Full-width drawer on mobile */
+  }
 }

@@ -65,7 +65,6 @@ export default function Filiere() {
 
   return (
     <>
-      <NavbarComponent />
 
       <Container className="text-center" style={{ marginTop: "100px" }}>
         <div style={{ textAlign: "left", paddingTop: "30px" }}>

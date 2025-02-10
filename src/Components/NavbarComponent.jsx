@@ -30,7 +30,8 @@ const NavbarComponent = () => {
   };
 
   const handleFiliereClick = (e) => {
-    navigate("/filiere"); 
+    e.preventDefault(); // Prevent default link behavior
+    navigate("/filiere");
   };
 
   const handleHomeClick = (e) => {
@@ -52,10 +53,10 @@ const NavbarComponent = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link href="/" onClick={handleHomeClick}>
+            <Nav.Link as="span" onClick={handleHomeClick}>
               Home
             </Nav.Link>
-            <Nav.Link href="/filiere" onClick={handleFiliereClick}>
+            <Nav.Link as="span" onClick={handleFiliereClick}>
               Filière
             </Nav.Link>
             <Button

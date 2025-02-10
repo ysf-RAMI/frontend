@@ -19,7 +19,6 @@ export const Home = () => {
 
   return (
     <>
-      <NavbarComponent />
       <div
         style={{
           marginBottom: "30px",
