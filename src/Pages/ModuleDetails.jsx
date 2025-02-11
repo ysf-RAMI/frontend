@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { moduleContext } from "../Context/ModuleContext";
+import  moduleContext  from "../Context/ModuleContext";
 import {
   Typography,
   Box,

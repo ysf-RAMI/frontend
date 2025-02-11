@@ -1,3 +1,4 @@
 import { createContext } from "react";
 
-export const moduleContext = createContext({});
+const moduleContext = createContext({});
+export default moduleContext;

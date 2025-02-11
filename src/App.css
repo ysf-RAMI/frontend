@@ -1,7 +1,18 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
 :root {
-  --bs-font-sans-serif: 'Poppins', sans-serif !important;
+  --bs-font-sans-serif: "Poppins", sans-serif !important;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 /* Navbar */
 .custom-navbar {

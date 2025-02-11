@@ -1,7 +1,8 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { moduleContext } from "./Context/ModuleContext";
+import moduleContext from "./Context/ModuleContext";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";
 import { Home } from "./Pages/Home";
 import Login from "./Pages/Login";
 import { filieres } from "./Data/filieres";
@@ -10,6 +11,11 @@ import FiliereDetails from "./Pages/FiliereDetails";
 import ModuleDetails from "./Pages/ModuleDetails";
 import { NotFound } from "./Pages/NotFound";
 import NavbarComponent from "./Components/NavbarComponent";
+import CorsTable from "./Components/ProfElement/CorsTable";
+import Prof from "./Pages/Prof";
+import TDTable from "./Components/ProfElement/TDTable";
+import TPTable from "./Components/ProfElement/TPTable";
+import ExamTable from "./Components/ProfElement/ExamTable";
 
 function App() {
   const [filiere, setFiliere] = useState(filieres);
@@ -38,10 +44,10 @@ function App() {
     document.body.setAttribute("data-theme", theme);
   }, [theme]);
 
-  const contextValue = useMemo(() => ({ filiere, setFiliere }), [filiere]);
+
 
   return (
-    <moduleContext.Provider value={contextValue}>
+    <moduleContext.Provider value={{ filiere, setFiliere }}>
       <BrowserRouter>
         <NavbarComponent /> {/* Navbar is now included here for all pages */}
         <Routes>
@@ -54,6 +60,8 @@ function App() {
             path="/filiere/:filiereId/module/:moduleId"
             element={<ModuleDetails />}
           />
+          <Route path="/cr" element={<ExamTable />} />
+          <Route path="/prof" element={<Prof />} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -3,9 +3,8 @@ import { Col, Row, Container } from "react-bootstrap";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Link } from "react-router-dom";
-import { moduleContext } from "../Context/ModuleContext";
+import  moduleContext  from "../Context/ModuleContext";
 import "../styles/Fillier.css";
-import NavbarComponent from "../Components/NavbarComponent";
 import {
   TextField,
   Dialog,

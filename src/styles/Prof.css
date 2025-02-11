@@ -1,0 +1,10 @@
+.side-bar{
+    display: flex;
+    flex-direction: row;
+    height: 200vh;
+}
+
+
+.link:hover{
+    background-color: rgba(128, 128, 128, 0.193);
+}

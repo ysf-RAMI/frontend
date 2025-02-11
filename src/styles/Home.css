@@ -13,6 +13,7 @@ html,
 body {
   height: 100%; /* Ensure full height */
   margin: 0; /* Remove margin */
+  background-color: #555;
 }
 
 /* Hero Section */

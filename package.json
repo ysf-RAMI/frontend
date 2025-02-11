@@ -13,6 +13,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.4.3",
+    "@mui/joy": "^5.0.0-beta.51",
     "@mui/material": "^6.4.3",
     "@react-pdf-viewer/core": "^3.12.0",
     "@react-pdf-viewer/default-layout": "^3.12.0",
@@ -25,6 +26,7 @@
     "react-intersection-observer": "^9.15.1",
     "react-pdf": "^9.2.1",
     "react-router-dom": "^7.1.5",
+    "react-toastify": "^11.0.3",
     "react-youtube": "^10.1.0"
   },
   "devDependencies": {

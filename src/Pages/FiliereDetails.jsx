@@ -3,8 +3,7 @@ import { useParams, Link } from "react-router-dom"; // Import Link
 import { Col, Row, Container } from "react-bootstrap";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { moduleContext } from "../Context/ModuleContext";
-import NavbarComponent from "../Components/NavbarComponent";
+import  moduleContext  from "../Context/ModuleContext";
 import "../styles/FiliereDetails.css";
 import {
   TextField,
@@ -49,7 +48,7 @@ const AnimatedCard = ({ children }) => {
 
 export default function FiliereDetails() {
   const { filiereId } = useParams(); // Retrieve filiereId from URL
-  const { filiere } = useContext(moduleContext);
+  const { filiere , setFilier} = useContext(moduleContext);
   const [selectedFiliere, setSelectedFiliere] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [openModal, setOpenModal] = useState(false);

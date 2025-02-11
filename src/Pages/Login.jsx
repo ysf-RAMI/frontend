@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   TextField,
@@ -18,6 +18,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -28,9 +29,18 @@ const Login = () => {
     console.log("Login submitted with:", { email, password });
   };
 
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <>
-      <NavbarComponent />
       <motion.div
         className="login-container"
         initial={{ opacity: 0 }}
@@ -43,16 +53,19 @@ const Login = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <motion.div
-            className="login-image"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.7 }}
-          >
-            <Typography variant="h4">Welcome Back</Typography>
-            <Divider sx={{ margin: "1rem 0" }} />
-            <img src={userImage} alt="User" className="user-img" />
-          </motion.div>
+          {/* Conditionally render the image */}
+          {!isMobile && (
+            <motion.div
+              className="login-image"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.7 }}
+            >
+              <Typography variant="h4">Welcome Back</Typography>
+              <Divider sx={{ margin: "1rem 0" }} />
+              <img src={userImage} alt="User" className="user-img" />
+            </motion.div>
+          )}
 
           <Card className="login-form">
             <motion.div

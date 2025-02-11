@@ -1,76 +1,43 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Container from "react-bootstrap/Container";
-import Navbar from "react-bootstrap/Navbar";
-import Nav from "react-bootstrap/Nav";
-import { Button } from "react-bootstrap";
-import "../styles/Navbar.css";
+import { useLocation } from "react-router-dom";
+import { Navbar, Nav, Container } from "react-bootstrap";
 import logo from "../assets/logo_0.png";
 
-const NavbarComponent = () => {
-  const [isSolid, setIsSolid] = useState(false); // State to track scroll position
-  const navigate = useNavigate();
+function NavbarComponent() {
+  const location = useLocation();
 
-  // Handle scroll event
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsSolid(true); // Navbar becomes solid after scrolling 50px
-      } else {
-        setIsSolid(false); // Navbar becomes transparent again
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll); // Add scroll listener
-    return () => window.removeEventListener("scroll", handleScroll); // Cleanup
-  }, []);
-
-  const handleLoginClick = () => {
-    navigate("/login"); // Navigate to the /login route
-  };
-
-  const handleFiliereClick = (e) => {
-    e.preventDefault(); // Prevent default link behavior
-    navigate("/filiere");
-  };
-
-  const handleHomeClick = (e) => {
-    e.preventDefault(); // Prevent default link behavior
-    navigate("/", { state: { scrollToTop: true } }); // Navigate to Home with state
-  };
+  // Check if the current route is the home page
+  const isHomePage =
+    location.pathname === "/" ||
+    location.pathname === "/home" ||
+    location.pathname === "/login";
 
   return (
     <Navbar
-      style={{ userSelect: "none" }}
       expand="lg"
+      className={`custom-navbar ${isHomePage ? "transparent-navbar" : "solid-navbar"}`}
       fixed="top"
-      className={`custom-navbar ${isSolid ? "solid-navbar" : ""}`} // Dynamic class based on scroll
     >
       <Container>
-        <Navbar.Brand href="/" onClick={handleHomeClick}>
-          <img src={logo} alt="Logo" width="200" />
+        <Navbar.Brand href="/">
+          <img src={logo} alt="Logo" className="navbar-brand-img" />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link as="span" onClick={handleHomeClick}>
+            <Nav.Link href="/" className="nav-link">
               Home
             </Nav.Link>
-            <Nav.Link as="span" onClick={handleFiliereClick}>
-              Filière
+            <Nav.Link href="/filiere" className="nav-link">
+              Filiere
             </Nav.Link>
-            <Button
-              onClick={handleLoginClick}
-              variant="primary"
-              className="nav-btn"
-            >
+            <Nav.Link href="/login" className="nav-link">
               Login
-            </Button>
+            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
     </Navbar>
   );
-};
+}
 
 export default NavbarComponent;
