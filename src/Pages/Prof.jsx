@@ -1,15 +1,16 @@
-import { Box, Grid2, List, ListItem, Container, Typography } from "@mui/material";
-import { Edit, Delete, Home, School, Assignment, AccessTime } from "@mui/icons-material";
-import "../styles/Prof.css";
-import CorsTable from "../Components/ProfElement/CorsTable";
-import FiliereTable from "../Components/ProfElement/FillierTable";
-import ModuleTable from "../Components/ProfElement/ModuleTable";
-import TDTable from "../Components/ProfElement/TDTable";
-import TPTable from "../Components/ProfElement/TPTable";
-import ExamTable from "../Components/ProfElement/ExamTable";
+import {
+  Box,
+  Grid2,
+  List,
+  ListItem,
+  Container,
+  Typography,
+} from "@mui/material";
+import { School, Assignment, AccessTime } from "@mui/icons-material";
+import DynamicTable from "../Components/ProfElement/DynamicTable"; // import the new generic table
 import { useState } from "react";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Prof = () => {
   const [open, setOpen] = useState({
@@ -35,6 +36,89 @@ const Prof = () => {
     toast.success(message, {
       position: toast.POSITION.BOTTOM_RIGHT,
     });
+  };
+
+  // Sample data for each section
+  const data = {
+    filiere: [
+      {
+        id: 1,
+        name: "Programming Web",
+        link: "Module Link",
+        filiereName: "Informatique et Réseaux",
+      },
+      {
+        id: 2,
+        name: "Administration des Réseaux",
+        link: "Module Link",
+        filiereName: "Systèmes et Réseaux",
+      },
+    ],
+    module: [
+      {
+        id: 1,
+        name: "Database Systems",
+        link: "Module Link",
+        moduleName: "Informatique et Réseaux",
+      },
+      {
+        id: 2,
+        name: "Web Development",
+        link: "Module Link",
+        moduleName: "Systèmes et Réseaux",
+      },
+    ],
+    cors: [
+      {
+        id: 1,
+        name: "Web Security",
+        link: "Cors Link",
+        corsName: "Network Security",
+      },
+      {
+        id: 2,
+        name: "Routing Protocols",
+        link: "Cors Link",
+        corsName: "Advanced Networking",
+      },
+    ],
+    td: [
+      {
+        id: 1,
+        name: "Web Development TD",
+        link: "TD Link",
+        tdName: "Front-end Techniques",
+      },
+      {
+        id: 2,
+        name: "Database TD",
+        link: "TD Link",
+        tdName: "Database Design",
+      },
+    ],
+    tp: [
+      {
+        id: 1,
+        name: "Networking TP",
+        link: "TP Link",
+        tpName: "IP Configuration",
+      },
+      { id: 2, name: "Web TP", link: "TP Link", tpName: "Web Server Setup" },
+    ],
+    exam: [
+      {
+        id: 1,
+        name: "Final Exam",
+        link: "Exam Link",
+        examName: "Web Development",
+      },
+      {
+        id: 2,
+        name: "Mid-Term Exam",
+        link: "Exam Link",
+        examName: "Database Systems",
+      },
+    ],
   };
 
   return (
@@ -100,12 +184,21 @@ const Prof = () => {
           overflowY: "auto",
         }}
       >
-        {open.filiere && <FiliereTable open={open.filiere} />}
-        {open.module && <ModuleTable open={open.module} />}
-        {open.cors && <CorsTable open={open.cors} />}
-        {open.td && <TDTable open={open.td} />}
-        {open.tp && <TPTable open={open.tp} />}
-        {open.exam && <ExamTable open={open.exam} />}
+        <Box
+          style={{
+            width: "100%",
+            overflowX: "auto", // prevents horizontal scroll for large tables
+          }}
+        >
+          {open.filiere && (
+            <DynamicTable section="filiere" data={data.filiere} />
+          )}
+          {open.module && <DynamicTable section="module" data={data.module} />}
+          {open.cors && <DynamicTable section="cors" data={data.cors} />}
+          {open.td && <DynamicTable section="td" data={data.td} />}
+          {open.tp && <DynamicTable section="tp" data={data.tp} />}
+          {open.exam && <DynamicTable section="exam" data={data.exam} />}
+        </Box>
       </Grid2>
 
       <ToastContainer />
