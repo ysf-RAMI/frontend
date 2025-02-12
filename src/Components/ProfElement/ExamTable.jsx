@@ -6,40 +6,40 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Button,
 } from "@mui/material";
 import { useContext } from "react";
 import moduleContext from "../../Context/ModuleContext";
-import { Button } from "react-bootstrap";
 
-const ExamTable = ({ open }) => {
-  const { filiere, setFiliere } = useContext(moduleContext);
+const ExamTable = () => {
+  const { filiere } = useContext(moduleContext);
 
   // Iterate over all filières and their modules to get all Exams
   const exams = filiere.flatMap((f) =>
     f.modules.flatMap((module) =>
       module.EXAMS.map((exam) => ({
         ...exam,
-        moduleName: module.moduleName,
-        filiereName: f.nomFiliere,
+        moduleName: module.name, // Adjusted field name to match your data structure
+        filiereName: f.name, // Adjusted field name to match your data structure
       }))
     )
   );
 
-  if (!open || !exams || exams.length === 0) {
+  if (!exams || exams.length === 0) {
     return null; // Return nothing if the table is not open or there are no exams
   }
 
-  function handleEditClick() {
-    // Handle edit functionality (you can add functionality here)
+  function handleEditClick(examID) {
+    console.log(`Edit Exam ID: ${examID}`);
   }
 
-  function handleDeleteClick() {
-    // Handle delete functionality (you can add functionality here)
+  function handleDeleteClick(examID) {
+    console.log(`Delete Exam ID: ${examID}`);
   }
 
   return (
     <TableContainer
-      sx={{ marginTop: "100px", width: "auto" }}
+      sx={{ width: "auto" }}
       component={Paper}
     >
       <Table>
@@ -58,11 +58,11 @@ const ExamTable = ({ open }) => {
           {exams.map((exam, index) => (
             <TableRow key={index}>
               <TableCell>{index + 1}</TableCell>
-              <TableCell>{exam.examName}</TableCell>
-              <TableCell>{exam.examType}</TableCell>
+              <TableCell>{exam.name}</TableCell>
+              <TableCell>{exam.type}</TableCell>
               <TableCell>
                 <a
-                  href={exam.examUrl}
+                  href={exam.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: "black" }}
@@ -70,12 +70,24 @@ const ExamTable = ({ open }) => {
                   Exam Link
                 </a>
               </TableCell>
-
               <TableCell>{exam.moduleName}</TableCell>
               <TableCell>{exam.filiereName}</TableCell>
               <TableCell>
-                <Button onClick={handleEditClick}>Edit</Button>
-                <Button onClick={handleDeleteClick}>Delete</Button>
+                <Button
+                  onClick={() => handleEditClick(exam.id)}
+                  variant="outlined"
+                  color="info"
+                >
+                  Edit
+                </Button>
+                <Button
+                  onClick={() => handleDeleteClick(exam.id)}
+                  variant="outlined"
+                  color="secondary"
+                  style={{ marginLeft: "8px" }}
+                >
+                  Delete
+                </Button>
               </TableCell>
             </TableRow>
           ))}

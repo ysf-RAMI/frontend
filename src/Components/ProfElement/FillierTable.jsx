@@ -6,58 +6,60 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Button,
 } from "@mui/material";
 import { useContext } from "react";
 import moduleContext from "../../Context/ModuleContext";
-import { Button } from "react-bootstrap";
 
-const FiliereTable = ({ open }) => {
+const FiliereTable = () => {
   const { filiere, setFiliere } = useContext(moduleContext);
 
-  if (!open || !filiere || filiere.length === 0) {
-    return null; // Return nothing if the table is not open or there are no filières
+  if (!filiere || filiere.length === 0) {
+    return <p>No filières available.</p>;
   }
 
-  function handleEditClick() {
-    // Handle edit functionality (you can add functionality here)
+  function handleEditClick(id) {
+    console.log(`Edit Filiere ID: ${id}`);
+    // Implement edit functionality
   }
 
-  function handleDeleteClick() {
-    // Handle delete functionality (you can add functionality here)
+  function handleDeleteClick(id) {
+    console.log(`Delete Filiere ID: ${id}`);
+    // Implement delete functionality
   }
 
   return (
     <TableContainer
-      sx={{ marginTop: "100px", width: "auto" }}
+      sx={{width: "auto" }}
       component={Paper}
     >
       <Table>
         <TableHead>
           <TableRow>
             <TableCell>ID</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Link</TableCell>
+            <TableCell>Nom Filière</TableCell>
             <TableCell>Action</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {filiere.map((f, index) => (
-            <TableRow key={index}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>{f.nomFiliere}</TableCell>
+          {filiere.map((f) => (
+            <TableRow key={f.id}>
+              <TableCell>{f.id}</TableCell>
+              <TableCell>{f.name}</TableCell>{" "}
+              {/* Use `name` instead of `nomFiliere` */}
               <TableCell>
-                <a
-                  href={f.filiereUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "black" }}
+                <Button onClick={() => handleEditClick(f.id)}
+                  variant="outlined"
+                  color="info"
+                >Edit</Button>
+                <Button
+                  onClick={() => handleDeleteClick(f.id)}
+                  variant="outlined"
+                  color="secondary"
+                  style={{ marginLeft: "8px" }}
                 >
-                  Filière Link
-                </a>
-              </TableCell>
-              <TableCell>
-                <Button onClick={handleEditClick}>Edit</Button>
-                <Button onClick={handleDeleteClick}>Delete</Button>
+                  Delete
+                </Button>
               </TableCell>
             </TableRow>
           ))}

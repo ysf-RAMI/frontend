@@ -6,37 +6,39 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Button,
 } from "@mui/material";
 import { useContext } from "react";
 import moduleContext from "../../Context/ModuleContext";
-import { Button } from "react-bootstrap";
 
-const ModuleTable = ({ open }) => {
-  const { filiere, setFiliere } = useContext(moduleContext);
+const ModuleTable = () => {
+  const { filiere } = useContext(moduleContext);
 
   // Iterate over all filières to get all modules
   const modules = filiere.flatMap((f) =>
     f.modules.map((module) => ({
       ...module,
-      filiereName: f.nomFiliere,
+      filiereName: f.name, // Adjusted to match your data structure
     }))
   );
 
-  if (!open || !modules || modules.length === 0) {
-    return null; // Return nothing if the table is not open or there are no modules
+  if (!modules || modules.length === 0) {
+    return <p>No modules available.</p>; // Handle case when there are no modules
   }
 
-  function handleEditClick() {
-    // Handle edit functionality (you can add functionality here)
+  function handleEditClick(id) {
+    console.log(`Edit Module ID: ${id}`);
+    // Implement edit functionality (e.g., open modal, update state)
   }
 
-  function handleDeleteClick() {
-    // Handle delete functionality (you can add functionality here)
+  function handleDeleteClick(id) {
+    console.log(`Delete Module ID: ${id}`);
+    // Implement delete functionality (e.g., remove from state)
   }
 
   return (
     <TableContainer
-      sx={{ marginTop: "100px", width: "auto" }}
+      sx={{width: "auto" }}
       component={Paper}
     >
       <Table>
@@ -44,7 +46,6 @@ const ModuleTable = ({ open }) => {
           <TableRow>
             <TableCell>ID</TableCell>
             <TableCell>Name</TableCell>
-            <TableCell>Link</TableCell>
             <TableCell>Filière Name</TableCell>
             <TableCell>Action</TableCell>
           </TableRow>
@@ -53,21 +54,24 @@ const ModuleTable = ({ open }) => {
           {modules.map((module, index) => (
             <TableRow key={index}>
               <TableCell>{index + 1}</TableCell>
-              <TableCell>{module.moduleName}</TableCell>
-              <TableCell>
-                <a
-                  href={module.moduleUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "black" }}
-                >
-                  Module Link
-                </a>
-              </TableCell>
+              <TableCell>{module.name}</TableCell> {/* Adjusted field name */}
               <TableCell>{module.filiereName}</TableCell>
               <TableCell>
-                <Button onClick={handleEditClick}>Edit</Button>
-                <Button onClick={handleDeleteClick}>Delete</Button>
+                <Button
+                  onClick={() => handleEditClick(module.id)}
+                  variant="outlined"
+                  color="info"
+                >
+                  Edit
+                </Button>
+                <Button
+                  onClick={() => handleDeleteClick(module.id)}
+                  variant="outlined"
+                  color="secondary"
+                  style={{ marginLeft: "8px" }}
+                >
+                  Delete
+                </Button>
               </TableCell>
             </TableRow>
           ))}

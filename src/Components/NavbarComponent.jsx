@@ -5,13 +5,14 @@ import logo from "../assets/logo_0.png";
 import { useLocation } from "react-router-dom";
 
 function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
+  const location = useLocation();
+  const isHomePage = location.pathname === "/" || location.pathname === "/home";
+  const isProfPage = location.pathname === "/prof";
+
   const handleMenuClick = (e) => {
     e.preventDefault();
     toggleDrawer(!isDrawerOpen);
   };
-
-  const location = useLocation();
-  const isHomePage = location.pathname === "/" || location.pathname === "/home";
 
   return (
     <Navbar
@@ -21,7 +22,7 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
     >
       <Container>
         <Navbar.Brand href="/">
-          {isSmallScreen ? (
+          {isSmallScreen && isProfPage ? (
             <IconButton
               onClick={handleMenuClick}
               sx={{ transition: "transform 0.3s ease" }}

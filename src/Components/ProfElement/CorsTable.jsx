@@ -5,13 +5,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
+  Paper,Button
 } from "@mui/material";
 import { useContext } from "react";
 import moduleContext from "../../Context/ModuleContext";
-import { Button, Modal } from "react-bootstrap";
 
-const CorsTable = ({ open }) => {
+const CorsTable = () => {
   const { filiere } = useContext(moduleContext);
 
   // Iterate over all filières and their modules to get all courses
@@ -19,8 +18,8 @@ const CorsTable = ({ open }) => {
     f.modules.flatMap((module) =>
       module.courses.map((course) => ({
         ...course,
-        moduleName: module.moduleName,
-        filiereName: f.nomFiliere,
+        moduleName: module.name, // Adjusted field name to match your data structure
+        filiereName: f.name, // Adjusted field name to match your data structure
       }))
     )
   );
@@ -29,61 +28,73 @@ const CorsTable = ({ open }) => {
     return <div>No courses available for this Filière.</div>;
   }
 
-  function handleEditClick() {
-    // Handle edit functionality (you can add functionality here)
+  function handleEditClick(courseId) {
+    console.log(`Edit Course ID: ${courseId}`);
+    // Implement edit functionality (you can add functionality here)
   }
 
-  function handleDeleteClick() {
-    // Handle delete functionality (you can add functionality here)
+  function handleDeleteClick(courseId) {
+    console.log(`Delete Course ID: ${courseId}`);
+    // Implement delete functionality (you can add functionality here)
   }
 
   return (
-    open && (
-      <TableContainer
-        sx={{ marginTop: "100px", width: "auto" }}
-        component={Paper}
-      >
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Course ID</TableCell>
-              <TableCell>Course Name</TableCell>
-              <TableCell>Course Type</TableCell>
-              <TableCell>Course Link</TableCell>
-              <TableCell>Module Name</TableCell>
-              <TableCell>Filière Name</TableCell>
-              <TableCell>Action</TableCell>
+    <TableContainer
+      sx={{  width: "auto" }}
+      component={Paper}
+    >
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>ID</TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell>Link</TableCell>
+            <TableCell>Module Name</TableCell>
+            <TableCell>Filière Name</TableCell>
+            <TableCell>Action</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {courses.map((course, index) => (
+            <TableRow key={index}>
+              <TableCell>{index + 1}</TableCell>
+              <TableCell>{course.name}</TableCell> {/* Corrected field name */}
+              <TableCell>{course.type}</TableCell> {/* Corrected field name */}
+              <TableCell>
+                <a
+                  href={course.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "black" }}
+                >
+                  Corse Link
+                </a>
+              </TableCell>
+              <TableCell>{course.moduleName}</TableCell>
+              <TableCell>{course.filiereName}</TableCell>
+              <TableCell>
+                <Button
+                  onClick={() => handleEditClick(course.id)}
+                  variant="outlined"
+                  color="info"
+                >
+                  Edit
+                </Button>
+                <Button
+                  onClick={() => handleDeleteClick(course.id)}
+                  variant="outlined"
+                  color="secondary"
+                  style={{ marginLeft: "8px" }}
+                >
+                  Delete
+                </Button>
+              </TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {courses.map((course, index) => (
-              <TableRow key={index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{course.courseName}</TableCell>
-                <TableCell>{course.courseType}</TableCell>
-                <TableCell>
-                  <a
-                    href={course.courseUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: "black" }}
-                  >
-                    Link
-                  </a>
-                </TableCell>
-
-                <TableCell>{course.moduleName}</TableCell>
-                <TableCell>{course.filiereName}</TableCell>
-                <TableCell>
-                  <Button onClick={handleEditClick}>Edit</Button>
-                  <Button onClick={handleDeleteClick}>Delete</Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    )
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 

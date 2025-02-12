@@ -1,153 +1,143 @@
 export const filieres = [
   {
-    filiereId: 1,
-    nomFiliere: "Informatique et Réseaux",
-    filiereUrl: "https://www.example.com/infotech.jpg", // Filière image URL
+    id: 1,
+    name: "Informatique et Réseaux",
     modules: [
       {
-        moduleId: 1,
-        moduleName: "Programmation Web",
-        moduleUrl: "https://www.example.com/programming-web.jpg", // Module image URL
+        id: 1,
+        name: "Programmation Web",
         courses: [
           {
-            courseId: 1,
-            courseName: "Introduction à HTML/CSS",
-            courseType: "pdf",
-            courseUrl:
-              "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf", // Added courseUrl
+            id: 1,
+            name: "Introduction à HTML/CSS",
+            type: "pdf",
+            url: "https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics",
           },
           {
-            courseId: 2,
-            courseName: "JavaScript pour Débutants",
-            courseType: "video",
-            courseUrl: "https://www.youtube.com/watch?v=hdI2bqOjy3c", // Added courseUrl
+            id: 2,
+            name: "JavaScript pour Débutants",
+            type: "video",
+            url: "https://www.youtube.com/watch?v=hdI2bqOjy3c",
           },
         ],
         TD: [
           {
-            tdId: 1,
-            tdName: "TD 1 - HTML5 et CSS3",
-            tdType: "pdf",
-            tdUrl:
-              "https://developer.mozilla.org/en-US/docs/Web/HTML/Introduction", // TD URL
+            id: 1,
+            name: "TD 1 - HTML5 et CSS3",
+            type: "pdf",
+            url: "https://developer.mozilla.org/en-US/docs/Web/HTML/Introduction",
           },
           {
-            tdId: 2,
-            tdName: "TD 2 - JavaScript Intermédiaire",
-            tdType: "video",
-            tdUrl: "https://www.youtube.com/watch?v=2LeqjXY3-2M", // TD URL
+            id: 2,
+            name: "TD 2 - JavaScript Intermédiaire",
+            type: "video",
+            url: "https://www.youtube.com/watch?v=2LeqjXY3-2M",
           },
         ],
         TP: [
           {
-            tpId: 1,
-            tpName: "TP 1 - Créer une page web",
-            tpType: "pdf",
-            tpUrl:
-              "https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics", // TP URL
+            id: 1,
+            name: "TP 1 - Créer une page web",
+            type: "pdf",
+            url: "https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics",
           },
         ],
         EXAMS: [
           {
-            examId: 1,
-            examName: "Examen Final - Programmation Web",
-            examType: "pdf",
-            examUrl: "https://www.w3.org/standards/webdesign/", // Exam URL
+            id: 1,
+            name: "Examen Final - Programmation Web",
+            type: "pdf",
+            url: "https://www.w3.org/standards/webdesign/",
           },
         ],
       },
     ],
   },
   {
-    filiereId: 2,
-    nomFiliere: "Systèmes et Réseaux",
-    filiereUrl: "https://www.example.com/networking.jpg", // Filière image URL
+    id: 2,
+    name: "Systèmes et Réseaux",
     modules: [
       {
-        moduleId: 1,
-        moduleName: "Administration des Réseaux",
-        moduleUrl: "https://www.example.com/network-administration.jpg", // Module image URL
+        id: 2,
+        name: "Administration des Réseaux",
         courses: [
           {
-            courseId: 1,
-            courseName: "Introduction à la gestion des réseaux",
-            courseType: "pdf",
-            courseUrl: "https://www.coursera.org/learn/it-networking-basics", // Added courseUrl
+            id: 3,
+            name: "Introduction à la gestion des réseaux",
+            type: "pdf",
+            url: "https://www.coursera.org/learn/it-networking-basics",
           },
           {
-            courseId: 2,
-            courseName: "Protocoles de Réseau (TCP/IP)",
-            courseType: "video",
-            courseUrl: "https://www.youtube.com/watch?v=3QhU9jd03a0", // Added courseUrl
+            id: 4,
+            name: "Protocoles de Réseau (TCP/IP)",
+            type: "video",
+            url: "https://www.youtube.com/watch?v=3QhU9jd03a0",
           },
         ],
         TD: [
           {
-            tdId: 1,
-            tdName: "TD 1 - Configuration de routeurs",
-            tdType: "pdf",
-            tdUrl:
-              "https://www.cisco.com/c/en/us/td/docs/iosxr/iosxr-routing/route-i16-0-1-1/pdf", // TD URL
+            id: 3,
+            name: "TD 1 - Configuration de routeurs",
+            type: "pdf",
+            url: "https://www.cisco.com/c/en/us/td/docs/iosxr/iosxr-routing/route-i16-0-1-1/pdf",
           },
         ],
         TP: [
           {
-            tpId: 1,
-            tpName: "TP 1 - Mise en place d'un réseau local",
-            tpType: "video",
-            tpUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", // TP URL
+            id: 2,
+            name: "TP 1 - Mise en place d'un réseau local",
+            type: "video",
+            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
           },
         ],
         EXAMS: [
           {
-            examId: 1,
-            examName: "Examen Final - Administration des Réseaux",
-            examType: "pdf",
-            examUrl: "https://www.coursera.org/learn/it-networking-basics", // Exam URL
+            id: 2,
+            name: "Examen Final - Administration des Réseaux",
+            type: "pdf",
+            url: "https://www.coursera.org/learn/it-networking-basics",
           },
         ],
       },
       {
-        moduleId: 2,
-        moduleName: "Sécurité des Systèmes",
-        moduleUrl: "https://www.example.com/system-security.jpg", // Module image URL
+        id: 3,
+        name: "Sécurité des Systèmes",
         courses: [
           {
-            courseId: 1,
-            courseName: "Principes de Sécurité Informatique",
-            courseType: "pdf",
-            courseUrl: "https://www.coursera.org/learn/cyber-security-basics", // Added courseUrl
+            id: 5,
+            name: "Principes de Sécurité Informatique",
+            type: "pdf",
+            url: "https://www.coursera.org/learn/cyber-security-basics",
           },
           {
-            courseId: 2,
-            courseName: "Sécuriser un Réseau d'Entreprise",
-            courseType: "video",
-            courseUrl: "https://www.youtube.com/watch?v=jU02XK3g1q0", // Added courseUrl
+            id: 6,
+            name: "Sécuriser un Réseau d'Entreprise",
+            type: "video",
+            url: "https://www.youtube.com/watch?v=jU02XK3g1q0",
           },
         ],
         TD: [
           {
-            tdId: 1,
-            tdName: "TD 1 - Cryptographie et Authentification",
-            tdType: "pdf",
-            tdUrl:
-              "https://www.schneier.com/academic/archives/1996/10/cryptography_pri.html", // TD URL
+            id: 4,
+            name: "TD 1 - Cryptographie et Authentification",
+            type: "pdf",
+            url: "https://www.schneier.com/academic/archives/1996/10/cryptography_pri.html",
           },
         ],
         TP: [
           {
-            tpId: 1,
-            tpName: "TP 1 - Mise en place de pare-feu",
-            tpType: "video",
-            tpUrl: "https://www.youtube.com/watch?v=pZqBdxjX2mw", // TP URL
+            id: 3,
+            name: "TP 1 - Mise en place de pare-feu",
+            type: "video",
+            url: "https://www.youtube.com/watch?v=pZqBdxjX2mw",
           },
         ],
         EXAMS: [
           {
-            examId: 1,
-            examName: "Examen Final - Sécurité des Systèmes",
-            examType: "pdf",
-            examUrl: "https://www.coursera.org/learn/cyber-security-basics", // Exam URL
+            id: 3,
+            name: "Examen Final - Sécurité des Systèmes",
+            type: "pdf",
+            url: "https://www.coursera.org/learn/cyber-security-basics",
           },
         ],
       },

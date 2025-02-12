@@ -12,6 +12,12 @@ import ModuleDetails from "./Pages/ModuleDetails";
 import { NotFound } from "./Pages/NotFound";
 import NavbarComponent from "./Components/NavbarComponent";
 import Prof from "./Pages/Prof";
+import CorsTable from "./Components/ProfElement/CorsTable";
+import ExamTable from "./Components/ProfElement/ExamTable";
+import FiliereTable from "./Components/ProfElement/FillierTable";
+import ModuleTable from "./Components/ProfElement/ModuleTable";
+import TDTable from "./Components/ProfElement/TdTable";
+import TPTable from "./Components/ProfElement/TpTable";
 
 function App() {
   const [filiere, setFiliere] = useState(filieres);
@@ -52,6 +58,19 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/filiere" element={<Filiere />} />
           <Route path="/login" element={<Login />} />
+          <Route
+            path="/cr"
+            element={
+              <>
+                <FiliereTable />
+                <ModuleTable />
+                <CorsTable />
+                <TDTable />
+                <TPTable />
+                <ExamTable />
+              </>
+            }
+          />
           <Route path="/filiere/:filiereId" element={<FiliereDetails />} />
           <Route
             path="/filiere/:filiereId/module/:moduleId"
