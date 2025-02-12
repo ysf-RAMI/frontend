@@ -18,6 +18,7 @@ import FiliereTable from "./Components/ProfElement/FillierTable";
 import ModuleTable from "./Components/ProfElement/ModuleTable";
 import TDTable from "./Components/ProfElement/TdTable";
 import TPTable from "./Components/ProfElement/TpTable";
+import Profile from "./Pages/Profile";
 
 function App() {
   const [filiere, setFiliere] = useState(filieres);
@@ -72,6 +73,7 @@ function App() {
             }
           />
           <Route path="/filiere/:filiereId" element={<FiliereDetails />} />
+          <Route path="/profile" element={<Profile />} />
           <Route
             path="/filiere/:filiereId/module/:moduleId"
             element={<ModuleDetails />}

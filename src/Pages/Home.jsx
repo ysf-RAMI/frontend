@@ -1,20 +1,14 @@
 import { Button } from "react-bootstrap";
 import { motion } from "framer-motion";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
-
 
 export const Home = () => {
   const navigate = useNavigate();
 
-  function handleClick(){
+  function handleClick() {
     navigate("/filiere");
   }
-
-
-
-
-
 
   return (
     <>

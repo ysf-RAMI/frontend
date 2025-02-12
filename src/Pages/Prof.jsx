@@ -65,7 +65,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
       <Typography variant="h6" sx={{ textAlign: "center", mb: 2 }}>
         Menu
       </Typography>
-      <List>
+      <List style={{userSelect:"none"}}>
         <ListItem
           button
           onClick={() => handleSectionClick("filiere")}
@@ -196,9 +196,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           <Typography variant="h4" gutterBottom>
             {selectedSection.charAt(0).toUpperCase() + selectedSection.slice(1)}
           </Typography>
-          <Button variant="contained" color="primary" sx={{ mb: 3 }}>
-            Add {selectedSection}
-          </Button>
+          
 
           {open.filiereOpen && <FiliereTable />}
           {open.moduleOpen && <ModuleTable />}
