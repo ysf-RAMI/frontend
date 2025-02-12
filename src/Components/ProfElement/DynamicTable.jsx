@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Table,
   TableBody,
@@ -7,7 +6,14 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
+import { useState } from "react";
 
 const DynamicTable = ({ section, data }) => {
   // Define column headers for each section
@@ -20,13 +26,21 @@ const DynamicTable = ({ section, data }) => {
     exam: ["ID", "Name", "Link", "Exam Name", "Action"],
   };
 
+  const [open,setOpen] = useState(false);
+
   return (
     <TableContainer component={Paper} style={{ marginTop: "20px" }}>
       <Table>
         <TableHead>
           <TableRow>
             {columnHeaders[section].map((header, index) => (
-              <TableCell key={index}>{header}</TableCell>
+              <TableCell
+                key={index}
+                align={header.numeric ? "right" : "left"}
+                padding={header.disablePadding ? "none" : "normal"}
+              >
+                {header}
+              </TableCell>
             ))}
           </TableRow>
         </TableHead>
@@ -39,9 +53,40 @@ const DynamicTable = ({ section, data }) => {
               <TableCell>
                 {row.filiereName || row.moduleName || row.name}
               </TableCell>
+
+              <Dialog
+                open={open}
+                keepMounted
+                aria-describedby="alert-dialog-slide-description"
+              >
+                <DialogTitle>{"Use Google's location service?"}</DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="alert-dialog-slide-description">
+                    Let Google help apps determine location. This means sending
+                    anonymous location data to Google, even when no apps are
+                    running.
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button>Disagree</Button>
+                  <Button>Agree</Button>
+                </DialogActions>
+              </Dialog>
+
               <TableCell>
-                <button>Edit</button>
-                <button>Delete</button>
+                <Button
+                  sx={{ mr: 1 }}
+                  variant="outlined"
+                  color="info"
+                  onClick={() => {
+                    handleEditName();
+                  }}
+                >
+                  Edit
+                </Button>
+                <Button variant="outlined" color="warning">
+                  Delete
+                </Button>
               </TableCell>
             </TableRow>
           ))}

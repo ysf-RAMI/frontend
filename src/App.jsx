@@ -11,45 +11,42 @@ import FiliereDetails from "./Pages/FiliereDetails";
 import ModuleDetails from "./Pages/ModuleDetails";
 import { NotFound } from "./Pages/NotFound";
 import NavbarComponent from "./Components/NavbarComponent";
-import CorsTable from "./Components/ProfElement/CorsTable";
 import Prof from "./Pages/Prof";
-import TDTable from "./Components/ProfElement/TDTable";
-import TPTable from "./Components/ProfElement/TPTable";
-import ExamTable from "./Components/ProfElement/ExamTable";
 
 function App() {
   const [filiere, setFiliere] = useState(filieres);
-  const [theme, setTheme] = useState("light");
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
 
-  // Detect system theme
   useEffect(() => {
-    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-      .matches
-      ? "dark"
-      : "light";
-    setTheme(systemTheme);
-
-    // Listen for changes in system theme
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (e) => {
-      setTheme(e.matches ? "dark" : "light");
+    const handleResize = () => {
+      const isSmall = window.innerWidth < 768;
+      setIsSmallScreen(isSmall);
+      // Automatically close the drawer on small screens
+      if (isSmall) {
+        setIsDrawerOpen(false);
+      } else {
+        setIsDrawerOpen(true); // Always open on larger screens
+      }
     };
-    mediaQuery.addEventListener("change", handleChange);
 
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    handleResize(); // Initial check
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Apply theme to body
-  useEffect(() => {
-    document.body.setAttribute("data-theme", theme);
-  }, [theme]);
-
-
+  const toggleDrawer = (open) => {
+    setIsDrawerOpen(open);
+  };
 
   return (
     <moduleContext.Provider value={{ filiere, setFiliere }}>
       <BrowserRouter>
-        <NavbarComponent /> {/* Navbar is now included here for all pages */}
+        <NavbarComponent
+          isDrawerOpen={isDrawerOpen}
+          toggleDrawer={toggleDrawer}
+          isSmallScreen={isSmallScreen}
+        />
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/" element={<Home />} />
@@ -60,8 +57,16 @@ function App() {
             path="/filiere/:filiereId/module/:moduleId"
             element={<ModuleDetails />}
           />
-          <Route path="/cr" element={<ExamTable />} />
-          <Route path="/prof" element={<Prof />} />
+          <Route
+            path="/prof"
+            element={
+              <Prof
+                isDrawerOpen={isDrawerOpen}
+                toggleDrawer={toggleDrawer}
+                isSmallScreen={isSmallScreen}
+              />
+            }
+          />
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

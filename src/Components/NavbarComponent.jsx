@@ -1,15 +1,17 @@
-import { useLocation } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
+import { Menu, Close } from "@mui/icons-material";
+import IconButton from "@mui/material/IconButton";
 import logo from "../assets/logo_0.png";
+import { useLocation } from "react-router-dom";
 
-function NavbarComponent() {
+function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
+  const handleMenuClick = (e) => {
+    e.preventDefault();
+    toggleDrawer(!isDrawerOpen);
+  };
+
   const location = useLocation();
-
-  // Check if the current route is the home page
-  const isHomePage =
-    location.pathname === "/" ||
-    location.pathname === "/home" ||
-    location.pathname === "/login";
+  const isHomePage = location.pathname === "/" || location.pathname === "/home";
 
   return (
     <Navbar
@@ -19,7 +21,20 @@ function NavbarComponent() {
     >
       <Container>
         <Navbar.Brand href="/">
-          <img src={logo} alt="Logo" className="navbar-brand-img" />
+          {isSmallScreen ? (
+            <IconButton
+              onClick={handleMenuClick}
+              sx={{ transition: "transform 0.3s ease" }}
+            >
+              {isDrawerOpen ? (
+                <Close style={{ color: "white", transform: "rotate(90deg)" }} />
+              ) : (
+                <Menu style={{ color: "white" }} />
+              )}
+            </IconButton>
+          ) : (
+            <img src={logo} alt="Logo" className="navbar-brand-img" />
+          )}
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">

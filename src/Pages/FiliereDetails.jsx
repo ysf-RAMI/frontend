@@ -48,7 +48,7 @@ const AnimatedCard = ({ children }) => {
 
 export default function FiliereDetails() {
   const { filiereId } = useParams(); // Retrieve filiereId from URL
-  const { filiere , setFilier} = useContext(moduleContext);
+  const { filiere } =   useContext(moduleContext);
   const [selectedFiliere, setSelectedFiliere] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [openModal, setOpenModal] = useState(false);

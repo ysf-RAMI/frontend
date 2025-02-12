@@ -2,7 +2,6 @@ import { Button } from "react-bootstrap";
 import { motion } from "framer-motion";
 import {  useNavigate } from "react-router-dom";
 import "../styles/Home.css";
-import NavbarComponent from "../Components/NavbarComponent";
 
 
 export const Home = () => {
