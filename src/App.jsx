@@ -16,11 +16,13 @@ import Admin from "./Pages/admin";
 import Profile from "./Pages/Profile";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Loading from "./Components/Loading"; // Import the Loading component
 
 function App() {
-  const [filiere, setFiliere] = useState(filieres);
+  const [filiere, setFiliere] = useState([]); // Initialize as empty array
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
+  const [isLoading, setIsLoading] = useState(true); // Real loading state
 
   useEffect(() => {
     const handleResize = () => {
@@ -35,16 +37,44 @@ function App() {
   }, []);
 
   useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      easing: "ease-in-out-quart",
-      delay: 100,
-    });
+    // Simulate fetching data and initializing AOS
+    const initializeApp = async () => {
+      try {
+        // Simulate fetching filieres data (replace with real API call)
+        const fetchFiliereData = new Promise((resolve) => {
+          setTimeout(() => {
+            setFiliere(filieres); // Set fetched data
+            resolve();
+          }, 100); // Simulate 1-second delay
+        });
+
+        // Initialize AOS
+        AOS.init({
+          duration: 500,
+          easing: "ease-in-out-quart",
+          delay: 100,
+        });
+
+        // Wait for all async operations to complete
+        await Promise.all([fetchFiliereData]);
+      } catch (error) {
+        console.error("Error during initialization:", error);
+      } finally {
+        setIsLoading(false); // Set loading to false
+      }
+    };
+
+    initializeApp();
   }, []);
 
   const toggleDrawer = (open) => {
     setIsDrawerOpen(open);
   };
+
+  // Render the Loading component if isLoading is true
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <moduleContext.Provider value={{ filiere, setFiliere }}>

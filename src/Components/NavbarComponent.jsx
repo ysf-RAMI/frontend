@@ -2,7 +2,7 @@ import { Navbar, Nav, Container } from "react-bootstrap";
 import { Menu, Close } from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
 import logo from "../assets/Untitled design-Photoroom.png";
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "../styles/Navbar.css";
 import { Button } from "@mui/material";
@@ -11,10 +11,10 @@ import { Button } from "@mui/material";
 function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
   const location = useLocation();
   const isHomePage = location.pathname === "/" || location.pathname === "/home";
-const isProfPage =
-  location.pathname === "/prof" ||
-  location.pathname === "/admin" ||
-  /^\/filiere\/\d+\/module\/\d+$/.test(location.pathname);
+  const isProfPage =
+    location.pathname === "/prof" ||
+    location.pathname === "/admin" ||
+    /^\/filiere\/\d+\/module\/\d+$/.test(location.pathname);
 
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -39,14 +39,14 @@ const isProfPage =
 
   return (
     <Navbar
-    style={{userSelect: "none"}}
+      style={{ userSelect: "none" }}
       expand="lg"
       className={`custom-navbar ${
         isHomePage && !isScrolled ? "transparent-navbar" : "solid-navbar"
       }`}
       fixed="top"
     >
-      <Container style={{padding: 3}}>
+      <Container style={{ padding: 3 }}>
         <Navbar.Brand href="/">
           {isSmallScreen && isProfPage ? (
             <IconButton
@@ -77,8 +77,25 @@ const isProfPage =
             <Nav.Link href="/filiere" className="nav-link">
               Filiere
             </Nav.Link>
-            <Button variant="contained" color="primary">Login</Button>
-            
+            <Nav.Link href="/filiere" className="nav-link">
+              Dashboard
+            </Nav.Link>
+            <Button
+              variant="outlined"
+              style={{
+                borderRadius: "17px",
+                padding: "0 20px",
+                marginLeft: "10px",
+                color: "#0dcaf0",
+                borderColor: "#0dcaf0",
+                backgroundColor:"transparent",
+                "hover": { color: "white", backgroundColor: "#0dcaf0" },
+                "active": { color: "white", backgroundColor: "#0dcaf0" },
+              }}
+              href="/login"
+            >
+              Login
+            </Button>
           </Nav>
         </Navbar.Collapse>
       </Container>

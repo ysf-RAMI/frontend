@@ -88,7 +88,14 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   }
 
   return (
-    <Box sx={{ display: "flex", height: "100vh", marginTop: "76px" ,userSelect: "none"}}> 
+    <Box
+      sx={{
+        display: "flex",
+        height: "100vh",
+        marginTop: "76px",
+        userSelect: "none",
+      }}
+    >
       {/* Persistent Drawer */}
       <Drawer
         variant={isSmallScreen ? "temporary" : "persistent"}
@@ -108,10 +115,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         }}
       >
         <Box sx={{ width: 260, padding: 2 }}>
-          <Typography
-            variant="h6"
-            sx={{ textAlign: "center", mb: 2}}
-          >
+          <Typography variant="h6" sx={{ textAlign: "center", mb: 2 }}>
             {selectedModule.name}
           </Typography>
           <Divider />
@@ -130,6 +134,8 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                   "&:hover": { backgroundColor: "#37474F" },
                   borderRadius: 1,
                   mb: 1,
+                  ":active": { backgroundColor: "#455A64" },
+                  backgroundColor: selectedSection === section ? "#37474F" : "",
                 }}
               >
                 <ListItemIcon sx={{ color: "#fff" }}>
@@ -152,18 +158,13 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           alignItems: "center",
         }}
       >
-        
         <Grid
           container
           spacing={2}
           sx={{ maxWidth: 1200, width: "100%", mt: 2 }}
         >
           <Grid item xs={12}>
-            <Typography
-              variant="h4"
-              gutterBottom
-              sx={{  fontWeight: "bold" }}
-            >
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
               {selectedSection.charAt(0).toUpperCase() +
                 selectedSection.slice(1)}
             </Typography>

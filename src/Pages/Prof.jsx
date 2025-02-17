@@ -8,6 +8,7 @@ import {
   Typography,
   Drawer,
   useTheme,
+  Paper,
 } from "@mui/material";
 import {
   Assignment,
@@ -18,7 +19,6 @@ import {
 } from "@mui/icons-material";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../styles/Prof.css";
 import CorsTable from "../Components/ProfElement/CorsTable";
 import ExamTable from "../Components/ProfElement/ExamTable";
 import ModuleTable from "../Components/ProfElement/ModuleTable";
@@ -31,15 +31,19 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
 
   const handleSectionClick = (section) => {
     setSelectedSection(section);
+    // Close the drawer on small screens when a section is selected
+    if (isSmallScreen) {
+      toggleDrawer(false);
+    }
   };
 
   const drawerContent = (
     <Box
       sx={{
-        width: 249,
+        width: 250,
         height: "100%",
-        backgroundColor: "#263238",
-        color: "#fff",
+        backgroundColor: "#01162e",
+        color: "#ffffff",
         padding: "20px",
       }}
     >
@@ -59,12 +63,13 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             key={section}
             onClick={() => handleSectionClick(section)}
             sx={{
-              "&:hover": { backgroundColor: "#37474F" },
+              "&:hover": { backgroundColor: "#003366" },
               borderRadius: 1,
               mb: 1,
+              backgroundColor: selectedSection === section ? "#003366" : "",
             }}
           >
-            <ListItemIcon sx={{ color: "#fff" }}>{icon}</ListItemIcon>
+            <ListItemIcon sx={{ color: "#ffffff" }}>{icon}</ListItemIcon>
             <ListItemText primary={name} />
           </ListItem>
         ))}
@@ -73,7 +78,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   );
 
   return (
-    <Box sx={{ display: "flex", height: "calc(100vh - 47px)", mt: "76px" }}>
+    <Box sx={{ display: "flex", height: "calc(100vh - 64px)", mt: "64px" , paddingTop:"20px" , }}>
       <Drawer
         variant={isSmallScreen ? "temporary" : "permanent"}
         open={isDrawerOpen}
@@ -82,9 +87,10 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         sx={{
           "& .MuiDrawer-paper": {
             width: 250,
-            height: "90%",
+            height: "91%",
             marginTop: "84px",
             boxSizing: "border-box",
+            backgroundColor: "#01162e",
             transition: theme.transitions.create("width", {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.enteringScreen,
@@ -110,8 +116,17 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             : `calc(100% - ${isDrawerOpen ? 250 : 0}px)`,
         }}
       >
-        <Box sx={{ maxWidth: 1200, mx: "auto" }}>
-          <Typography variant="h4" gutterBottom>
+        <Paper
+          elevation={3}
+          sx={{
+            p: 3,
+            borderRadius: 2,
+            backgroundColor: "#ffffff",
+            maxWidth: 1200,
+            mx: "auto",
+          }}
+        >
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
             {selectedSection.charAt(0).toUpperCase() + selectedSection.slice(1)}
           </Typography>
           {selectedSection === "module" && <ModuleTable />}
@@ -119,7 +134,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           {selectedSection === "td" && <TDTable />}
           {selectedSection === "tp" && <TPTable />}
           {selectedSection === "exam" && <ExamTable />}
-        </Box>
+        </Paper>
       </Box>
       <ToastContainer />
     </Box>

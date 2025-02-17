@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   List,
@@ -9,20 +9,31 @@ import {
   Drawer,
   useTheme,
 } from "@mui/material";
-import { Assignment, Person } from "@mui/icons-material";
+import { Assignment, Dashboard, Person } from "@mui/icons-material";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Dashboardd from "../Components/Dashboard/Dashboard";
 import "../styles/Prof.css";
 import FiliereTable from "../Components/Admin/FillierTable";
 import ProfTable from "../Components/Admin/ProfTable"; // Import the ProfTable component
+import axios from "axios";
 
 const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
-  const [selectedSection, setSelectedSection] = useState("filiere");
+  const baseUrl = "http://localhost:8080//api/admin";
+
+  const [selectedSection, setSelectedSection] = useState("dashboard");
   const theme = useTheme();
 
   const handleSectionClick = (section) => {
     setSelectedSection(section);
   };
+
+  useEffect(() => {
+    axios
+      .get(baseUrl + "/getAllProfs")
+      .then((response) => console.log(response.data))
+      .catch((error) => console.error(error));
+  }, []);
 
   const drawerContent = (
     <Box
@@ -39,6 +50,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
       </Typography>
       <List style={{ userSelect: "none" }}>
         {[
+          { name: "Dashboard", icon: <Dashboard />, section: "dashboard" },
           { name: "Filières", icon: <Assignment />, section: "filiere" },
           { name: "Professeurs", icon: <Person />, section: "prof" },
         ].map(({ name, icon, section }) => (
@@ -50,6 +62,8 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
               "&:hover": { backgroundColor: "#37474F" },
               borderRadius: 1,
               mb: 1,
+              ":active": { backgroundColor: "#455A64" },
+              backgroundColor: selectedSection === section ? "#37474F" : "",
             }}
           >
             <ListItemIcon sx={{ color: "#fff" }}>{icon}</ListItemIcon>
@@ -71,7 +85,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           "& .MuiDrawer-paper": {
             width: 250,
             height: "100%",
-            marginTop: "76px",
+            marginTop: "84px",
             boxSizing: "border-box",
             transition: theme.transitions.create("width", {
               easing: theme.transitions.easing.sharp,
@@ -104,6 +118,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           </Typography>
           {selectedSection === "filiere" && <FiliereTable />}
           {selectedSection === "prof" && <ProfTable />}{" "}
+          {selectedSection === "dashboard" && <Dashboardd />}
           {/* Render ProfTable here */}
         </Box>
       </Box>

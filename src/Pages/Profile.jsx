@@ -6,8 +6,9 @@ import {
   Button,
   Typography,
   Divider,
+  Paper,
+  Avatar,
 } from "@mui/material";
-import "../styles/Profile.css";
 import user from "../assets/pic-1.jpg";
 
 const Profile = () => {
@@ -32,83 +33,116 @@ const Profile = () => {
   };
 
   return (
-    <div className="userProfile">
-      <Container
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          padding: "20px",
-          backgroundColor: "rgba(169, 169, 169, 0.8)",
-          borderRadius: "10px",
-        }}
-      >
-        <Box
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#f8f9fa",
+        padding: "20px",
+      }}
+    >
+      <Container maxWidth="md">
+        <Paper
+          elevation={3}
           sx={{
-            width: "30%",
             display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            color: "rgb(0, 108, 113)",
+            flexDirection: { xs: "column", md: "row" },
+            padding: "20px",
+            borderRadius: "10px",
+            backgroundColor: "#ffffff",
           }}
         >
-          <img
-            src={user}
-            alt="User"
-            style={{ borderRadius: "50%", width: "100px", height: "100px" }}
-          />
-          <Typography variant="h5" sx={{ marginTop: "10px" }}>
-            {userInfo.firstName} {userInfo.lastName}
-          </Typography>
-          <Typography variant="body1">{userInfo.email}</Typography>
-          <Divider sx={{ width: "100%", margin: "20px 0" }} />
-          <Typography variant="body1">filiere: Genie Informatique </Typography>
-        </Box>
-        <Divider orientation="vertical" flexItem style={{ padding: "15px" }} />
-        <Box
-          sx={{
-            width: "65%",
-            display: "flex",
-            flexDirection: "column",
-            color: "rgb(0, 108, 113)",
-          }}
-        >
-          <Typography variant="h4" sx={{ marginBottom: "20px" }}>
-            Edit Profile
-          </Typography>
-          <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label="First Name"
-              name="firstName"
-              value={userInfo.firstName}
-              onChange={handleChange}
-              sx={{ marginBottom: "20px" }}
+          {/* Left Side: User Info */}
+          <Box
+            sx={{
+              width: { xs: "100%", md: "30%" },
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              padding: "20px",
+            }}
+          >
+            <Avatar
+              src={user}
+              alt="User"
+              sx={{ width: "100px", height: "100px", mb: 2 }}
             />
-            <TextField
-              fullWidth
-              label="Last Name"
-              name="lastName"
-              value={userInfo.lastName}
-              onChange={handleChange}
-              sx={{ marginBottom: "20px" }}
-            />
-            <TextField
-              fullWidth
-              label="Email"
-              name="email"
-              value={userInfo.email}
-              onChange={handleChange}
-              sx={{ marginBottom: "20px" }}
-            />
+            <Typography variant="h5" sx={{ fontWeight: "bold", mb: 1 }}>
+              {userInfo.firstName} {userInfo.lastName}
+            </Typography>
+            <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
+              {userInfo.email}
+            </Typography>
+            <Divider sx={{ width: "100%", my: 2 }} />
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Filière: Génie Informatique
+            </Typography>
+          </Box>
 
-            <Button type="submit" variant="outlined" color="primary ">
-              Save Changes
-            </Button>
-          </form>
-        </Box>
+          {/* Divider */}
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{ mx: { xs: 0, md: 3 }, my: { xs: 3, md: 0 } }}
+          />
+
+          {/* Right Side: Edit Profile Form */}
+          <Box
+            sx={{
+              width: { xs: "100%", md: "65%" },
+              display: "flex",
+              flexDirection: "column",
+              padding: "20px",
+            }}
+          >
+            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 3 }}>
+              Edit Profile
+            </Typography>
+            <form onSubmit={handleSubmit}>
+              <TextField
+                fullWidth
+                label="First Name"
+                name="firstName"
+                value={userInfo.firstName}
+                onChange={handleChange}
+                sx={{ mb: 3 }}
+              />
+              <TextField
+                fullWidth
+                label="Last Name"
+                name="lastName"
+                value={userInfo.lastName}
+                onChange={handleChange}
+                sx={{ mb: 3 }}
+              />
+              <TextField
+                fullWidth
+                label="Email"
+                name="email"
+                value={userInfo.email}
+                onChange={handleChange}
+                sx={{ mb: 3 }}
+              />
+             
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{
+                  backgroundColor: "#01162e",
+                  color: "#ffffff",
+                  "&:hover": { backgroundColor: "#003366" },
+                }}
+              >
+                Save Changes
+              </Button>
+            </form>
+          </Box>
+        </Paper>
       </Container>
-    </div>
+    </Box>
   );
 };
 
