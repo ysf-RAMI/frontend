@@ -6,8 +6,7 @@
   --primary-color: #051b35;
   --secondary-color: #d9534f;
   --transition-speed: 0.3s;
-  font-family: 'Poppins', sans-serif;
-}
+}z
 
 /* General Styles */
 html, body {
@@ -63,7 +62,6 @@ html, body {
   font-size: 3rem;
   font-weight: bold;
   margin-bottom: 20px;
-  font-family: "Poppins", sans-serif;
   text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6);
 }
 

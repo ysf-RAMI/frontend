@@ -19,28 +19,26 @@ import moduleContext from "../../Context/ModuleContext";
 
 const FiliereTable = () => {
   const { filiere, setFiliere } = useContext(moduleContext);
-  const [openDelete, setOpenDelete] = useState(false); // For delete dialog
-  const [openEdit, setOpenEdit] = useState(false); // For edit dialog
-  const [openAdd, setOpenAdd] = useState(false); // For add dialog
+  const [openDelete, setOpenDelete] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
   const [selectedFiliereId, setSelectedFiliereId] = useState(null);
-  const [newFiliereName, setNewFiliereName] = useState(""); // State for new filière name
-  const [addFiliereName, setAddFiliereName] = useState(""); // State for adding a new filière
+  const [newFiliereName, setNewFiliereName] = useState("");
+  const [addFiliereName, setAddFiliereName] = useState("");
 
   if (!filiere || filiere.length === 0) {
     return <p>No filières available.</p>;
   }
 
-  // Handle edit button click
   const handleEditClick = (id) => {
     const selectedFiliere = filiere.find((f) => f.id === id);
     if (selectedFiliere) {
       setSelectedFiliereId(id);
-      setNewFiliereName(selectedFiliere.name); // Set the current name in the TextField
-      setOpenEdit(true); // Open the edit dialog
+      setNewFiliereName(selectedFiliere.name);
+      setOpenEdit(true);
     }
   };
 
-  // Handle save button click in edit dialog
   const handleEditAgree = () => {
     if (selectedFiliereId && newFiliereName.trim() !== "") {
       setFiliere((prevFiliere) =>
@@ -48,56 +46,50 @@ const FiliereTable = () => {
           f.id === selectedFiliereId ? { ...f, name: newFiliereName } : f
         )
       );
-      handleClose(); // Close the dialog
+      handleClose();
     }
   };
 
-  // Handle delete button click
   const handleDeleteClick = (id) => {
     setSelectedFiliereId(id);
-    setOpenDelete(true); // Open the delete dialog
+    setOpenDelete(true);
   };
 
-  // Handle delete confirmation
   const handleDeleteAgree = () => {
     if (selectedFiliereId) {
       setFiliere(filiere.filter((f) => f.id !== selectedFiliereId));
     }
-    handleClose(); // Close the dialog
+    handleClose();
   };
 
-  // Handle add button click
   const handleAddClick = () => {
-    setOpenAdd(true); // Open the add dialog
+    setOpenAdd(true);
   };
 
-  // Handle add confirmation
   const handleAddAgree = () => {
     if (addFiliereName.trim() !== "") {
       const newFiliere = {
-        id: filiere.length + 1, // Generate a new ID (you can use a better ID generation method)
+        id: filiere.length + 1,
         name: addFiliereName,
-        modules: [], // Initialize with empty modules
+        modules: [],
       };
       setFiliere((prevFiliere) => [...prevFiliere, newFiliere]);
-      setAddFiliereName(""); // Reset the input field
-      handleClose(); // Close the dialog
+      setAddFiliereName("");
+      handleClose();
     }
   };
 
-  // Close all dialogs
   const handleClose = () => {
     setOpenDelete(false);
     setOpenEdit(false);
     setOpenAdd(false);
     setSelectedFiliereId(null);
-    setNewFiliereName(""); // Reset the new filière name
-    setAddFiliereName(""); // Reset the add filière name
+    setNewFiliereName("");
+    setAddFiliereName("");
   };
 
   return (
     <>
-      {/* Add Filière Button */}
       <Button
         variant="contained"
         color="primary"
@@ -107,7 +99,6 @@ const FiliereTable = () => {
         Add Filière
       </Button>
 
-      {/* Filière Table */}
       <TableContainer component={Paper} sx={{ m: 2 }}>
         <Table>
           <TableHead>
@@ -139,7 +130,6 @@ const FiliereTable = () => {
         </Table>
       </TableContainer>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={openDelete} onClose={handleClose}>
         <DialogTitle>Delete Filière</DialogTitle>
         <DialogContent>
@@ -154,7 +144,6 @@ const FiliereTable = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Edit Dialog */}
       <Dialog open={openEdit} onClose={handleClose}>
         <DialogTitle>Edit Filière</DialogTitle>
         <DialogContent>
@@ -180,7 +169,6 @@ const FiliereTable = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Add Filière Dialog */}
       <Dialog open={openAdd} onClose={handleClose}>
         <DialogTitle>Add Filière</DialogTitle>
         <DialogContent>

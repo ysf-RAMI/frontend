@@ -1,6 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
-:root {
-  --bs-font-sans-serif: "Poppins", sans-serif !important;
+
+/* index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+* {
+  font-family: 'Inter', sans-serif;
 }
 
 html {
@@ -8,7 +11,6 @@ html {
 }
 
 body {
-  font-family: "Roboto", sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -28,7 +30,7 @@ body {
 }
 
 .custom-navbar .nav-link:hover {
-  color: #f1c40f !important;
+  color: #ded607 !important;
 }
 
 .hero-section {

@@ -18,6 +18,7 @@ export const NotFound = () => {
       <div className="notfound-hero-section">
         <div className="notfound-overlay"></div>
         <motion.div
+        
           className="notfound-content"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}

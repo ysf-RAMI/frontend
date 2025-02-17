@@ -10,7 +10,7 @@ import {
   Divider,
 } from "@mui/material";
 import { motion } from "framer-motion";
-import NavbarComponent from "../Components/NavbarComponent";
+import axios from "axios";
 import userImage from "../assets/9449194.png";
 import "../styles/Login.css";
 
@@ -20,13 +20,26 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       alert("Please enter both email and password.");
       return;
     }
-    console.log("Login submitted with:", { email, password });
+
+    try {
+      const response = await axios.post("http://localhost:8080/auth/login", {
+        email,
+        password,
+      });
+      const token = response.data["access-token"];
+      localStorage.setItem("token", token); // Store the token in local storage
+      alert("Login successful!");
+      // Redirect to another page or update state
+    } catch (error) {
+      console.error("Login failed", error);
+      alert("Invalid credentials. Please try again.");
+    }
   };
 
   // Handle window resize

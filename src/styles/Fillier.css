@@ -1,9 +1,22 @@
-/* Filière Section */
+
+/* CSS Styles */
+:root {
+  --primary-color: #011d39;
+  --secondary-color: #f1c40f;
+}
+
+body {
+  background-color: #f9f9f9;
+}
+
+.text-center {
+  text-align: center;
+}
+
 .serviceMainTitle {
   color: var(--primary-color);
   margin-top: 5rem;
   margin-bottom: 3rem;
-  font-family: "Poppins", sans-serif;
   font-weight: 700;
   font-size: 28px;
 }
@@ -18,9 +31,8 @@
 
 .serviceCard {
   box-shadow: 1px 1px 8px 0 rgba(0, 0, 0, 0.1);
-  padding: 60px 30px;
+  padding: 30px;
   margin: 6px;
-  height: 22rem;
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease,
@@ -37,30 +49,28 @@
 
 .serviceName {
   color: var(--primary-color);
-  text-decoration: none;
   margin-top: 1rem;
-  font-family: "Poppins", sans-serif;
   font-size: 24px;
   font-weight: 700;
 }
 
-.serviceDescription {
-  color: #505050;
-  margin-top: 1rem;
-  font-family: "Poppins", sans-serif;
-  font-size: 15px;
-  font-weight: 400;
+.link-button {
+  text-decoration: none;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .serviceCard {
     height: auto;
-    padding: 40px 20px;
+    padding: 20px;
   }
 
-  .navbar-nav .nav-link {
-    font-size: 16px;
+  .serviceMainTitle {
+    font-size: 24px;
+  }
+
+  .bottom {
+    width: 100px;
   }
 }
 
@@ -79,14 +89,31 @@
   border-radius: 8px;
 }
 
-.MuiListItem-root:hover {
-  background-color: #f1f1f1;
-}
-
-.MuiDialog-paper {
-  border-radius: 12px;
-}
-
 .list-item:hover {
   background-color: #f7f7f7;
+}
+
+.container {
+  padding: 20px;
+}
+
+.search-input {
+  margin-bottom: 20px;
+}
+
+.modal-search-input {
+  margin-bottom: 20px;
+}
+
+.card-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.card-list li {
+  margin-bottom: 10px;
+}
+
+.card-list li:last-child {
+  margin-bottom: 0;
 }

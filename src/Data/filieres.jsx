@@ -1,143 +1,129 @@
 export const filieres = [
   {
-    id: 1,
-    name: "Informatique et Réseaux",
+    filiereId: 1,
+    nomFiliere: "Informatique et Réseaux",
+    url: "https://www.example.com/infotech.jpg",
     modules: [
       {
-        id: 1,
+        moduleId: 1,
         name: "Programmation Web",
         courses: [
           {
-            id: 1,
             name: "Introduction à HTML/CSS",
             type: "pdf",
-            url: "https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics",
+            url: "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf",
           },
           {
-            id: 2,
             name: "JavaScript pour Débutants",
             type: "video",
-            url: "https://www.youtube.com/watch?v=hdI2bqOjy3c",
+            url: "https://www.youtube.com/watch?v=n14-nwicQX0",
           },
         ],
         TD: [
           {
-            id: 1,
             name: "TD 1 - HTML5 et CSS3",
             type: "pdf",
-            url: "https://developer.mozilla.org/en-US/docs/Web/HTML/Introduction",
+            url: "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf",
           },
           {
-            id: 2,
             name: "TD 2 - JavaScript Intermédiaire",
             type: "video",
-            url: "https://www.youtube.com/watch?v=2LeqjXY3-2M",
+            url: "https://www.youtube.com/watch?v=n14-nwicQX0",
           },
         ],
         TP: [
           {
-            id: 1,
             name: "TP 1 - Créer une page web",
             type: "pdf",
-            url: "https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics",
+            url: "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf",
           },
         ],
         EXAMS: [
           {
-            id: 1,
             name: "Examen Final - Programmation Web",
             type: "pdf",
-            url: "https://www.w3.org/standards/webdesign/",
+            url: "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf",
           },
         ],
       },
     ],
   },
   {
-    id: 2,
-    name: "Systèmes et Réseaux",
+    filiereId: 2,
+    nomFiliere: "Systèmes et Réseaux",
+    url: "https://www.example.com/networking.jpg",
     modules: [
       {
-        id: 2,
+        moduleId: 1,
         name: "Administration des Réseaux",
         courses: [
           {
-            id: 3,
             name: "Introduction à la gestion des réseaux",
             type: "pdf",
-            url: "https://www.coursera.org/learn/it-networking-basics",
+            url: "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf",
           },
           {
-            id: 4,
             name: "Protocoles de Réseau (TCP/IP)",
             type: "video",
-            url: "https://www.youtube.com/watch?v=3QhU9jd03a0",
+            url: "https://www.youtube.com/watch?v=n14-nwicQX0",
           },
         ],
         TD: [
           {
-            id: 3,
             name: "TD 1 - Configuration de routeurs",
             type: "pdf",
-            url: "https://www.cisco.com/c/en/us/td/docs/iosxr/iosxr-routing/route-i16-0-1-1/pdf",
+            url: "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf",
           },
         ],
         TP: [
           {
-            id: 2,
             name: "TP 1 - Mise en place d'un réseau local",
             type: "video",
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            url: "https://www.youtube.com/watch?v=n14-nwicQX0",
           },
         ],
         EXAMS: [
           {
-            id: 2,
             name: "Examen Final - Administration des Réseaux",
             type: "pdf",
-            url: "https://www.coursera.org/learn/it-networking-basics",
+            url: "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf",
           },
         ],
       },
       {
-        id: 3,
+        moduleId: 2,
         name: "Sécurité des Systèmes",
         courses: [
           {
-            id: 5,
             name: "Principes de Sécurité Informatique",
             type: "pdf",
-            url: "https://www.coursera.org/learn/cyber-security-basics",
+            url: "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf",
           },
           {
-            id: 6,
             name: "Sécuriser un Réseau d'Entreprise",
             type: "video",
-            url: "https://www.youtube.com/watch?v=jU02XK3g1q0",
+            url: "https://www.youtube.com/watch?v=n14-nwicQX0",
           },
         ],
         TD: [
           {
-            id: 4,
             name: "TD 1 - Cryptographie et Authentification",
             type: "pdf",
-            url: "https://www.schneier.com/academic/archives/1996/10/cryptography_pri.html",
+            url: "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf",
           },
         ],
         TP: [
           {
-            id: 3,
             name: "TP 1 - Mise en place de pare-feu",
             type: "video",
-            url: "https://www.youtube.com/watch?v=pZqBdxjX2mw",
+            url: "https://www.youtube.com/watch?v=n14-nwicQX0",
           },
         ],
         EXAMS: [
           {
-            id: 3,
             name: "Examen Final - Sécurité des Systèmes",
             type: "pdf",
-            url: "https://www.coursera.org/learn/cyber-security-basics",
+            url: "https://www.just.edu.jo/~mqais/CIS99/PDF/Ch.01_Introduction_%20to_computers.pdf",
           },
         ],
       },

@@ -9,24 +9,15 @@ import {
   Drawer,
   useTheme,
 } from "@mui/material";
-import {
-  Assignment,
-  Book,
-  Description,
-  Quiz,
-  Article,
-} from "@mui/icons-material";
+import { Assignment, Person } from "@mui/icons-material";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/Prof.css";
-import CorsTable from "../Components/ProfElement/CorsTable";
-import ExamTable from "../Components/ProfElement/ExamTable";
-import ModuleTable from "../Components/ProfElement/ModuleTable";
-import TDTable from "../Components/ProfElement/TdTable";
-import TPTable from "../Components/ProfElement/TpTable";
+import FiliereTable from "../Components/Admin/FillierTable";
+import ProfTable from "../Components/Admin/ProfTable"; // Import the ProfTable component
 
-const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
-  const [selectedSection, setSelectedSection] = useState("module");
+const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
+  const [selectedSection, setSelectedSection] = useState("filiere");
   const theme = useTheme();
 
   const handleSectionClick = (section) => {
@@ -36,7 +27,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const drawerContent = (
     <Box
       sx={{
-        width: 249,
+        width: 250,
         height: "100%",
         backgroundColor: "#263238",
         color: "#fff",
@@ -48,11 +39,8 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
       </Typography>
       <List style={{ userSelect: "none" }}>
         {[
-          { name: "Module", icon: <Assignment />, section: "module" },
-          { name: "Cours", icon: <Book />, section: "cors" },
-          { name: "TD", icon: <Description />, section: "td" },
-          { name: "TP", icon: <Article />, section: "tp" },
-          { name: "Exam", icon: <Quiz />, section: "exam" },
+          { name: "Filières", icon: <Assignment />, section: "filiere" },
+          { name: "Professeurs", icon: <Person />, section: "prof" },
         ].map(({ name, icon, section }) => (
           <ListItem
             button
@@ -73,7 +61,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   );
 
   return (
-    <Box sx={{ display: "flex", height: "calc(100vh - 47px)", mt: "76px" }}>
+    <Box sx={{ display: "flex", height: "calc(100vh - 76px)", mt: "76px" }}>
       <Drawer
         variant={isSmallScreen ? "temporary" : "permanent"}
         open={isDrawerOpen}
@@ -82,8 +70,8 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         sx={{
           "& .MuiDrawer-paper": {
             width: 250,
-            height: "90%",
-            marginTop: "84px",
+            height: "100%",
+            marginTop: "76px",
             boxSizing: "border-box",
             transition: theme.transitions.create("width", {
               easing: theme.transitions.easing.sharp,
@@ -114,11 +102,9 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           <Typography variant="h4" gutterBottom>
             {selectedSection.charAt(0).toUpperCase() + selectedSection.slice(1)}
           </Typography>
-          {selectedSection === "module" && <ModuleTable />}
-          {selectedSection === "cors" && <CorsTable />}
-          {selectedSection === "td" && <TDTable />}
-          {selectedSection === "tp" && <TPTable />}
-          {selectedSection === "exam" && <ExamTable />}
+          {selectedSection === "filiere" && <FiliereTable />}
+          {selectedSection === "prof" && <ProfTable />}{" "}
+          {/* Render ProfTable here */}
         </Box>
       </Box>
       <ToastContainer />
@@ -126,4 +112,4 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   );
 };
 
-export default Prof;
+export default Admin;

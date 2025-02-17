@@ -1,5 +1,49 @@
-/* Menu latéral */
-@media (max-width: 768px) {
+/* TRANSPARENT NAVBAR */
+.custom-navbar.transparent-navbar {
+  background-color: transparent !important;
+  border-bottom: none !important;
+  transition: background-color 0.3s ease, border-bottom 0.3s ease;
+}
+
+/* SOLID NAVBAR */
+.custom-navbar.solid-navbar {
+  background-color: #01162e93 !important; /* Slightly transparent dark background */
+  border-bottom: 2px solid #01162e !important; /* Subtle border */  
+  transition: background-color 0.3s ease, border-bottom 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.374); /* Slight shadow */
+}
+
+/* LOGO */
+.custom-navbar .navbar-brand img {
+  max-height: 50px;
+  animation: slideInLeft 0.8s ease-out;
+}
+
+/* LIENS */
+.custom-navbar .nav-link {
+  color: white;
+  font-size: 16px;
+  transition: color 0.2s ease-in-out;
+  animation: slideInRight 0.8s ease-in-out;
+}
+
+
+
+/* BOUTON LOGIN */
+.nav-btn {
+  margin-left: 10px;
+  transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  animation: slideInDown 0.8s ease-out;
+}
+
+.nav-btn:hover {
+  transform: scale(1.1);
+  background-color: #f1c40f; /* Gold background on hover */
+  color: #333; /* Dark text on hover */
+}
+
+/* ADAPTATION MOBILE */
+@media (max-width: 991px) {
   .custom-navbar {
     padding: 10px 15px;
   }
@@ -7,32 +51,9 @@
   .custom-navbar .nav-link {
     font-size: 14px;
   }
+
+  .custom-navbar .navbar-brand img {
+    max-height: 40px; /* Smaller logo for mobile */
+  }
 }
 
-.custom-navbar.transparent-navbar {
-  background-color: transparent !important;
-  border-bottom: none !important;
-}
-
-.custom-navbar.solid-navbar {
-  background-color: #333;
-  border-bottom: 2px solid #656565;
-  padding: 10px 20px;
-}
-
-.custom-navbar .navbar-brand img {
-  max-height: 50px;
-  animation: slideInLeft 0.8s ease-out;
-}
-
-.custom-navbar .nav-link {
-  color: white;
-  padding: 10px 15px;
-  font-size: 16px;
-  transition: color 0.3s ease;
-  animation: slideInRight 0.8s ease-out;
-}
-
-.custom-navbar .nav-link:hover {
-  color: #f1c40f;
-}

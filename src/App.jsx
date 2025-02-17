@@ -9,16 +9,13 @@ import { filieres } from "./Data/filieres";
 import Filiere from "./Pages/Fillier";
 import FiliereDetails from "./Pages/FiliereDetails";
 import ModuleDetails from "./Pages/ModuleDetails";
-import { NotFound } from "./Pages/NotFound";
+import { NotFound } from "./Pages/notFound";
 import NavbarComponent from "./Components/NavbarComponent";
 import Prof from "./Pages/Prof";
-import CorsTable from "./Components/ProfElement/CorsTable";
-import ExamTable from "./Components/ProfElement/ExamTable";
-import FiliereTable from "./Components/ProfElement/FillierTable";
-import ModuleTable from "./Components/ProfElement/ModuleTable";
-import TDTable from "./Components/ProfElement/TdTable";
-import TPTable from "./Components/ProfElement/TpTable";
+import Admin from "./Pages/admin";
 import Profile from "./Pages/Profile";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 function App() {
   const [filiere, setFiliere] = useState(filieres);
@@ -29,17 +26,20 @@ function App() {
     const handleResize = () => {
       const isSmall = window.innerWidth < 768;
       setIsSmallScreen(isSmall);
-      // Automatically close the drawer on small screens
-      if (isSmall) {
-        setIsDrawerOpen(false);
-      } else {
-        setIsDrawerOpen(true); // Always open on larger screens
-      }
+      setIsDrawerOpen(!isSmall); // Fermeture auto sur mobile
     };
 
-    handleResize(); // Initial check
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      easing: "ease-in-out-quart",
+      delay: 100,
+    });
   }, []);
 
   const toggleDrawer = (open) => {
@@ -55,33 +55,36 @@ function App() {
           isSmallScreen={isSmallScreen}
         />
         <Routes>
-          <Route path="/home" element={<Home />} />
           <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/filiere" element={<Filiere />} />
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/cr"
-            element={
-              <>
-                <FiliereTable />
-                <ModuleTable />
-                <CorsTable />
-                <TDTable />
-                <TPTable />
-                <ExamTable />
-              </>
-            }
-          />
           <Route path="/filiere/:filiereId" element={<FiliereDetails />} />
-          <Route path="/profile" element={<Profile />} />
           <Route
             path="/filiere/:filiereId/module/:moduleId"
-            element={<ModuleDetails />}
+            element={
+              <ModuleDetails
+                isDrawerOpen={isDrawerOpen}
+                toggleDrawer={toggleDrawer}
+                isSmallScreen={isSmallScreen}
+              />
+            }
           />
+          <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={<Profile />} />
           <Route
             path="/prof"
             element={
               <Prof
+                isDrawerOpen={isDrawerOpen}
+                toggleDrawer={toggleDrawer}
+                isSmallScreen={isSmallScreen}
+              />
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <Admin
                 isDrawerOpen={isDrawerOpen}
                 toggleDrawer={toggleDrawer}
                 isSmallScreen={isSmallScreen}
