@@ -13,212 +13,373 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
+  TablePagination,
 } from "@mui/material";
-import { useContext, useState } from "react";
-import moduleContext from "../../Context/ModuleContext";
+import axios from "axios";
+import { useState } from "react";
+import { Key } from "@mui/icons-material";
+import { toast } from "react-toastify";
 
-const ProfTable = () => {
+const ProfTable = ({ profs, setProfs }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
   const [openChangePassword, setOpenChangePassword] = useState(false);
-  const [openGeneratePassword, setOpenGeneratePassword] = useState(false);
   const [selectedProfId, setSelectedProfId] = useState(null);
-  const [newFirstName, setNewFirstName] = useState("");
-  const [newLastName, setNewLastName] = useState("");
+  const [newNom, setNewNom] = useState("");
+  const [newPrenom, setNewPrenom] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  const [name, setName] = useState("");
+  const [prenom, setPrenom] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [generatedPassword, setGeneratedPassword] = useState("");
-  const [profs, setProfs] = useState([
-    {
-      id: 1,
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-      password: "initialPassword1",
-    },
-    {
-      id: 2,
-      firstName: "Jane",
-      lastName: "Smith",
-      email: "jane.smith@example.com",
-      password: "initialPassword2",
-    },
-    {
-      id: 3,
-      firstName: "Alice",
-      lastName: "Johnson",
-      email: "alice.johnson@example.com",
-      password: "initialPassword3",
-    },
-  ]);
-  if (!profs || profs.length === 0) {
-    return <p>No professors available.</p>;
-  }
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Handle edit button click
+  const baseUrl = "http://localhost:8080/api/admin";
+  const { token } = JSON.parse(localStorage.getItem("auth"));
+
+  // Handle search input change
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setPage(0); // Reset to the first page when searching
+  };
+
+  // Filter profs based on search term
+  const filteredProfs = profs.filter(
+    (p) =>
+      p.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Handle pagination
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  // Calculate the rows to display for the current page
+  const paginatedProfs = filteredProfs.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  const handleClose = () => {
+    setOpenDelete(false);
+    setOpenEdit(false);
+    setOpenAdd(false);
+    setOpenChangePassword(false);
+    setSelectedProfId(null);
+    setNewNom("");
+    setNewPrenom("");
+    setNewEmail("");
+    setName("");
+    setPrenom("");
+    setEmail("");
+    setPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  const handleEditAgree = () => {
+    if (!selectedProfId || !newNom || !newPrenom || !newEmail) {
+      toast.error("Veuillez remplir tous les champs");
+      return;
+    }
+
+    axios
+      .put(
+        `${baseUrl}/UpdateProfesseur`,
+        {
+          id: selectedProfId,
+          nom: newNom,
+          prenom: newPrenom,
+          email: newEmail,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then(() => {
+        setProfs((prevProfs) =>
+          prevProfs.map((p) =>
+            p.id === selectedProfId
+              ? { ...p, nom: newNom, prenom: newPrenom, email: newEmail }
+              : p
+          )
+        );
+        toast.success("Professeur modifié avec succès");
+        handleClose();
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Erreur lors de la modification");
+      });
+  };
+
   const handleEditClick = (id) => {
     const selectedProf = profs.find((p) => p.id === id);
     if (selectedProf) {
       setSelectedProfId(id);
-      setNewFirstName(selectedProf.firstName);
-      setNewLastName(selectedProf.lastName);
+      setNewNom(selectedProf.nom);
+      setNewPrenom(selectedProf.prenom);
       setNewEmail(selectedProf.email);
       setOpenEdit(true);
     }
   };
 
-  // Handle save button click in edit dialog
-  const handleEditAgree = () => {
-    if (selectedProfId) {
-      setProfs((prevProfs) =>
-        prevProfs.map((p) =>
-          p.id === selectedProfId
-            ? {
-                ...p,
-                firstName: newFirstName,
-                lastName: newLastName,
-                email: newEmail,
-              }
-            : p
-        )
-      );
-      handleClose();
-    }
-  };
-
-  // Handle delete button click
   const handleDeleteClick = (id) => {
     setSelectedProfId(id);
     setOpenDelete(true);
   };
 
-  // Handle delete confirmation
   const handleDeleteAgree = () => {
-    if (selectedProfId) {
-      setProfs(profs.filter((p) => p.id !== selectedProfId));
-    }
-    handleClose();
+    axios
+      .delete(`${baseUrl}/DeleteProfesseur/${selectedProfId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        setProfs((prevProfs) =>
+          prevProfs.filter((p) => p.id !== selectedProfId)
+        );
+        toast.success("Professeur supprimé avec succès");
+        handleClose();
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Erreur lors de la suppression");
+      });
   };
 
-  // Handle change password button click
+  const handleAddAgree = () => {
+    if (!name || !prenom || !email || !password) {
+      toast.error("Veuillez remplir tous les champs");
+      return;
+    }
+
+    axios
+      .post(
+        `${baseUrl}/AddNewProfesseur`,
+        {
+          nom: name,
+          prenom: prenom,
+          email: email,
+          password: password,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        setProfs((prevProfs) => [...prevProfs, res.data]);
+        toast.success("Professeur ajouté avec succès");
+        handleClose();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error("Erreur lors de l'ajout du professeur");
+      });
+  };
+
   const handleChangePasswordClick = (id) => {
     setSelectedProfId(id);
     setOpenChangePassword(true);
   };
 
-  // Handle change password confirmation
   const handleChangePasswordAgree = () => {
-    if (newPassword === confirmPassword) {
-      setProfs((prevProfs) =>
-        prevProfs.map((p) =>
-          p.id === selectedProfId ? { ...p, password: newPassword } : p
-        )
-      );
-      setNewPassword("");
-      setConfirmPassword("");
-      handleClose();
-    } else {
-      alert("Passwords do not match!");
+    if (newPassword !== confirmPassword) {
+      toast.error("Les mots de passe ne correspondent pas");
+      return;
     }
-  };
 
-  // Handle generate password button click
-  const handleGeneratePasswordClick = (id) => {
-    setSelectedProfId(id);
-    const password = generatePassword();
-    setGeneratedPassword(password);
-    setOpenGeneratePassword(true);
-  };
-
-  // Generate a random password
-  const generatePassword = () => {
-    const chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let password = "";
-    for (let i = 0; i < 8; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    if (newPassword.length < 8) {
+      toast.error("Le mot de passe doit contenir au moins 8 caractères");
+      return;
     }
-    return password;
-  };
 
-  // Handle generate password confirmation
-  const handleGeneratePasswordAgree = () => {
-    setProfs((prevProfs) =>
-      prevProfs.map((p) =>
-        p.id === selectedProfId ? { ...p, password: generatedPassword } : p
+    axios
+      .put(
+        `${baseUrl}/ChangePassword`,
+        {
+          id: selectedProfId,
+          newPassword: newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       )
-    );
-    setGeneratedPassword("");
-    handleClose();
+      .then(() => {
+        toast.success("Mot de passe modifié avec succès");
+        handleClose();
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Erreur lors de la modification du mot de passe");
+      });
   };
 
-  // Close all dialogs
-  const handleClose = () => {
-    setOpenDelete(false);
-    setOpenEdit(false);
-    setOpenChangePassword(false);
-    setOpenGeneratePassword(false);
-    setSelectedProfId(null);
-    setNewFirstName("");
-    setNewLastName("");
-    setNewEmail("");
-    setNewPassword("");
-    setConfirmPassword("");
+  const getPasswordStrength = (password) => {
+    if (password.length === 0) return "";
+    if (password.length < 6) return "Très faible";
+    if (password.length < 8) return "Faible";
+    if (password.length < 10) return "Fort";
+    return "Très fort";
   };
+
+  const getPasswordStrengthColor = (password) => {
+    if (password.length === 0) return "primary";
+    if (password.length < 6) return "error";
+    if (password.length < 8) return "warning";
+    if (password.length < 10) return "info";
+    return "success";
+  };
+
+  if (!profs || profs.length === 0) {
+    return (
+      <>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setOpenAdd(true)}
+          sx={{ m: 2 }}
+        >
+          Ajouter un Professeur
+        </Button>
+        <Dialog open={openAdd} onClose={handleClose}>
+          <DialogTitle>Ajouter un Professeur</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              label="Nom"
+              fullWidth
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <TextField
+              required
+              margin="dense"
+              label="Prénom"
+              fullWidth
+              value={prenom}
+              onChange={(e) => setPrenom(e.target.value)}
+            />
+            <TextField
+              required
+              margin="dense"
+              label="Email"
+              fullWidth
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <TextField
+              required
+              margin="dense"
+              label="Mot de passe"
+              fullWidth
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Annuler</Button>
+            <Button onClick={handleAddAgree} color="primary">
+              Ajouter
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <p>Aucun professeur disponible.</p>
+      </>
+    );
+  }
 
   return (
     <>
-      {/* Add Professor Button */}
       <Button
         variant="contained"
         color="primary"
-        onClick={() => setOpenEdit(true)}
+        onClick={() => setOpenAdd(true)}
         sx={{ m: 2 }}
       >
-        Add Professor
+        Ajouter un Professeur
       </Button>
 
-      {/* Professor Table */}
+      {/* Search Box */}
+      <TextField
+        label="Rechercher un Professeur"
+        variant="outlined"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        sx={{ m: 2, width: "300px" }}
+      />
+
       <TableContainer component={Paper} sx={{ m: 2 }}>
         <Table>
-          <TableHead>
+          <TableHead style={{ backgroundColor: "#f4f4f9" }}>
+            
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>First Name</TableCell>
-              <TableCell>Last Name</TableCell>
+              <TableCell>Nom</TableCell>
+              <TableCell>Prénom</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {profs.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell>{p.id}</TableCell>
-                <TableCell>{p.firstName}</TableCell>
-                <TableCell>{p.lastName}</TableCell>
+            {paginatedProfs.map((p, index) => (
+              <TableRow
+                key={p.id}
+                style={{
+                  backgroundColor: index % 2 === 0 ? "#ffffff" : "#f4f4f9",
+                }}
+              >
+                <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+                <TableCell>{p.nom}</TableCell>
+                <TableCell>{p.prenom}</TableCell>
                 <TableCell>{p.email}</TableCell>
-                <TableCell>
-                  <Button onClick={() => handleEditClick(p.id)} color="info">
-                    Edit
+                <TableCell align="center">
+                  <Button
+                    onClick={() => handleEditClick(p.id)}
+                    color="info"
+                    variant="contained"
+                    sx={{ m: 0.5 }}
+                  >
+                    Modifier
                   </Button>
                   <Button
                     onClick={() => handleDeleteClick(p.id)}
-                    color="secondary"
+                    color="error"
+                    variant="contained"
+                    sx={{ m: 0.5 }}
                   >
-                    Delete
+                    Supprimer
                   </Button>
                   <Button
                     onClick={() => handleChangePasswordClick(p.id)}
                     color="warning"
+                    variant="contained"
+                    sx={{ m: 0.5 }}
+                    startIcon={<Key />}
                   >
-                    Change Password
-                  </Button>
-                  <Button
-                    onClick={() => handleGeneratePasswordClick(p.id)}
-                    color="success"
-                  >
-                    Generate Password
+                    Mot de passe
                   </Button>
                 </TableCell>
               </TableRow>
@@ -227,118 +388,156 @@ const ProfTable = () => {
         </Table>
       </TableContainer>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Pagination */}
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={filteredProfs.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+
+      {/* Delete Dialog */}
       <Dialog open={openDelete} onClose={handleClose}>
-        <DialogTitle>Delete Professor</DialogTitle>
+        <DialogTitle>Supprimer Professeur</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this professor? This action cannot
-            be undone.
+            Êtes-vous sûr de vouloir supprimer ce professeur ?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleDeleteAgree}>Delete</Button>
+          <Button onClick={handleClose}>Annuler</Button>
+          <Button onClick={handleDeleteAgree} color="error">
+            Supprimer
+          </Button>
         </DialogActions>
       </Dialog>
 
       {/* Edit Dialog */}
       <Dialog open={openEdit} onClose={handleClose}>
-        <DialogTitle>
-          {selectedProfId ? "Edit Professor" : "Add Professor"}
-        </DialogTitle>
+        <DialogTitle>Modifier Professeur</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             required
             margin="dense"
-            id="firstName"
-            label="First Name"
-            type="text"
+            label="Nom"
             fullWidth
-            variant="standard"
-            value={newFirstName}
-            onChange={(e) => setNewFirstName(e.target.value)}
-            sx={{ mb: 2 }}
+            value={newNom}
+            onChange={(e) => setNewNom(e.target.value)}
           />
           <TextField
             required
             margin="dense"
-            id="lastName"
-            label="Last Name"
-            type="text"
+            label="Prénom"
             fullWidth
-            variant="standard"
-            value={newLastName}
-            onChange={(e) => setNewLastName(e.target.value)}
-            sx={{ mb: 2 }}
+            value={newPrenom}
+            onChange={(e) => setNewPrenom(e.target.value)}
           />
           <TextField
             required
             margin="dense"
-            id="email"
             label="Email"
-            type="email"
             fullWidth
-            variant="standard"
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
-            sx={{ mb: 2 }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleEditAgree}>Save</Button>
+          <Button onClick={handleClose}>Annuler</Button>
+          <Button onClick={handleEditAgree} color="primary">
+            Enregistrer
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Dialog */}
+      <Dialog open={openAdd} onClose={handleClose}>
+        <DialogTitle>Ajouter un Professeur</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            label="Nom"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <TextField
+            required
+            margin="dense"
+            label="Prénom"
+            fullWidth
+            value={prenom}
+            onChange={(e) => setPrenom(e.target.value)}
+          />
+          <TextField
+            required
+            margin="dense"
+            label="Email"
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            required
+            margin="dense"
+            label="Mot de passe"
+            fullWidth
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Annuler</Button>
+          <Button onClick={handleAddAgree} color="primary">
+            Ajouter
+          </Button>
         </DialogActions>
       </Dialog>
 
       {/* Change Password Dialog */}
       <Dialog open={openChangePassword} onClose={handleClose}>
-        <DialogTitle>Change Password</DialogTitle>
+        <DialogTitle>Changer le mot de passe</DialogTitle>
         <DialogContent>
           <TextField
-            autoFocus
-            required
             margin="dense"
-            id="newPassword"
-            label="New Password"
+            label="Nouveau mot de passe"
             type="password"
             fullWidth
-            variant="standard"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            sx={{ mb: 2 }}
+            color={getPasswordStrengthColor(newPassword)}
+            helperText={getPasswordStrength(newPassword)}
           />
           <TextField
-            required
             margin="dense"
-            id="confirmPassword"
-            label="Confirm Password"
+            label="Confirmer le mot de passe"
             type="password"
             fullWidth
-            variant="standard"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            sx={{ mb: 2 }}
+            error={confirmPassword !== newPassword && confirmPassword !== ""}
+            helperText={
+              confirmPassword !== newPassword && confirmPassword !== ""
+                ? "Les mots de passe ne correspondent pas"
+                : ""
+            }
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleChangePasswordAgree}>Save</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Generate Password Dialog */}
-      <Dialog open={openGeneratePassword} onClose={handleClose}>
-        <DialogTitle>Generate Password</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            The generated password is: <strong>{generatedPassword}</strong>
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleGeneratePasswordAgree}>Confirm</Button>
+          <Button onClick={handleClose}>Annuler</Button>
+          <Button
+            onClick={handleChangePasswordAgree}
+            color="primary"
+            disabled={!newPassword || newPassword !== confirmPassword}
+          >
+            Enregistrer
+          </Button>
         </DialogActions>
       </Dialog>
     </>

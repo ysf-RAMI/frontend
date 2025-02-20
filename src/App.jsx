@@ -12,23 +12,40 @@ import ModuleDetails from "./Pages/ModuleDetails";
 import { NotFound } from "./Pages/notFound";
 import NavbarComponent from "./Components/NavbarComponent";
 import Prof from "./Pages/Prof";
-import Admin from "./Pages/admin";
+import Admin from "./Pages/Admin";
 import Profile from "./Pages/Profile";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import Loading from "./Components/Loading"; // Import the Loading component
+import Loading from "./Components/Loading";
+import UserAuthProvider from "./Context/Auth/UserAuth";
+import AdminRoutes from "./Context/Auth/AdminRoutes";
+import ProfRoutes from "./Context/Auth/ProfRoutes";
+import "react-toastify/dist/ReactToastify.css";
+import { ThemeContextProvider } from "./Context/ThemeContext";
+import { useTheme } from "@mui/material";
+import { ToastContainer } from "react-toastify";
 
 function App() {
-  const [filiere, setFiliere] = useState([]); // Initialize as empty array
+  const [filiere, setFiliere] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
-  const [isLoading, setIsLoading] = useState(true); // Real loading state
+  const [isLoading, setIsLoading] = useState(true);
+
+  const theme = useTheme(); // Access the current theme
+
+  useEffect(() => {
+    // Set the data-theme attribute on the root element
+    document.documentElement.setAttribute(
+      "data-theme",
+      theme.palette.mode === "dark" ? "dark" : "light"
+    );
+  }, [theme.palette.mode]);
 
   useEffect(() => {
     const handleResize = () => {
       const isSmall = window.innerWidth < 768;
       setIsSmallScreen(isSmall);
-      setIsDrawerOpen(!isSmall); // Fermeture auto sur mobile
+      setIsDrawerOpen(!isSmall);
     };
 
     handleResize();
@@ -37,30 +54,26 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Simulate fetching data and initializing AOS
     const initializeApp = async () => {
       try {
-        // Simulate fetching filieres data (replace with real API call)
         const fetchFiliereData = new Promise((resolve) => {
           setTimeout(() => {
-            setFiliere(filieres); // Set fetched data
+            setFiliere(filieres);
             resolve();
-          }, 100); // Simulate 1-second delay
+          }, 100);
         });
 
-        // Initialize AOS
         AOS.init({
           duration: 500,
           easing: "ease-in-out-quart",
           delay: 100,
         });
 
-        // Wait for all async operations to complete
         await Promise.all([fetchFiliereData]);
       } catch (error) {
         console.error("Error during initialization:", error);
       } finally {
-        setIsLoading(false); // Set loading to false
+        setIsLoading(false);
       }
     };
 
@@ -71,60 +84,86 @@ function App() {
     setIsDrawerOpen(open);
   };
 
-  // Render the Loading component if isLoading is true
   if (isLoading) {
     return <Loading />;
   }
 
   return (
-    <moduleContext.Provider value={{ filiere, setFiliere }}>
-      <BrowserRouter>
-        <NavbarComponent
-          isDrawerOpen={isDrawerOpen}
-          toggleDrawer={toggleDrawer}
-          isSmallScreen={isSmallScreen}
-        />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/filiere" element={<Filiere />} />
-          <Route path="/filiere/:filiereId" element={<FiliereDetails />} />
-          <Route
-            path="/filiere/:filiereId/module/:moduleId"
-            element={
-              <ModuleDetails
+    <div className="userProfile">
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
+      <ThemeContextProvider>
+        <UserAuthProvider>
+          <moduleContext.Provider value={{ filiere, setFiliere }}>
+            <BrowserRouter>
+              <NavbarComponent
                 isDrawerOpen={isDrawerOpen}
                 toggleDrawer={toggleDrawer}
                 isSmallScreen={isSmallScreen}
               />
-            }
-          />
-          <Route path="/login" element={<Login />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route
-            path="/prof"
-            element={
-              <Prof
-                isDrawerOpen={isDrawerOpen}
-                toggleDrawer={toggleDrawer}
-                isSmallScreen={isSmallScreen}
-              />
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <Admin
-                isDrawerOpen={isDrawerOpen}
-                toggleDrawer={toggleDrawer}
-                isSmallScreen={isSmallScreen}
-              />
-            }
-          />
-          <Route path="/*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </moduleContext.Provider>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/filiere" element={<Filiere />} />
+                <Route
+                  path="/filiere/:filiereId"
+                  element={<FiliereDetails />}
+                />
+                <Route
+                  path="/filiere/:filiereId/module/:moduleId"
+                  element={
+                    <ModuleDetails
+                      isDrawerOpen={isDrawerOpen}
+                      toggleDrawer={toggleDrawer}
+                      isSmallScreen={isSmallScreen}
+                    />
+                  }
+                />
+                <Route path="/login" element={<Login />} />
+
+                <Route element={<AdminRoutes />}>
+                  <Route
+                    path="/admin"
+                    element={
+                      <Admin
+                        isDrawerOpen={isDrawerOpen}
+                        toggleDrawer={toggleDrawer}
+                        isSmallScreen={isSmallScreen}
+                      />
+                    }
+                  />
+                </Route>
+
+                <Route element={<ProfRoutes />}>
+                  <Route
+                    path="/prof"
+                    element={
+                      <Prof
+                        isDrawerOpen={isDrawerOpen}
+                        toggleDrawer={toggleDrawer}
+                        isSmallScreen={isSmallScreen}
+                      />
+                    }
+                  />
+                </Route>
+
+                <Route path="/profile" element={<Profile />} />
+
+                <Route path="/*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </moduleContext.Provider>
+        </UserAuthProvider>
+      </ThemeContextProvider>
+    </div>
   );
 }
 

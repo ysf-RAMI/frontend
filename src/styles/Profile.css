@@ -8,8 +8,8 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: var(--text-color);
+  color: var(--text-color); /* Use CSS variable for text color */
+  background-color: var(--background-color); /* Use CSS variable for background */
   transition: all var(--transition-speed) ease;
   margin-bottom: 0;
-  color: rgb(0, 108, 113),
 }

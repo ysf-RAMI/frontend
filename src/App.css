@@ -94,3 +94,13 @@ body {
   text-align: center;
   margin-bottom: 40px;
 }
+
+:root {
+  --text-color: #000; /* Light theme text color */
+  --background-color: #fff; /* Light theme background */
+}
+
+[data-theme="dark"] {
+  --text-color: #fff; /* Dark theme text color */
+  --background-color: #121212; /* Dark theme background */
+}

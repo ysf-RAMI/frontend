@@ -8,10 +8,12 @@ import {
   Divider,
   Paper,
   Avatar,
+  useTheme, // Import useTheme
 } from "@mui/material";
 import user from "../assets/pic-1.jpg";
 
 const Profile = () => {
+  const theme = useTheme(); // Access the current theme
   const [userInfo, setUserInfo] = useState({
     firstName: "Youssef",
     lastName: "RAMI",
@@ -39,7 +41,7 @@ const Profile = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#f8f9fa",
+        backgroundColor: theme.palette.background.default, // Use theme-aware background
         padding: "20px",
       }}
     >
@@ -51,7 +53,7 @@ const Profile = () => {
             flexDirection: { xs: "column", md: "row" },
             padding: "20px",
             borderRadius: "10px",
-            backgroundColor: "#ffffff",
+            backgroundColor: theme.palette.background.paper, // Use theme-aware background
           }}
         >
           {/* Left Side: User Info */}
@@ -70,14 +72,27 @@ const Profile = () => {
               alt="User"
               sx={{ width: "100px", height: "100px", mb: 2 }}
             />
-            <Typography variant="h5" sx={{ fontWeight: "bold", mb: 1 }}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: "bold",
+                mb: 1,
+                color: theme.palette.text.primary,
+              }} // Use theme-aware text color
+            >
               {userInfo.firstName} {userInfo.lastName}
             </Typography>
-            <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
+            <Typography
+              variant="body1"
+              sx={{ mb: 2, color: theme.palette.text.secondary }} // Use theme-aware text color
+            >
               {userInfo.email}
             </Typography>
             <Divider sx={{ width: "100%", my: 2 }} />
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", color: theme.palette.text.primary }} // Use theme-aware text color
+            >
               Filière: Génie Informatique
             </Typography>
           </Box>
@@ -98,7 +113,14 @@ const Profile = () => {
               padding: "20px",
             }}
           >
-            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 3 }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: "bold",
+                mb: 3,
+                color: theme.palette.text.primary,
+              }} // Use theme-aware text color
+            >
               Edit Profile
             </Typography>
             <form onSubmit={handleSubmit}>
@@ -126,14 +148,13 @@ const Profile = () => {
                 onChange={handleChange}
                 sx={{ mb: 3 }}
               />
-             
               <Button
                 type="submit"
                 variant="contained"
                 sx={{
-                  backgroundColor: "#01162e",
-                  color: "#ffffff",
-                  "&:hover": { backgroundColor: "#003366" },
+                  backgroundColor: theme.palette.primary.main, // Use theme-aware primary color
+                  color: theme.palette.primary.contrastText, // Use theme-aware contrast text color
+                  "&:hover": { backgroundColor: theme.palette.primary.dark }, // Use theme-aware hover color
                 }}
               >
                 Save Changes
@@ -147,3 +168,4 @@ const Profile = () => {
 };
 
 export default Profile;
+  

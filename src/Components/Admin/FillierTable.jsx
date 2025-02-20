@@ -13,40 +13,111 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
+  TablePagination,
+  tableCellClasses,
 } from "@mui/material";
-import { useContext, useState } from "react";
-import moduleContext from "../../Context/ModuleContext";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { styled } from "@mui/styles";
 
 const FiliereTable = () => {
-  const { filiere, setFiliere } = useContext(moduleContext);
+  const [filiere, setFiliere] = useState([]);
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
   const [selectedFiliereId, setSelectedFiliereId] = useState(null);
   const [newFiliereName, setNewFiliereName] = useState("");
   const [addFiliereName, setAddFiliereName] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const baseUrl = "http://localhost:8080/api/admin";
+  const token = JSON.parse(localStorage.getItem("auth"))?.token;
 
-  if (!filiere || filiere.length === 0) {
-    return <p>No filières available.</p>;
-  }
+  // Fetch all filières on component mount
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}/getAllFiliere`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        setFiliere(res.data);
+        console.log("response from fillier table ", res.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching filières:", error);
+        toast.error("Erreur lors de la récupération des filières");
+      });
+  }, [token]);
+
+  // Handle search input change
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setPage(0); // Reset to the first page when searching
+  };
+
+  // Filter filières based on search term
+  const filteredFiliere = filiere.filter((f) =>
+    f.nom.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Handle pagination
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  // Calculate the rows to display for the current page
+  const paginatedFiliere = filteredFiliere.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  const handleAddClick = () => {
+    setOpenAdd(true);
+  };
 
   const handleEditClick = (id) => {
     const selectedFiliere = filiere.find((f) => f.id === id);
     if (selectedFiliere) {
       setSelectedFiliereId(id);
-      setNewFiliereName(selectedFiliere.name);
+      setNewFiliereName(selectedFiliere.nom);
       setOpenEdit(true);
     }
   };
 
   const handleEditAgree = () => {
     if (selectedFiliereId && newFiliereName.trim() !== "") {
-      setFiliere((prevFiliere) =>
-        prevFiliere.map((f) =>
-          f.id === selectedFiliereId ? { ...f, name: newFiliereName } : f
+      axios
+        .put(
+          `${baseUrl}/ModifyFiliere`,
+          { id: selectedFiliereId, nom: newFiliereName },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         )
-      );
-      handleClose();
+        .then(() => {
+          setFiliere((prevFiliere) =>
+            prevFiliere.map((f) =>
+              f.id === selectedFiliereId ? { ...f, nom: newFiliereName } : f
+            )
+          );
+          toast.success("Filière modifiée avec succès");
+          handleClose();
+        })
+        .catch((error) => {
+          console.error("Error updating filière:", error);
+          toast.error("Erreur lors de la modification de la filière");
+        });
     }
   };
 
@@ -57,25 +128,48 @@ const FiliereTable = () => {
 
   const handleDeleteAgree = () => {
     if (selectedFiliereId) {
-      setFiliere(filiere.filter((f) => f.id !== selectedFiliereId));
+      axios
+        .delete(`${baseUrl}/RemoveFiliere/${selectedFiliereId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(() => {
+          setFiliere((prevFiliere) =>
+            prevFiliere.filter((f) => f.id !== selectedFiliereId)
+          );
+          toast.success("Filière supprimée avec succès");
+        })
+        .catch((error) => {
+          console.error("Error deleting filière:", error);
+          toast.error("Erreur lors de la suppression de la filière");
+        });
+      handleClose();
     }
-    handleClose();
-  };
-
-  const handleAddClick = () => {
-    setOpenAdd(true);
   };
 
   const handleAddAgree = () => {
     if (addFiliereName.trim() !== "") {
-      const newFiliere = {
-        id: filiere.length + 1,
-        name: addFiliereName,
-        modules: [],
-      };
-      setFiliere((prevFiliere) => [...prevFiliere, newFiliere]);
-      setAddFiliereName("");
-      handleClose();
+      axios
+        .post(
+          `${baseUrl}/AddNewFiliere`,
+          { nom: addFiliereName },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((res) => {
+          setFiliere((prevFiliere) => [...prevFiliere, res.data]);
+          toast.success("Filière ajoutée avec succès");
+          setAddFiliereName("");
+          handleClose();
+        })
+        .catch((error) => {
+          console.error("Error adding filière:", error);
+          toast.error("Erreur lors de l'ajout de la filière");
+        });
     }
   };
 
@@ -88,6 +182,8 @@ const FiliereTable = () => {
     setAddFiliereName("");
   };
 
+
+
   return (
     <>
       <Button
@@ -99,37 +195,75 @@ const FiliereTable = () => {
         Add Filière
       </Button>
 
-      <TableContainer component={Paper} sx={{ m: 2 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Nom Filière</TableCell>
-              <TableCell>Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filiere.map((f) => (
-              <TableRow key={f.id}>
-                <TableCell>{f.id}</TableCell>
-                <TableCell>{f.name}</TableCell>
-                <TableCell>
-                  <Button onClick={() => handleEditClick(f.id)} color="info">
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => handleDeleteClick(f.id)}
-                    color="secondary"
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      {/* Search Box */}
+      <TextField
+        label="Search Filière"
+        variant="outlined"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        sx={{ m: 2, width: "300px" }}
+      />
 
+      {filiere && filiere.length > 0 ? (
+        <>
+          <TableContainer component={Paper} sx={{ m: 2 }}>
+            <Table>
+              <TableHead style={{ backgroundColor: "#f4f4f9" }}>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Nom Filière</TableCell>
+                  <TableCell align="center">Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {paginatedFiliere.map((f, index) => (
+                  <TableRow
+                    key={f.id}
+                    style={{
+                      backgroundColor: index % 2 === 0 ? "#ffffff" : "#f4f4f9",
+                    }}
+                  >
+                    <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+                    <TableCell>{f.nom}</TableCell>
+                    <TableCell align="center">
+                      <Button
+                        variant="contained"
+                        onClick={() => handleEditClick(f.id)}
+                        color="info"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="contained"
+                        onClick={() => handleDeleteClick(f.id)}
+                        color="error"
+                        sx={{ ml: 2 }}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Pagination */}
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={filteredFiliere.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </>
+      ) : (
+        <p>No filière available.</p>
+      )}
+
+      {/* Dialogs for Add, Edit, and Delete */}
       <Dialog open={openDelete} onClose={handleClose}>
         <DialogTitle>Delete Filière</DialogTitle>
         <DialogContent>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   TextField,
@@ -13,8 +13,10 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import userImage from "../assets/9449194.png";
 import "../styles/Login.css";
+import { UserAuth } from "../Context/Auth/UserAuth";
+import { Navigate, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify"; // Import toast
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,7 +26,19 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const nivagate = useNavigate();
+  const { auth, setAuth } = useContext(UserAuth);
+  const navigate = useNavigate();
+
+  // Check if the user is already logged in
+  useEffect(() => {
+    const check = localStorage.getItem("auth");
+    if (check) {
+      toast.warning("You are already logged ..!");
+      setTimeout(() => {
+        navigate("/home");
+      }, 1000); // Delay navigation to show toast
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,19 +52,33 @@ const Login = () => {
         { email, password },
         { withCredentials: true }
       );
-      console.log(response.data.jwt);
-      const decode = jwtDecode(response.data.jwt);
-      console.log(decode);
-      console.log(decode.role[0]);
-      if (decode.role[0] === "ROLE_ADMIN") {
-        nivagate("/admin");
-      } else if (decode.role[0] === "ROLE_PROFESSEUR") {
-        nivagate("/prof");
+
+      setLoading(false);
+
+      // Log the full response to the console
+      if (response.data && response.data.jwt) {
+        const token = response.data.jwt;
+        localStorage.setItem("auth", JSON.stringify({ token }));
+        setAuth({ ...auth, token });
+
+        const decode = jwtDecode(response.data.jwt);
+        if (decode.role[0] === "ROLE_ADMIN") {
+          navigate("/admin");
+        } else if (decode.role[0] === "ROLE_PROFESSEUR") {
+          navigate("/prof");
+        }
+
+        // Show success toast after successful login
+        toast.success("Successfully logged in!");
       } else {
-        nivagate("/");
+        console.log("JWT token not found in the response.");
       }
     } catch (error) {
-      console.error("Login failed", error);
+      setLoading(false);
+      console.error("Login error: ", error);
+      setEmailError("Invalid email or password.");
+      setPasswordError("Invalid email or password.");
+      toast.error("Invalid email or password."); // Show error toast
     }
   };
 
