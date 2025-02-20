@@ -24,6 +24,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ThemeContextProvider } from "./Context/ThemeContext";
 import { useTheme } from "@mui/material";
 import { ToastContainer } from "react-toastify";
+import AnnouncementsPage from "./Pages/AnnouncementsPage";
 
 function App() {
   const [filiere, setFiliere] = useState([]);
@@ -89,7 +90,7 @@ function App() {
   }
 
   return (
-    <div className="userProfile">
+    <div className="userProfile" >
       <ToastContainer
         autoClose={2500}
         hideProgressBar={false}
@@ -158,6 +159,7 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
 
                 <Route path="/*" element={<NotFound />} />
+                <Route path="/announcements" element={<AnnouncementsPage />} />
               </Routes>
             </BrowserRouter>
           </moduleContext.Provider>

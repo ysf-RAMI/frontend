@@ -104,7 +104,7 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
       }`}
       fixed="top"
     >
-      <Container style={{ padding: 3 }}>
+      <Container style={{ padding: 0 }}>
         <Navbar.Brand href="/">
           {isSmallScreen && isProfPage ? (
             <IconButton

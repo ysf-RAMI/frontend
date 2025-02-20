@@ -10,7 +10,7 @@ export default function Hero() {
 
   const handleClick = () => {
     navigate("/filiere");
-    toast.success("Redirection vers la page des filières!");
+    toast.success("Redirection vers la page des cours!");
   };
 
   return (
@@ -23,10 +23,11 @@ export default function Hero() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundImage: "url('/path/to/your/hero-image.jpg')", // Replace with your image path
+          backgroundImage: "url('/path/to/your/hero-image.jpg')", // Remplacez avec le bon chemin
           backgroundSize: "cover",
           backgroundPosition: "center",
           color: "#ffffff",
+          fontFamily: "Open Sans, sans-serif", // Remplacez par la police souhaitée
         }}
       >
         <div
@@ -37,7 +38,7 @@ export default function Hero() {
             left: 0,
             width: "100%",
             height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)", // Dark overlay for better text visibility
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
           }}
         ></div>
         <motion.div
@@ -58,9 +59,10 @@ export default function Hero() {
               fontSize: { xs: "2.5rem", sm: "3.5rem", md: "4.5rem" },
               fontWeight: "bold",
               mb: 2,
+              fontFamily: "Open Sans, sans-serif",
             }}
           >
-            Bienvenue sur Tadrissia
+            Bienvenue sur Doctor H1
           </Typography>
           <Typography
             variant="body1"
@@ -70,11 +72,12 @@ export default function Hero() {
               mb: 4,
               maxWidth: "800px",
               mx: "auto",
+              fontFamily: "Open Sans, sans-serif",
             }}
           >
-            Votre plateforme éducative pour l'informatique et les technologies
-            de l'information. Apprenez, innovez et excellez avec nos cours
-            modernes et interactifs.
+            La plateforme éducative de référence pour les étudiants et
+            professionnels de la santé. Découvrez des cours interactifs et des
+            ressources pédagogiques adaptées à votre apprentissage.
           </Typography>
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -96,6 +99,7 @@ export default function Hero() {
                 },
                 padding: "12px 24px",
                 fontSize: "1.1rem",
+                fontFamily: "Open Sans, sans-serif",
               }}
               endIcon={<ArrowForwardIcon />}
             >

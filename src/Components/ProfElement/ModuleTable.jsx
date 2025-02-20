@@ -17,6 +17,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  TablePagination,
 } from "@mui/material";
 import { useContext, useState } from "react";
 import moduleContext from "../../Context/ModuleContext";
@@ -30,6 +31,9 @@ const ModuleTable = () => {
   const [newModuleName, setNewModuleName] = useState(""); // State for new module name
   const [addModuleName, setAddModuleName] = useState(""); // State for adding a new module
   const [selectedFiliereId, setSelectedFiliereId] = useState(null); // For selecting filière
+  const [searchTerm, setSearchTerm] = useState(""); // For search functionality
+  const [page, setPage] = useState(0); // For pagination
+  const [rowsPerPage, setRowsPerPage] = useState(5); // For pagination
 
   if (!filiere || filiere.length === 0) {
     return <p>No filières available.</p>;
@@ -46,6 +50,35 @@ const ModuleTable = () => {
   if (!modules || modules.length === 0) {
     return <p>No modules available.</p>;
   }
+
+  // Handle search input change
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setPage(0); // Reset to the first page when searching
+  };
+
+  // Filter modules based on search term
+  const filteredModules = modules.filter(
+    (module) =>
+      module.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      module.filiereName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Handle pagination
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  // Calculate the rows to display for the current page
+  const paginatedModules = filteredModules.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   // Handle edit button click
   const handleEditClick = (id) => {
@@ -149,6 +182,15 @@ const ModuleTable = () => {
         Add Module
       </Button>
 
+      {/* Search Box */}
+      <TextField
+        label="Search Modules"
+        variant="outlined"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        sx={{ m: 2, width: "300px" }}
+      />
+
       {/* Module Table */}
       <TableContainer component={Paper} sx={{ m: 2 }}>
         <Table>
@@ -161,7 +203,7 @@ const ModuleTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {modules.map((module) => (
+            {paginatedModules.map((module) => (
               <TableRow key={module.id}>
                 <TableCell>{module.id}</TableCell>
                 <TableCell>{module.name}</TableCell>
@@ -185,6 +227,17 @@ const ModuleTable = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Pagination */}
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={filteredModules.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={openDelete} onClose={handleClose}>

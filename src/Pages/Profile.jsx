@@ -1,166 +1,233 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Box,
   Container,
   TextField,
   Button,
   Typography,
-  Divider,
   Paper,
   Avatar,
-  useTheme, // Import useTheme
+  useTheme,
+  IconButton,
+  Alert,
+  Snackbar,
+  Divider,
+  Grid,
 } from "@mui/material";
-import user from "../assets/pic-1.jpg";
+import { PhotoCamera, Edit } from "@mui/icons-material";
 
 const Profile = () => {
-  const theme = useTheme(); // Access the current theme
-  const [userInfo, setUserInfo] = useState({
-    firstName: "Youssef",
-    lastName: "RAMI",
-    email: "youssef@rami.com",
-    phoneNumber: "(123) 456-7890",
-    city: "New York",
-    country: "America",
+  const theme = useTheme();
+  const fileInputRef = useRef(null);
+  const [showAlert, setShowAlert] = useState(false);
+
+  const [professorInfo, setProfessorInfo] = useState({
+    name: "Dr. Youssef RAMI",
+    module: "Genie informatique",
+    university: "Estg",
+    email: "youssef.rami@gmail.com",
+    description: "descortion dyal lostad",
   });
+
+  const [profileImage, setProfileImage] = useState("/api/placeholder/150/150");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUserInfo({ ...userInfo, [name]: value });
+    setProfessorInfo({ ...professorInfo, [name]: value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5000000) {
+        setShowAlert(true);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission, e.g., send data to an API
-    console.log("Updated User Info:", userInfo);
+    setShowAlert(true);
   };
 
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: theme.palette.background.default, // Use theme-aware background
+        backgroundColor: theme.palette.background.default,
         padding: "20px",
+        marginTop: "70px", // Adjusting for the navbar
+        fontFamily: "Open Sans, sans-serif", // Apply Open Sans font globally
       }}
     >
-      <Container maxWidth="md">
-        <Paper
-          elevation={3}
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            padding: "20px",
-            borderRadius: "10px",
-            backgroundColor: theme.palette.background.paper, // Use theme-aware background
-          }}
-        >
-          {/* Left Side: User Info */}
-          <Box
-            sx={{
-              width: { xs: "100%", md: "30%" },
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              padding: "20px",
-            }}
-          >
-            <Avatar
-              src={user}
-              alt="User"
-              sx={{ width: "100px", height: "100px", mb: 2 }}
-            />
-            <Typography
-              variant="h5"
+      <Container maxWidth="lg">
+        <Paper elevation={1} sx={{ borderRadius: "16px", overflow: "hidden" }}>
+          <Grid container spacing={2}>
+            {/* Left Column - Profile Display */}
+            <Grid
+              item
+              xs={12}
+              md={4}
               sx={{
-                fontWeight: "bold",
-                mb: 1,
-                color: theme.palette.text.primary,
-              }} // Use theme-aware text color
+                backgroundColor: theme.palette.background.paper,
+                borderRight: { md: `1px solid ${theme.palette.divider}` },
+                p: 4,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 2,
+              }}
             >
-              {userInfo.firstName} {userInfo.lastName}
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ mb: 2, color: theme.palette.text.secondary }} // Use theme-aware text color
-            >
-              {userInfo.email}
-            </Typography>
-            <Divider sx={{ width: "100%", my: 2 }} />
-            <Typography
-              variant="body1"
-              sx={{ fontWeight: "bold", color: theme.palette.text.primary }} // Use theme-aware text color
-            >
-              Filière: Génie Informatique
-            </Typography>
-          </Box>
+              <Box sx={{ position: "relative" }}>
+                <Avatar
+                  src={profileImage}
+                  alt="Rami"
+                  sx={{
+                    width: 180,
+                    height: 180,
+                    border: "3px solid",
+                    borderColor: theme.palette.primary.main,
+                  }}
+                />
+                <IconButton
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    backgroundColor: "white",
+                    boxShadow: theme.shadows[2],
+                    "&:hover": { backgroundColor: theme.palette.grey[100] },
+                  }}
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  <PhotoCamera />
+                </IconButton>
+                <input
+                  type="file"
+                  hidden
+                  ref={fileInputRef}
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+              </Box>
 
-          {/* Divider */}
-          <Divider
-            orientation="vertical"
-            flexItem
-            sx={{ mx: { xs: 0, md: 3 }, my: { xs: 3, md: 0 } }}
-          />
-
-          {/* Right Side: Edit Profile Form */}
-          <Box
-            sx={{
-              width: { xs: "100%", md: "65%" },
-              display: "flex",
-              flexDirection: "column",
-              padding: "20px",
-            }}
-          >
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: "bold",
-                mb: 3,
-                color: theme.palette.text.primary,
-              }} // Use theme-aware text color
-            >
-              Edit Profile
-            </Typography>
-            <form onSubmit={handleSubmit}>
-              <TextField
-                fullWidth
-                label="First Name"
-                name="firstName"
-                value={userInfo.firstName}
-                onChange={handleChange}
-                sx={{ mb: 3 }}
-              />
-              <TextField
-                fullWidth
-                label="Last Name"
-                name="lastName"
-                value={userInfo.lastName}
-                onChange={handleChange}
-                sx={{ mb: 3 }}
-              />
-              <TextField
-                fullWidth
-                label="Email"
-                name="email"
-                value={userInfo.email}
-                onChange={handleChange}
-                sx={{ mb: 3 }}
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{
-                  backgroundColor: theme.palette.primary.main, // Use theme-aware primary color
-                  color: theme.palette.primary.contrastText, // Use theme-aware contrast text color
-                  "&:hover": { backgroundColor: theme.palette.primary.dark }, // Use theme-aware hover color
-                }}
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}
               >
-                Save Changes
-              </Button>
-            </form>
-          </Box>
+                {professorInfo.name}
+              </Typography>
+
+              <Typography
+                variant="body1"
+                color="primary"
+                sx={{ textAlign: "center" }}
+              >
+                {professorInfo.module}
+              </Typography>
+
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textAlign: "center" }}
+              >
+                {professorInfo.university}
+              </Typography>
+
+              <Box sx={{ width: "100%", mt: 2 ,textAlign:"center"}}>
+                <Typography variant="body1" sx={{ fontWeight: "medium" }}>
+                  Email:
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {professorInfo.email}
+                </Typography>
+              </Box>
+
+              <Box sx={{ width: "100%" ,textAlign:"center"}}>
+                <Typography variant="body1" sx={{ fontWeight: "medium" }}>
+                  Description:
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {professorInfo.description}
+                </Typography>
+              </Box>
+            </Grid>
+
+            {/* Right Column - Edit Form */}
+            <Grid item xs={12} md={8} sx={{ p: 4 }}>
+              <Typography variant="h5" sx={{ mb: 2 }}>
+                Update Profile Information
+              </Typography>
+
+              <Box component="form" onSubmit={handleSubmit}>
+                <TextField
+                  fullWidth
+                  label="Full Name"
+                  name="name"
+                  value={professorInfo.name}
+                  onChange={handleChange}
+                  sx={{ mb: 2 }}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Module/Course"
+                  name="module"
+                  value={professorInfo.module}
+                  onChange={handleChange}
+                  sx={{ mb: 2 }}
+                />
+
+                <TextField
+                  fullWidth
+                  label="University"
+                  name="university"
+                  value={professorInfo.university}
+                  onChange={handleChange}
+                  sx={{ mb: 2 }}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={professorInfo.email}
+                  onChange={handleChange}
+                  sx={{ mb: 3 }}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Description"
+                  name="description"
+                  multiline
+                  rows={4}
+                  value={professorInfo.description}
+                  onChange={handleChange}
+                  sx={{ mb: 4 }}
+                />
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  startIcon={<Edit />}
+                  sx={{
+                    backgroundColor: theme.palette.primary.main,
+                    "&:hover": { backgroundColor: theme.palette.primary.dark },
+                  }}
+                >
+                  Save Changes
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
         </Paper>
       </Container>
     </Box>
@@ -168,4 +235,3 @@ const Profile = () => {
 };
 
 export default Profile;
-  

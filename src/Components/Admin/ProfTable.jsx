@@ -331,7 +331,7 @@ const ProfTable = ({ profs, setProfs }) => {
         sx={{ m: 2, width: "300px" }}
       />
 
-      <TableContainer component={Paper} sx={{ m: 2 }}>
+      <TableContainer component={Paper} sx={{ m: 2 ,fontFamily:"Open Sans ,sans-serif" }}>
         <Table>
           <TableHead style={{ backgroundColor: "#f4f4f9" }}>
             

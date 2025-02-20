@@ -40,6 +40,7 @@ import TPTable from "../Components/ProfElement/TpTable";
 import { Link, useNavigate } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext"; // Import the ThemeContext
 import logo from "../assets/logoSite.png";
+import { jwtDecode } from "jwt-decode";
 
 const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const [selectedSection, setSelectedSection] = useState("module");
@@ -47,11 +48,20 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const { darkMode, toggleTheme } = useContext(ThemeContext); // Use ThemeContext
   const theme = useTheme();
   const navigate = useNavigate();
+  const [modules, setModules] = useState([]);
+  const basUrl = "http://localhost:8080";
+
+  useEffect(() => {
+    const auth = localStorage.getItem("auth");
+    const token = JSON.parse(auth).token;
+    const decoded = jwtDecode(token);
+    console.log(decoded);
+  }, [modules]);
 
   const handleSectionClick = (section) => {
     setSelectedSection(section);
     if (isSmallScreen) {
-      toggleDrawer(false); // Auto-close the drawer on small screens
+      toggleDrawer(false); 
     }
   };
 
@@ -63,13 +73,13 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
     setAnchorEl(null);
   };
 
- const handleLogout = () => {
-   localStorage.removeItem("auth");
-   toast.success("Logged out successfully!");
-   setTimeout(() => {
-     window.location.href = "/";
-   }, 500);
- };
+  const handleLogout = () => {
+    localStorage.removeItem("auth");
+    toast.success("Logged out successfully!");
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 500);
+  };
 
   const drawerContent = (
     <Box

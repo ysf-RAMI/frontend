@@ -19,15 +19,15 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: url("../assets/9919ff6a-df1c-4b8d-a8c9-87cf4770cdd7.png") no-repeat center center/cover;
-  filter: brightness(0.4); /* Adjust brightness (0.7 = 70% brightness) */
+  width: 100vw;
+  height: 100vh;
+  background: url("../assets/imgback.png") no-repeat center center/cover;
+  filter: brightness(0.3); /* Adjust brightness (0.7 = 70% brightness) */
 }
 .hero-content {
   z-index: 1;
   padding: 20px;
-  max-width: 800px;
+  max-width: 700px;
   text-align: center;
 }
 

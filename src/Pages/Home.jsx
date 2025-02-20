@@ -24,6 +24,8 @@ import Testimonial from "../Components/Home/Testimonial";
 import Features from "../Components/Home/Features";
 import Hero from "../Components/Home/Hero";
 import Footer from "../Components/Footer";
+import ProfessorsSection from "../Components/Home/ProfessorsSection";
+import AnnouncementSection from "../Components/Home/AnnouncementSection";
 
 AOS.init();
 
@@ -58,6 +60,8 @@ export const Home = () => {
     <div className="home-container" style={{ userSelect: "none" }}>
       <ToastContainer />
       <Hero />
+      <AnnouncementSection />
+      <ProfessorsSection />
       <Features />
       <Testimonial />
       <Call />

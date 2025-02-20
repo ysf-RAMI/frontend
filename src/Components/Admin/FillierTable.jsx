@@ -14,13 +14,19 @@ import {
   DialogTitle,
   TextField,
   TablePagination,
-  tableCellClasses,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { styled } from "@mui/styles";
 
+/**
+ * FiliereTable component
+ *
+ * This component displays a table of all filières, allows the user to search for
+ * a specific filière, and provides buttons to add, edit, and delete filières.
+ *
+ * @returns {React.ReactElement} The FiliereTable component
+ */
 const FiliereTable = () => {
   const [filiere, setFiliere] = useState([]);
   const [openDelete, setOpenDelete] = useState(false);
@@ -52,6 +58,8 @@ const FiliereTable = () => {
         toast.error("Erreur lors de la récupération des filières");
       });
   }, [token]);
+
+
 
   // Handle search input change
   const handleSearchChange = (event) => {

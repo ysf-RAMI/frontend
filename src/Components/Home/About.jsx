@@ -18,14 +18,24 @@ export default function About() {
           <Typography
             variant="h6"
             color="primary"
-            sx={{ letterSpacing: 2, textTransform: "uppercase", mb: 1 }}
+            sx={{
+              letterSpacing: 2,
+              textTransform: "uppercase",
+              mb: 1,
+              fontFamily: "Work Sans",
+              fontWeight: 400,
+            }}
             data-aos="fade-up"
           >
             À propos de Nous
           </Typography>
           <Typography
             variant="h4"
-            sx={{ mb: 4 }}
+            sx={{
+              mb: 4,
+              fontFamily: "Work Sans",
+              fontWeight: 500,
+            }}
             data-aos="fade-up"
             data-aos-delay="100"
           >
@@ -47,7 +57,12 @@ export default function About() {
                   <Typography
                     variant="body1"
                     className="about-description"
-                    sx={{ fontSize: "1.1rem", lineHeight: 1.6 }}
+                    sx={{
+                      fontSize: "1.1rem",
+                      lineHeight: 1.6,
+                      fontFamily: "Work Sans",
+                      fontWeight: 400,
+                    }}
                   >
                     Tadrissia est une plateforme éducative dédiée à
                     l'apprentissage de l'informatique et des technologies de
