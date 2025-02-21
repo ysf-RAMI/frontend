@@ -27,7 +27,7 @@ const AnnouncementsPage = () => {
       title: "cors de soire",
       description: "descrption annonce",
       professor: {
-        name: "Dr. Sarah Johnson",
+        name: "Dr. hemza hamout",
         avatar: "/api/placeholder/50/50",
         department: "genie informatique",
       },
@@ -38,7 +38,7 @@ const AnnouncementsPage = () => {
       title: "cors de soire",
       description: "descrption annonce",
       professor: {
-        name: "Dr. Sarah Johnson",
+        name: "Dr. hemza hamout",
         avatar: "/api/placeholder/50/50",
         department: "genie informatique",
       },
@@ -49,7 +49,7 @@ const AnnouncementsPage = () => {
       title: "cors de soire",
       description: "descrption annonce",
       professor: {
-        name: "Dr. Sarah Johnson",
+        name: "Dr. hemza hamout",
         avatar: "/api/placeholder/50/50",
         department: "genie informatique",
       },
@@ -60,7 +60,7 @@ const AnnouncementsPage = () => {
       title: "cors de soire",
       description: "descrption annonce",
       professor: {
-        name: "Dr. Sarah Johnson",
+        name: "Dr. hemza hamout",
         avatar: "/api/placeholder/50/50",
         department: "genie informatique",
       },
@@ -71,7 +71,7 @@ const AnnouncementsPage = () => {
       title: "cors de soire",
       description: "descrption annonce",
       professor: {
-        name: "Dr. Sarah Johnson",
+        name: "Dr. hemza hamout",
         avatar: "/api/placeholder/50/50",
         department: "genie informatique",
       },
@@ -82,7 +82,7 @@ const AnnouncementsPage = () => {
       title: "cors de soire",
       description: "descrption annonce",
       professor: {
-        name: "Dr. Sarah Johnson",
+        name: "Dr. hemza hamout",
         avatar: "/api/placeholder/50/50",
         department: "genie informatique",
       },

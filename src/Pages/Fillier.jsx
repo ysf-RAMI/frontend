@@ -14,19 +14,17 @@ import {
   IconButton,
   Box,
 } from "@mui/material";
-import { Search, School, MenuBook, People } from "@mui/icons-material";
+import { Search } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import moduleContext from "../Context/ModuleContext";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-
-
 // Filiere Card Component
 const FiliereCard = ({ filiere }) => (
   <Card
-    className="h-100 shadow-sm hover-card"
+    className="filiere-card shadow-sm"
     data-aos="fade-up"
     sx={{
       transition: "transform 0.3s ease-in-out",
@@ -37,13 +35,21 @@ const FiliereCard = ({ filiere }) => (
     }}
   >
     <CardContent>
-      <Typography variant="h6" gutterBottom component="div" className="mb-3">
+      <Typography variant="h5" gutterBottom component="div" className="mb-3">
         {filiere.nomFiliere}
       </Typography>
-      <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+      <Typography variant="body1" color="textSecondary" gutterBottom>
         Modules disponibles
       </Typography>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 1,
+          mt: 2,
+          justifyContent: "center",
+        }}
+      >
         {filiere.modules.map((module) => (
           <Chip
             key={module.moduleId}
@@ -149,13 +155,17 @@ export default function Filiere() {
     <>
       <style>
         {`
-          .hover-card {
+          .filiere-card {
             transition: all 0.3s ease;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
           }
 
-          .hover-card:hover {
+          .filiere-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
           }
 
           ::-webkit-scrollbar {
@@ -214,10 +224,8 @@ export default function Filiere() {
           />
         </Box>
 
-      
-
         {/* Filières Grid */}
-        <Row className="mt-5">
+        <Row>
           {filiere.map((f, index) => (
             <Col
               key={f.filiereId}

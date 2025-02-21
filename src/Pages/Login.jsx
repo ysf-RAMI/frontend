@@ -181,8 +181,10 @@ const Login = () => {
 
             {/* Loading Animation */}
             {loading && (
-              <div className="animation-container">
-                <div className="loading-bar"></div>
+              <div className="animation-container" style={{backgroundColor:"blue"}}>
+                <div className="loading-bar" style={{backgroundColor:"green"}}>
+                  
+                </div>
               </div>
             )}
           </motion.div>

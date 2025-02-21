@@ -75,9 +75,8 @@ export default function Hero() {
               fontFamily: "Open Sans, sans-serif",
             }}
           >
-            La plateforme éducative de référence pour les étudiants et
-            professionnels de la santé. Découvrez des cours interactifs et des
-            ressources pédagogiques adaptées à votre apprentissage.
+            La plateforme éducative de référence pour les étudiants. Découvrez des cours interactifs et des
+            ressources pédagogiques.
           </Typography>
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}

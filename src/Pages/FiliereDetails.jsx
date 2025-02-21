@@ -1,9 +1,9 @@
-import  { useContext, useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom"; // Import Link
+import { useContext, useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 import { Col, Row, Container } from "react-bootstrap";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import  moduleContext  from "../Context/ModuleContext";
+import moduleContext from "../Context/ModuleContext";
 import "../styles/FiliereDetails.css";
 import {
   TextField,
@@ -18,7 +18,6 @@ import {
 } from "@mui/material";
 
 // Animated Card Component for smooth animation
-// eslint-disable-next-line react/prop-types
 const AnimatedCard = ({ children }) => {
   const controls = useAnimation();
   const [ref, inView] = useInView({ triggerOnce: true });
@@ -47,13 +46,12 @@ const AnimatedCard = ({ children }) => {
 };
 
 export default function FiliereDetails() {
-  const { filiereId } = useParams(); // Retrieve filiereId from URL
-  const { filiere } =   useContext(moduleContext);
+  const { filiereId } = useParams();
+  const { filiere } = useContext(moduleContext);
   const [selectedFiliere, setSelectedFiliere] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [openModal, setOpenModal] = useState(false);
 
-  // Find the selected filiere by ID
   useEffect(() => {
     const foundFiliere = filiere.find(
       (f) => f.filiereId === parseInt(filiereId)
@@ -61,13 +59,9 @@ export default function FiliereDetails() {
     setSelectedFiliere(foundFiliere);
   }, [filiere, filiereId]);
 
-  // Function to handle modal opening
   const handleSearchClick = () => setOpenModal(true);
-
-  // Function to close modal
   const handleCloseModal = () => setOpenModal(false);
 
-  // Filtered modules based on search input
   const filteredModules = selectedFiliere
     ? selectedFiliere.modules.filter((module) =>
         module.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -76,9 +70,8 @@ export default function FiliereDetails() {
 
   return (
     <>
-
       {selectedFiliere ? (
-        <Container className="main-content" style={{marginTop:"100px"}}>
+        <Container className="main-content" style={{ marginTop: "100px" }}>
           <Typography variant="h3" className="serviceMainTitle">
             Modules de {selectedFiliere.nomFiliere}
           </Typography>
@@ -94,7 +87,6 @@ export default function FiliereDetails() {
             <Row className="justify-content-center">
               {filteredModules.map((module) => (
                 <Col key={module.moduleId} lg={4} md={6} sm={12}>
-                  {/* Wrap the card in a Link to navigate to ModuleDetails */}
                   <Link
                     to={`/filiere/${filiereId}/module/${module.moduleId}`}
                     style={{ textDecoration: "none" }}
@@ -124,7 +116,6 @@ export default function FiliereDetails() {
         </Container>
       )}
 
-      {/* Modal for Search */}
       <Dialog
         open={openModal}
         onClose={handleCloseModal}
