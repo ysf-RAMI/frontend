@@ -16,11 +16,11 @@ import {
   TablePagination,
 } from "@mui/material";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Key } from "@mui/icons-material";
 import { toast } from "react-toastify";
 
-const ProfTable = ({ profs, setProfs }) => {
+const ProfTable = () => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
@@ -38,17 +38,32 @@ const ProfTable = ({ profs, setProfs }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [profs, setProfs] = useState([]);
 
   const baseUrl = "http://localhost:8080/api/admin";
-  const { token } = JSON.parse(localStorage.getItem("auth"));
+  const { token } = JSON.parse(localStorage.getItem("auth")) || {};
 
-  // Handle search input change
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}/ListProfesseurs`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log("response: proftable" + response.data);
+        setProfs(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-    setPage(0); // Reset to the first page when searching
+    setPage(0);
   };
 
-  // Filter profs based on search term
   const filteredProfs = profs.filter(
     (p) =>
       p.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,7 +71,6 @@ const ProfTable = ({ profs, setProfs }) => {
       p.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Handle pagination
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -66,7 +80,6 @@ const ProfTable = ({ profs, setProfs }) => {
     setPage(0);
   };
 
-  // Calculate the rows to display for the current page
   const paginatedProfs = filteredProfs.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
@@ -89,14 +102,14 @@ const ProfTable = ({ profs, setProfs }) => {
     setConfirmPassword("");
   };
 
-  const handleEditAgree = () => {
+  const handleEditAgree = async () => {
     if (!selectedProfId || !newNom || !newPrenom || !newEmail) {
       toast.error("Veuillez remplir tous les champs");
       return;
     }
 
-    axios
-      .put(
+    try {
+      await axios.put(
         `${baseUrl}/UpdateProfesseur`,
         {
           id: selectedProfId,
@@ -109,22 +122,20 @@ const ProfTable = ({ profs, setProfs }) => {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
-      .then(() => {
-        setProfs((prevProfs) =>
-          prevProfs.map((p) =>
-            p.id === selectedProfId
-              ? { ...p, nom: newNom, prenom: newPrenom, email: newEmail }
-              : p
-          )
-        );
-        toast.success("Professeur modifié avec succès");
-        handleClose();
-      })
-      .catch((error) => {
-        console.error(error);
-        toast.error("Erreur lors de la modification");
-      });
+      );
+      setProfs((prevProfs) =>
+        prevProfs.map((p) =>
+          p.id === selectedProfId
+            ? { ...p, nom: newNom, prenom: newPrenom, email: newEmail }
+            : p
+        )
+      );
+      toast.success("Professeur modifié avec succès");
+      handleClose();
+    } catch (error) {
+      console.error("Error updating professor:", error);
+      toast.error("Erreur lors de la modification");
+    }
   };
 
   const handleEditClick = (id) => {
@@ -143,34 +154,30 @@ const ProfTable = ({ profs, setProfs }) => {
     setOpenDelete(true);
   };
 
-  const handleDeleteAgree = () => {
-    axios
-      .delete(`${baseUrl}/DeleteProfesseur/${selectedProfId}`, {
+  const handleDeleteAgree = async () => {
+    try {
+      await axios.delete(`${baseUrl}/DeleteProfesseur/${selectedProfId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      .then(() => {
-        setProfs((prevProfs) =>
-          prevProfs.filter((p) => p.id !== selectedProfId)
-        );
-        toast.success("Professeur supprimé avec succès");
-        handleClose();
-      })
-      .catch((error) => {
-        console.error(error);
-        toast.error("Erreur lors de la suppression");
       });
+      setProfs((prevProfs) => prevProfs.filter((p) => p.id !== selectedProfId));
+      toast.success("Professeur supprimé avec succès");
+      handleClose();
+    } catch (error) {
+      console.error("Error deleting professor:", error);
+      toast.error("Erreur lors de la suppression");
+    }
   };
 
-  const handleAddAgree = () => {
+  const handleAddAgree = async () => {
     if (!name || !prenom || !email || !password) {
       toast.error("Veuillez remplir tous les champs");
       return;
     }
 
-    axios
-      .post(
+    try {
+      const response = await axios.post(
         `${baseUrl}/AddNewProfesseur`,
         {
           nom: name,
@@ -183,16 +190,14 @@ const ProfTable = ({ profs, setProfs }) => {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
-      .then((res) => {
-        setProfs((prevProfs) => [...prevProfs, res.data]);
-        toast.success("Professeur ajouté avec succès");
-        handleClose();
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error("Erreur lors de l'ajout du professeur");
-      });
+      );
+      setProfs((prevProfs) => [...prevProfs, response.data]);
+      toast.success("Professeur ajouté avec succès");
+      handleClose();
+    } catch (err) {
+      console.error("Error adding professor:", err);
+      toast.error("Erreur lors de l'ajout du professeur");
+    }
   };
 
   const handleChangePasswordClick = (id) => {
@@ -200,7 +205,7 @@ const ProfTable = ({ profs, setProfs }) => {
     setOpenChangePassword(true);
   };
 
-  const handleChangePasswordAgree = () => {
+  const handleChangePasswordAgree = async () => {
     if (newPassword !== confirmPassword) {
       toast.error("Les mots de passe ne correspondent pas");
       return;
@@ -211,8 +216,8 @@ const ProfTable = ({ profs, setProfs }) => {
       return;
     }
 
-    axios
-      .put(
+    try {
+      await axios.put(
         `${baseUrl}/ChangePassword`,
         {
           id: selectedProfId,
@@ -223,15 +228,13 @@ const ProfTable = ({ profs, setProfs }) => {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
-      .then(() => {
-        toast.success("Mot de passe modifié avec succès");
-        handleClose();
-      })
-      .catch((error) => {
-        console.error(error);
-        toast.error("Erreur lors de la modification du mot de passe");
-      });
+      );
+      toast.success("Mot de passe modifié avec succès");
+      handleClose();
+    } catch (error) {
+      console.error("Error changing password:", error);
+      toast.error("Erreur lors de la modification du mot de passe");
+    }
   };
 
   const getPasswordStrength = (password) => {
@@ -250,67 +253,6 @@ const ProfTable = ({ profs, setProfs }) => {
     return "success";
   };
 
-  if (!profs || profs.length === 0) {
-    return (
-      <>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setOpenAdd(true)}
-          sx={{ m: 2 }}
-        >
-          Ajouter un Professeur
-        </Button>
-        <Dialog open={openAdd} onClose={handleClose}>
-          <DialogTitle>Ajouter un Professeur</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              required
-              margin="dense"
-              label="Nom"
-              fullWidth
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <TextField
-              required
-              margin="dense"
-              label="Prénom"
-              fullWidth
-              value={prenom}
-              onChange={(e) => setPrenom(e.target.value)}
-            />
-            <TextField
-              required
-              margin="dense"
-              label="Email"
-              fullWidth
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <TextField
-              required
-              margin="dense"
-              label="Mot de passe"
-              fullWidth
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Annuler</Button>
-            <Button onClick={handleAddAgree} color="primary">
-              Ajouter
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <p>Aucun professeur disponible.</p>
-      </>
-    );
-  }
-
   return (
     <>
       <Button
@@ -322,7 +264,6 @@ const ProfTable = ({ profs, setProfs }) => {
         Ajouter un Professeur
       </Button>
 
-      {/* Search Box */}
       <TextField
         label="Rechercher un Professeur"
         variant="outlined"
@@ -331,10 +272,9 @@ const ProfTable = ({ profs, setProfs }) => {
         sx={{ m: 2, width: "300px" }}
       />
 
-      <TableContainer component={Paper} sx={{ m: 2 ,fontFamily:"Open Sans ,sans-serif" }}>
+      <TableContainer component={Paper} sx={{ m: 2 }}>
         <Table>
           <TableHead style={{ backgroundColor: "#f4f4f9" }}>
-            
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Nom</TableCell>
@@ -388,7 +328,6 @@ const ProfTable = ({ profs, setProfs }) => {
         </Table>
       </TableContainer>
 
-      {/* Pagination */}
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
@@ -399,7 +338,6 @@ const ProfTable = ({ profs, setProfs }) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
-      {/* Delete Dialog */}
       <Dialog open={openDelete} onClose={handleClose}>
         <DialogTitle>Supprimer Professeur</DialogTitle>
         <DialogContent>
@@ -415,7 +353,6 @@ const ProfTable = ({ profs, setProfs }) => {
         </DialogActions>
       </Dialog>
 
-      {/* Edit Dialog */}
       <Dialog open={openEdit} onClose={handleClose}>
         <DialogTitle>Modifier Professeur</DialogTitle>
         <DialogContent>
@@ -453,7 +390,6 @@ const ProfTable = ({ profs, setProfs }) => {
         </DialogActions>
       </Dialog>
 
-      {/* Add Dialog */}
       <Dialog open={openAdd} onClose={handleClose}>
         <DialogTitle>Ajouter un Professeur</DialogTitle>
         <DialogContent>
@@ -500,7 +436,6 @@ const ProfTable = ({ profs, setProfs }) => {
         </DialogActions>
       </Dialog>
 
-      {/* Change Password Dialog */}
       <Dialog open={openChangePassword} onClose={handleClose}>
         <DialogTitle>Changer le mot de passe</DialogTitle>
         <DialogContent>

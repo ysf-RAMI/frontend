@@ -34,7 +34,7 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
   useEffect(() => {
     if (auth && auth.token) {
       try {
-        const decode = jwtDecode(auth.token); // Decode the JWT token
+        const decode = jwtDecode(auth.token);
         if (decode.role[0] === "ROLE_ADMIN") {
           setChemin("/admin");
         } else {
@@ -142,20 +142,23 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
               </Nav.Link>
               <Nav.Link href="/filiere" className="nav-link">
                 Filiere
+              </Nav.Link>{" "}
+              <Nav.Link href="/announcements" className="nav-link">
+                Annonce
+              </Nav.Link>{" "}
+              <Nav.Link href="/filiere" className="nav-link">
+                A-propos
               </Nav.Link>
-
               {auth && (
                 <Nav.Link href={chemin} className="nav-link">
                   Dashboard
                 </Nav.Link>
               )}
-
               {!auth && (
                 <Button
                   variant="contained"
                   style={{
                     borderRadius: "17px",
-                    padding: "0 20px",
                     marginLeft: "10px",
                     color: "white",
                     borderColor: "#0dcaf0",

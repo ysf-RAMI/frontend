@@ -25,6 +25,7 @@ import { ThemeContextProvider } from "./Context/ThemeContext";
 import { useTheme } from "@mui/material";
 import { ToastContainer } from "react-toastify";
 import AnnouncementsPage from "./Pages/AnnouncementsPage";
+import Hamout from "./Pages/Hamout";
 
 function App() {
   const [filiere, setFiliere] = useState([]);
@@ -160,6 +161,7 @@ function App() {
 
                 <Route path="/*" element={<NotFound />} />
                 <Route path="/announcements" element={<AnnouncementsPage />} />
+                <Route path="/hamout" element={<Hamout />} />
               </Routes>
             </BrowserRouter>
           </moduleContext.Provider>

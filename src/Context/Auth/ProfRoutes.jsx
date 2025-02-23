@@ -3,7 +3,6 @@ import { jwtDecode } from "jwt-decode";
 
 const ProfRoutes = () => {
   const token = localStorage.getItem("auth");
-  console.log("from prof " + token);
   let decoded;
 
   if (token) {
@@ -12,7 +11,6 @@ const ProfRoutes = () => {
     } catch (error) {
       console.log("Error decoding JWT:", error);
     }
-    console.log("from prof and decoded role" + decoded?.role[0]);
 
     if (decoded && decoded.role && decoded.role[0] === "ROLE_PROFESSEUR") {
       // If role matches, render the children (outlet for nested routes)

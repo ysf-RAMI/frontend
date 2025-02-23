@@ -18,53 +18,78 @@ import {
   FormControl,
   InputLabel,
   TablePagination,
+  Input,
+  Autocomplete,
 } from "@mui/material";
-import { useContext, useState } from "react";
-import moduleContext from "../../Context/ModuleContext";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const ModuleTable = () => {
-  const { filiere, setFiliere } = useContext(moduleContext);
-  const [openDelete, setOpenDelete] = useState(false); // For delete dialog
-  const [openEdit, setOpenEdit] = useState(false); // For edit dialog
-  const [openAdd, setOpenAdd] = useState(false); // For add dialog
+  const [modules, setModules] = useState([]);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
   const [selectedModuleId, setSelectedModuleId] = useState(null);
-  const [newModuleName, setNewModuleName] = useState(""); // State for new module name
-  const [addModuleName, setAddModuleName] = useState(""); // State for adding a new module
-  const [selectedFiliereId, setSelectedFiliereId] = useState(null); // For selecting filière
-  const [searchTerm, setSearchTerm] = useState(""); // For search functionality
-  const [page, setPage] = useState(0); // For pagination
-  const [rowsPerPage, setRowsPerPage] = useState(5); // For pagination
+  const [newModuleName, setNewModuleName] = useState("");
+  const [addModuleName, setAddModuleName] = useState("");
+  const [selectedFiliereId, setSelectedFiliereId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [semestreSelected, setSemestreSelected] = useState(null);
+  const [filiers, setFiliers] = useState([]);
+  const baseUrl = "http://localhost:8080/api/professeur";
 
-  if (!filiere || filiere.length === 0) {
-    return <p>No filières available.</p>;
-  }
+  const token = JSON.parse(localStorage.getItem("auth")).token;
+  const profId = localStorage.getItem("profId");
 
-  const modules = filiere.flatMap((f) =>
-    f.modules.map((module) => ({
-      ...module,
-      filiereName: f.name,
-      filiereId: f.id, // Add filière ID to modules for easier editing
-    }))
-  );
+  useEffect(() => {
+    fetchFiliers();
+    fetchModules();
+  }, []);
 
-  if (!modules || modules.length === 0) {
-    return <p>No modules available.</p>;
-  }
-
-  // Handle search input change
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-    setPage(0); // Reset to the first page when searching
+  const fetchFiliers = () => {
+    axios
+      .get(`${baseUrl}/getAllFiliere`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setFiliers(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching filières:", error);
+      });
   };
 
-  // Filter modules based on search term
+  const fetchModules = () => {
+    axios
+      .get(`${baseUrl}/getAllModuleByProfId/${profId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setModules(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching modules:", error);
+      });
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setPage(0);
+  };
+
   const filteredModules = modules.filter(
     (module) =>
       module.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       module.filiereName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Handle pagination
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -74,105 +99,133 @@ const ModuleTable = () => {
     setPage(0);
   };
 
-  // Calculate the rows to display for the current page
   const paginatedModules = filteredModules.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
 
-  // Handle edit button click
   const handleEditClick = (id) => {
     const selectedModule = modules.find((module) => module.id === id);
     if (selectedModule) {
       setSelectedModuleId(id);
-      setNewModuleName(selectedModule.name); // Set the current name in the TextField
-      setSelectedFiliereId(selectedModule.filiereId); // Set the selected filière
-      setOpenEdit(true); // Open the edit dialog
+      setNewModuleName(selectedModule.name);
+      setSelectedFiliereId(selectedModule.filiereId); // Use filiereId instead of filiereName
+      setSemestreSelected(selectedModule.semestre.replace("Semestre ", "")); // Set the current semestre
+      setOpenEdit(true);
     }
   };
 
-  // Handle save button click in edit dialog
   const handleEditAgree = () => {
-    if (selectedModuleId && newModuleName.trim() !== "" && selectedFiliereId) {
-      setFiliere((prevFiliere) =>
-        prevFiliere.map((f) => ({
-          ...f,
-          modules:
-            f.id === selectedFiliereId
-              ? f.modules.map((module) =>
-                  module.id === selectedModuleId
-                    ? { ...module, name: newModuleName }
-                    : module
-                )
-              : f.modules.filter((module) => module.id !== selectedModuleId),
-        }))
-      );
-      handleClose(); // Close the dialog
+    if (
+      selectedModuleId &&
+      newModuleName.trim() !== "" &&
+      selectedFiliereId &&
+      semestreSelected
+    ) {
+      const selectedFiliere = filiers.find((f) => f.id === selectedFiliereId);
+
+      // Payload to send to the backend
+      const payload = {
+        id: selectedModuleId,
+        name: newModuleName,
+        filiereName: selectedFiliere.nom,
+        semestre: `Semestre ${semestreSelected}`,
+      };
+
+      axios
+        .put(`${baseUrl}/ModifyModule`, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          toast.success("Module updated successfully");
+          fetchModules(); // Refresh the module list
+          handleClose(); // Close the dialog
+        })
+        .catch((error) => {
+          console.error("Error updating module:", error); // Debugging
+          toast.error(`Error updating module: ${error.message}`);
+        });
+    } else {
+      toast.error("Please fill all fields");
     }
   };
 
-  // Handle delete button click
   const handleDeleteClick = (id) => {
     setSelectedModuleId(id);
-    setOpenDelete(true); // Open the delete dialog
+    setOpenDelete(true);
   };
 
-  // Handle delete confirmation
   const handleDeleteAgree = () => {
-    if (selectedModuleId) {
-      setFiliere((prevFiliere) =>
-        prevFiliere.map((f) => ({
-          ...f,
-          modules: f.modules.filter((module) => module.id !== selectedModuleId),
-        }))
-      );
-    }
-    handleClose(); // Close the dialog
+    axios
+      .delete(`${baseUrl}/DeleteModule/${selectedModuleId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        toast.success("Module deleted successfully");
+        fetchModules();
+      })
+      .catch((error) => {
+        toast.error(`Error deleting module: ${error.message}`);
+      })
+      .finally(() => {
+        handleClose();
+        fetchModules();
+      });
   };
 
-  // Handle add button click
   const handleAddClick = () => {
-    setOpenAdd(true); // Open the add dialog
+    setOpenAdd(true);
   };
 
-  // Handle add confirmation
   const handleAddAgree = () => {
-    if (addModuleName.trim() !== "" && selectedFiliereId) {
-      const newModule = {
-        id: modules.length + 1, // Generate a new ID (you can use a better ID generation method)
-        name: addModuleName,
-        courses: [], // Initialize with empty courses
-        TD: [], // Initialize with empty TDs
-        TP: [], // Initialize with empty TPs
-        EXAMS: [], // Initialize with empty exams
-      };
-      setFiliere((prevFiliere) =>
-        prevFiliere.map((f) =>
-          f.id === selectedFiliereId
-            ? { ...f, modules: [...f.modules, newModule] }
-            : f
+    if (addModuleName.trim() !== "" && selectedFiliereId && semestreSelected) {
+      const selectedFiliere = filiers.find((f) => f.id === selectedFiliereId);
+
+      axios
+        .post(
+          `${baseUrl}/AddNewModule`,
+          {
+            idProfesseur: profId,
+            name: addModuleName,
+            semestre: `Semestre ${semestreSelected}`,
+            filiereName: selectedFiliere.nom,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         )
-      );
-      setAddModuleName(""); // Reset the input field
-      setSelectedFiliereId(null); // Reset the selected filière
-      handleClose(); // Close the dialog
+        .then((response) => {
+          toast.success("Module added successfully");
+          fetchModules();
+          handleClose();
+        })
+        .catch((error) => {
+          toast.error(`Error adding module: ${error.message}`);
+        });
+    } else {
+      toast.error("Please fill all fields");
     }
   };
 
-  // Close all dialogs
   const handleClose = () => {
     setOpenDelete(false);
     setOpenEdit(false);
     setOpenAdd(false);
     setSelectedModuleId(null);
-    setNewModuleName(""); // Reset the new module name
-    setAddModuleName(""); // Reset the add module name
-    setSelectedFiliereId(null); // Reset the selected filière
+    setNewModuleName("");
+    setAddModuleName("");
+    setSelectedFiliereId(null);
+    setSemestreSelected(null);
   };
 
   return (
     <>
-      {/* Add Module Button */}
       <Button
         variant="contained"
         color="primary"
@@ -182,7 +235,6 @@ const ModuleTable = () => {
         Add Module
       </Button>
 
-      {/* Search Box */}
       <TextField
         label="Search Modules"
         variant="outlined"
@@ -191,7 +243,6 @@ const ModuleTable = () => {
         sx={{ m: 2, width: "300px" }}
       />
 
-      {/* Module Table */}
       <TableContainer component={Paper} sx={{ m: 2 }}>
         <Table>
           <TableHead>
@@ -199,15 +250,17 @@ const ModuleTable = () => {
               <TableCell>ID</TableCell>
               <TableCell>Module Name</TableCell>
               <TableCell>Filière Name</TableCell>
+              <TableCell>Semestre</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedModules.map((module) => (
+            {paginatedModules.map((module, index) => (
               <TableRow key={module.id}>
-                <TableCell>{module.id}</TableCell>
+                <TableCell>{index + 1}</TableCell>
                 <TableCell>{module.name}</TableCell>
                 <TableCell>{module.filiereName}</TableCell>
+                <TableCell>{module.semestre}</TableCell>
                 <TableCell>
                   <Button
                     onClick={() => handleEditClick(module.id)}
@@ -228,7 +281,6 @@ const ModuleTable = () => {
         </Table>
       </TableContainer>
 
-      {/* Pagination */}
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
@@ -239,7 +291,6 @@ const ModuleTable = () => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={openDelete} onClose={handleClose}>
         <DialogTitle>Delete Module</DialogTitle>
         <DialogContent>
@@ -254,7 +305,6 @@ const ModuleTable = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Edit Dialog */}
       <Dialog open={openEdit} onClose={handleClose}>
         <DialogTitle>Edit Module</DialogTitle>
         <DialogContent>
@@ -268,13 +318,26 @@ const ModuleTable = () => {
               onChange={(e) => setSelectedFiliereId(e.target.value)}
               label="Filière"
             >
-              {filiere.map((f) => (
-                <MenuItem key={f.id} value={f.id}>
-                  {f.name}
+              {filiers.map((filiere) => (
+                <MenuItem key={filiere.id} value={filiere.id}>
+                  {filiere.nom}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
+
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="name"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={semestreSelected || ""}
+            onChange={(e) => setSemestreSelected(e.target.value)}
+            label="Semestre"
+          />
           <TextField
             autoFocus
             required
@@ -294,7 +357,6 @@ const ModuleTable = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Add Module Dialog */}
       <Dialog open={openAdd} onClose={handleClose}>
         <DialogTitle>Add Module</DialogTitle>
         <DialogContent>
@@ -308,13 +370,25 @@ const ModuleTable = () => {
               onChange={(e) => setSelectedFiliereId(e.target.value)}
               label="Filière"
             >
-              {filiere.map((f) => (
-                <MenuItem key={f.id} value={f.id}>
-                  {f.name}
+              {filiers.map((filiere) => (
+                <MenuItem key={filiere.id} value={filiere.id}>
+                  {filiere.nom}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="name"
+            type="number"
+            fullWidth
+            variant="standard"
+            value={semestreSelected || ""}
+            onChange={(e) => setSemestreSelected(e.target.value)}
+            label="Semestre number"
+          />
           <TextField
             autoFocus
             required

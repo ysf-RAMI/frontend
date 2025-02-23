@@ -48,7 +48,11 @@
   animation: bounceIn 1s ease-in-out;
 }
 
-.features-section, .testimonials-section, .cta-section, .about-section, .why-choose-us-section {
+.features-section,
+.testimonials-section,
+.cta-section,
+.about-section,
+.why-choose-us-section {
   padding: 50px 0;
   text-align: center;
 }
@@ -60,27 +64,33 @@
   animation: fadeIn 1s ease-in-out;
 }
 
-.features-grid, .testimonials-grid {
+.features-grid,
+.testimonials-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
 }
 
-.feature-card, .testimonial-card {
+.feature-card,
+.testimonial-card {
   background-color: #fff;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   animation: fadeIn 1s ease-in-out;
 }
 
-.feature-card:hover, .testimonial-card:hover {
+.feature-card:hover,
+.testimonial-card:hover {
   transform: translateY(-10px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-.feature-card h5, .testimonial-card p {
+.feature-card h5,
+.testimonial-card p {
   margin: 0;
 }
 
@@ -89,7 +99,8 @@
   animation: bounceIn 1s ease-in-out;
 }
 
-.about-section, .why-choose-us-section {
+.about-section,
+.why-choose-us-section {
   background-color: #f9f9f9;
 }
 
@@ -166,7 +177,11 @@
 }
 
 @keyframes bounceIn {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {
@@ -176,3 +191,34 @@
     transform: translateY(-15px);
   }
 }
+
+/* Home.css prof secctio */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap");
+
+.modern-portfolio {
+  background: rgba(137, 88, 78, 0.11);
+  min-height: 100vh;
+  font-family: "Open Sans", sans-serif;
+}
+
+.hero-section {
+  min-height: 100vh;
+  background: linear-gradient(
+    135deg,
+    rgba(77, 75, 75, 0.08) 0%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  color: rgb(0, 0, 0);
+  padding: 4rem 0;
+  text-align: left;
+}
+
+.profile-image {
+  width: 400px;
+  height: 400px;
+  border-radius: 10%;
+  border: 5px solid white;
+  box-shadow: 0 0 30px rgba(70, 31, 31, 0.47);
+}
+
+

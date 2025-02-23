@@ -41,14 +41,10 @@ import { GridMenuIcon } from "@mui/x-data-grid";
 
 const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const [selectedSection, setSelectedSection] = useState("dashboard");
-  const [profs, setProfs] = useState([]);
-  const [filiere, setFiliere] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
-  const { darkMode, toggleTheme } = useContext(ThemeContext); // Use ThemeContext
+  const { darkMode, toggleTheme } = useContext(ThemeContext);
   const theme = useTheme();
   const navigate = useNavigate();
-
-  const baseUrl = "http://localhost:8080/api/admin";
 
   const handleSectionClick = (section) => {
     setSelectedSection(section);
@@ -65,65 +61,13 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
     setAnchorEl(null);
   };
 
- const handleLogout = () => {
-   localStorage.removeItem("auth");
-   toast.success("Logged out successfully!");
-   setTimeout(() => {
-     window.location.href = "/";
-   }, 500);
- };
-
-  useEffect(() => {
-    const storedAuth = localStorage.getItem("auth");
-    if (!storedAuth) {
-      return;
-    }
-    try {
-      const { token } = JSON.parse(storedAuth);
-      console.log("Extracted Token: ", token);
-      axios
-        .get(`${baseUrl}/ListProfesseurs`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => setProfs(response.data))
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-          if (error.response) {
-            console.error("Response Data:", error.response.data);
-          }
-        });
-    } catch (error) {
-      console.error("Error parsing token:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    const storedAuth = localStorage.getItem("auth");
-    if (!storedAuth) {
-      return;
-    }
-    try {
-      const { token } = JSON.parse(storedAuth);
-      console.log("Extracted Token: ", token);
-      axios
-        .get(`${baseUrl}/getAllFiliere`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => setFiliere(response.data))
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-          if (error.response) {
-            console.error("Response Data:", error.response.data);
-          }
-        });
-    } catch (error) {
-      console.error("Error parsing token:", error);
-    }
-  }, []);
+  const handleLogout = () => {
+    localStorage.removeItem("auth");
+    toast.success("Logged out successfully!");
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 500);
+  };
 
   const drawerContent = (
     <Box
@@ -136,7 +80,6 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         borderRadius: "0 10px 10px 0",
       }}
     >
-     
       <Typography variant="h6" sx={{ textAlign: "center", mb: 2 }}>
         <Link to="/">
           <img
@@ -358,13 +301,9 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
               {selectedSection.charAt(0).toUpperCase() +
                 selectedSection.slice(1)}
             </Typography>
-            {selectedSection === "filiere" && (
-              <FiliereTable filiers={filiere} setFiliers={setFiliere} />
-            )}
+            {selectedSection === "filiere" && <FiliereTable />}
 
-            {selectedSection === "prof" && (
-              <ProfTable profs={profs} setProfs={setProfs} />
-            )}
+            {selectedSection === "prof" && <ProfTable />}
 
             {selectedSection === "dashboard" && <Dashboardd />}
           </Box>

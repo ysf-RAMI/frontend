@@ -41,6 +41,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext"; // Import the ThemeContext
 import logo from "../assets/logoSite.png";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import ResourceManager from "../Components/ProfElement/ResourceManager";
 
 const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const [selectedSection, setSelectedSection] = useState("module");
@@ -49,19 +51,47 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [modules, setModules] = useState([]);
-  const basUrl = "http://localhost:8080";
+  const basUrl = "http://localhost:8080/api/professeur";
+  const [cors, setCors] = useState([]);
+  const [exams, setExams] = useState([]);
+  const [tds, setTds] = useState([]);
+  const [tps, setTps] = useState([]);
 
   useEffect(() => {
-    const auth = localStorage.getItem("auth");
-    const token = JSON.parse(auth).token;
-    const decoded = jwtDecode(token);
-    console.log(decoded);
-  }, [modules]);
+    const storedAuth = localStorage.getItem("auth");
+    if (!storedAuth) {
+      return;
+    }
+    try {
+      const { token } = JSON.parse(storedAuth);
+      console.log(token);
+      const email = jwtDecode(token).sub;
+      console.log(email);
+      axios
+        .get(`${basUrl}/GetProfesseur/${email}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          setModules(response.data);
+          localStorage.setItem("profId", JSON.stringify(response.data.id));
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+          if (error.response) {
+            console.error("Response Data:", error.response.data);
+          }
+        });
+    } catch (error) {
+      console.error("Error parsing token:", error);
+    }
+  }, []);
 
   const handleSectionClick = (section) => {
     setSelectedSection(section);
     if (isSmallScreen) {
-      toggleDrawer(false); 
+      toggleDrawer(false);
     }
   };
 
@@ -78,7 +108,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
     toast.success("Logged out successfully!");
     setTimeout(() => {
       window.location.href = "/";
-    }, 500);
+    }, 10);
   };
 
   const drawerContent = (
@@ -293,16 +323,20 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             color: darkMode ? "#fff" : "#000", // Dark mode text color
           }}
         >
-          <Box sx={{ maxWidth: 1200, mx: "auto" }}>
+          <Box>
             <Typography variant="h4" gutterBottom>
               {selectedSection.charAt(0).toUpperCase() +
                 selectedSection.slice(1)}
             </Typography>
             {selectedSection === "module" && <ModuleTable />}
-            {selectedSection === "cors" && <CorsTable />}
-            {selectedSection === "td" && <TDTable />}
-            {selectedSection === "tp" && <TPTable />}
-            {selectedSection === "exam" && <ExamTable />}
+            {selectedSection === "cors" && (
+              <ResourceManager resourceType="COURS" />
+            )}
+            {selectedSection === "td" && <ResourceManager resourceType="TD" />}
+            {selectedSection === "tp" && <ResourceManager resourceType="TP" />}
+            {selectedSection === "exam" && (
+              <ResourceManager resourceType="EXAM" />
+            )}
           </Box>
         </Box>
       </Box>

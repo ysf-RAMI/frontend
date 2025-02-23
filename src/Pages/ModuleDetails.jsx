@@ -107,10 +107,11 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           "& .MuiDrawer-paper": {
             width: 270,
             boxSizing: "border-box",
-            backgroundColor: "#263238",
+            backgroundColor: "#01162e",
+            borderRadius:"0 20px 20px 0",
             color: "#fff",
             height: "calc(100% - 76px)",
-            marginTop: "83px",
+            marginTop: "76px",
           },
         }}
       >
@@ -119,7 +120,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             {selectedModule.name}
           </Typography>
           <Divider />
-          <List>
+          <List style={{ cursor: "pointer" }}>
             {[
               { name: "Courses", icon: faBook, section: "courses" },
               { name: "TD", icon: faListUl, section: "TD" },
@@ -131,11 +132,11 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                 button
                 onClick={() => handleSectionClick(section)}
                 sx={{
-                  "&:hover": { backgroundColor: "#37474F" },
+                  "&:hover": { backgroundColor: "#003366" },
                   borderRadius: 1,
                   mb: 1,
-                  ":active": { backgroundColor: "#455A64" },
-                  backgroundColor: selectedSection === section ? "#37474F" : "",
+                  ":active": { backgroundColor: "#002366" },
+                  backgroundColor: selectedSection === section ? "#003366" : "",
                 }}
               >
                 <ListItemIcon sx={{ color: "#fff" }}>

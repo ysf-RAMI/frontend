@@ -18,46 +18,6 @@ const ProfessorsSection = () => {
       name: "Dr. hamza hamout",
       specialization: "Genie Informatique",
     },
-    {
-      id: 2,
-      name: "dr. hamza hamout",
-      specialization: "Genie Informatique",
-    },
-    {
-      id: 3,
-      name: "Dr. hamza hamout",
-      specialization: "Genie Informatique",
-    },
-    {
-      id: 3,
-      name: "Dr. hamza hamout",
-      specialization: "Genie Informatique",
-    },
-    {
-      id: 3,
-      name: "Dr. hamza hamout",
-      specialization: "Genie Informatique",
-    },
-    {
-      id: 3,
-      name: "Dr. hamza hamout",
-      specialization: "Genie Informatique",
-    },
-    {
-      id: 3,
-      name: "Dr. hamza hamout",
-      specialization: "Genie Informatique",
-    },
-    {
-      id: 3,
-      name: "Dr. hamza hamout",
-      specialization: "Genie Informatique",
-    },
-    {
-      id: 3,
-      name: "Dr. hamza hamout",
-      specialization: "Genie Informatique",
-    },
   ];
 
   const scroll = (direction) => {

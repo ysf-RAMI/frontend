@@ -3,14 +3,16 @@
   background-color: transparent !important;
   border-bottom: none !important;
   transition: background-color 0.3s ease, border-bottom 0.3s ease;
+  padding: 10px;
 }
 
 /* SOLID NAVBAR */
 .custom-navbar.solid-navbar {
-  background-color: #01162e93 !important; /* Slightly transparent dark background */
+  background-color: #011b38c1 !important; /* Slightly transparent dark background */
   border-bottom: 2px solid #01162e !important; /* Subtle border */  
   transition: background-color 0.3s ease, border-bottom 0.3s ease;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.374); /* Slight shadow */
+  padding: -10px;
 }
 
 /* LOGO */
