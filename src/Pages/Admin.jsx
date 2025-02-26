@@ -266,13 +266,15 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           sx={{
             "& .MuiDrawer-paper": {
               width: 255,
-              height: "100vh",
               boxSizing: "border-box",
-              transition: theme.transitions.create("width", {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
+              transition: (theme) =>
+                theme.transitions.create("width", {
+                  easing: theme.transitions.easing.sharp,
+                  duration: theme.transitions.duration.enteringScreen,
+                }),
+              backgroundColor: "#01162e !important", // Add !important
             },
+            height: "100vh",
           }}
         >
           {drawerContent}

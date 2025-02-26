@@ -13,17 +13,17 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
-  Select,
-  MenuItem,
   FormControl,
-  InputLabel,
-  TablePagination,
-  Input,
   Autocomplete,
+  TablePagination,
+  IconButton,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import AOS from "aos";
+import "aos/dist/aos.css"; // Import AOS styles
+import { Add, AddCircleRounded, AddIcCallOutlined, DeleteForever, Edit } from "@mui/icons-material";
 
 const ModuleTable = () => {
   const [modules, setModules] = useState([]);
@@ -33,6 +33,7 @@ const ModuleTable = () => {
   const [selectedModuleId, setSelectedModuleId] = useState(null);
   const [newModuleName, setNewModuleName] = useState("");
   const [addModuleName, setAddModuleName] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedFiliereId, setSelectedFiliereId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
@@ -43,6 +44,15 @@ const ModuleTable = () => {
 
   const token = JSON.parse(localStorage.getItem("auth")).token;
   const profId = localStorage.getItem("profId");
+  console.log(token);
+
+  // Initialize AOS
+  useEffect(() => {
+    AOS.init({
+      duration: 200, // Animation duration
+      once: true, // Whether animation should happen only once
+    });
+  }, []);
 
   useEffect(() => {
     fetchFiliers();
@@ -73,6 +83,7 @@ const ModuleTable = () => {
       })
       .then((response) => {
         setModules(response.data);
+        console.log(response.data);
       })
       .catch((error) => {
         console.error("Error fetching modules:", error);
@@ -109,8 +120,9 @@ const ModuleTable = () => {
     if (selectedModule) {
       setSelectedModuleId(id);
       setNewModuleName(selectedModule.name);
-      setSelectedFiliereId(selectedModule.filiereId); // Use filiereId instead of filiereName
-      setSemestreSelected(selectedModule.semestre.replace("Semestre ", "")); // Set the current semestre
+      setSelectedFiliereId(selectedModule.filiereId);
+      setSemestreSelected(selectedModule.semestre.replace("Semestre ", ""));
+      setDescription(selectedModule.description);
       setOpenEdit(true);
     }
   };
@@ -124,12 +136,12 @@ const ModuleTable = () => {
     ) {
       const selectedFiliere = filiers.find((f) => f.id === selectedFiliereId);
 
-      // Payload to send to the backend
       const payload = {
         id: selectedModuleId,
         name: newModuleName,
         filiereName: selectedFiliere.nom,
         semestre: `Semestre ${semestreSelected}`,
+        description: description,
       };
 
       axios
@@ -140,11 +152,11 @@ const ModuleTable = () => {
         })
         .then((response) => {
           toast.success("Module updated successfully");
-          fetchModules(); // Refresh the module list
-          handleClose(); // Close the dialog
+          fetchModules();
+          handleClose();
         })
         .catch((error) => {
-          console.error("Error updating module:", error); // Debugging
+          console.error("Error updating module:", error);
           toast.error(`Error updating module: ${error.message}`);
         });
     } else {
@@ -185,28 +197,40 @@ const ModuleTable = () => {
     if (addModuleName.trim() !== "" && selectedFiliereId && semestreSelected) {
       const selectedFiliere = filiers.find((f) => f.id === selectedFiliereId);
 
+      // Ensure profId is a number
+      const profIdNumber = Number(profId);
+
+      // Prepare payload
+      const payload = {
+        idProfesseur: profIdNumber,
+        name: addModuleName,
+        semestre: `Semestre ${semestreSelected}`,
+        filiereName: selectedFiliere.nom,
+        description: description,
+      };
+
+      // Log payload for debugging
+      console.log("Payload:", payload);
+
       axios
-        .post(
-          `${baseUrl}/AddNewModule`,
-          {
-            idProfesseur: profId,
-            name: addModuleName,
-            semestre: `Semestre ${semestreSelected}`,
-            filiereName: selectedFiliere.nom,
+        .post(`${baseUrl}/AddNewModule`, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
+        })
         .then((response) => {
           toast.success("Module added successfully");
           fetchModules();
           handleClose();
         })
         .catch((error) => {
-          toast.error(`Error adding module: ${error.message}`);
+          console.error(
+            "Error adding module:",
+            error.response?.data || error.message
+          );
+          toast.error(
+            `Error adding module: ${error.response?.data?.message || error.message}`
+          );
         });
     } else {
       toast.error("Please fill all fields");
@@ -222,15 +246,28 @@ const ModuleTable = () => {
     setAddModuleName("");
     setSelectedFiliereId(null);
     setSemestreSelected(null);
+    setDescription("");
   };
 
   return (
-    <>
+    <div style={{ marginTop: "-25px" }}>
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
       <Button
         variant="contained"
         color="primary"
         onClick={handleAddClick}
         sx={{ m: 2 }}
+        data-aos="fade-down"
+        startIcon={<Add />}
       >
         Add Module
       </Button>
@@ -241,39 +278,43 @@ const ModuleTable = () => {
         value={searchTerm}
         onChange={handleSearchChange}
         sx={{ m: 2, width: "300px" }}
+        data-aos="fade-down"
       />
 
-      <TableContainer component={Paper} sx={{ m: 2 }}>
-        <Table>
-          <TableHead>
+      <TableContainer component={Paper} sx={{ m: 1 }} data-aos="fade-up">
+        <Table stickyHeader   >
+          <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Module Name</TableCell>
               <TableCell>Filière Name</TableCell>
               <TableCell>Semestre</TableCell>
+              <TableCell>Description</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {paginatedModules.map((module, index) => (
-              <TableRow key={module.id}>
+              <TableRow
+                key={module.id}
+                data-aos="fade-right"
+                sx={{
+                  backgroundColor: index % 2 === 0 ? "#f5f5f5" : "transparent",
+                }}
+              >
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{module.name}</TableCell>
                 <TableCell>{module.filiereName}</TableCell>
                 <TableCell>{module.semestre}</TableCell>
+                <TableCell>{module.description}</TableCell>
                 <TableCell>
-                  <Button
-                    onClick={() => handleEditClick(module.id)}
-                    color="info"
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => handleDeleteClick(module.id)}
-                    color="secondary"
-                  >
-                    Delete
-                  </Button>
+                  <IconButton onClick={() => handleEditClick(module.id)}>
+                    <Edit color="primary" />
+                  </IconButton>
+
+                  <IconButton onClick={() => handleDeleteClick(module.id)}>
+                    <DeleteForever color="error" />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
@@ -289,9 +330,15 @@ const ModuleTable = () => {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        data-aos="fade-up" // Add fade-up animation
       />
 
-      <Dialog open={openDelete} onClose={handleClose}>
+      <Dialog
+        open={openDelete}
+        onClose={handleClose}
+        data-aos="zomm-in"
+        data-aos-duration="300"
+      >
         <DialogTitle>Delete Module</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -300,40 +347,58 @@ const ModuleTable = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleDeleteAgree}>Delete</Button>
+          <Button variant="outlined" color="primary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="outlined" color="error" onClick={handleDeleteAgree}>
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openEdit} onClose={handleClose}>
+      <Dialog
+        open={openEdit}
+        onClose={handleClose}
+        data-aos="fade-down"
+        data-aos-duration="300"
+      >
         <DialogTitle>Edit Module</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Enter the new name for the module:
+            Enter the new details for the module:
           </DialogContentText>
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Filière</InputLabel>
-            <Select
-              value={selectedFiliereId || ""}
-              onChange={(e) => setSelectedFiliereId(e.target.value)}
-              label="Filière"
-            >
-              {filiers.map((filiere) => (
-                <MenuItem key={filiere.id} value={filiere.id}>
-                  {filiere.nom}
-                </MenuItem>
-              ))}
-            </Select>
+            <Autocomplete
+              style={{
+                paddingTop: "10px",
+                backgroundColor: "white",
+                borderRadius: "5px",
+              }}
+              id="filiere"
+              options={filiers}
+              getOptionLabel={(filiere) => filiere.nom}
+              renderInput={(params) => (
+                <TextField {...params} label="Filière" />
+              )}
+              value={
+                filiers.find((filiere) => filiere.id === selectedFiliereId) ||
+                null
+              }
+              onChange={(e, filiere) =>
+                setSelectedFiliereId(filiere ? filiere.id : "")
+              }
+            />
           </FormControl>
 
           <TextField
             autoFocus
             required
             margin="dense"
-            id="name"
-            type="text"
+            id="semestre"
+            type="number"
             fullWidth
             variant="standard"
+            inputProps={{ min: 1, max: 12 }}
             value={semestreSelected || ""}
             onChange={(e) => setSemestreSelected(e.target.value)}
             label="Semestre"
@@ -350,39 +415,70 @@ const ModuleTable = () => {
             value={newModuleName}
             onChange={(e) => setNewModuleName(e.target.value)}
           />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="description"
+            label="Description"
+            type="text"
+            fullWidth
+            variant="standard"
+            multiline
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleEditAgree}>Save</Button>
+          <Button variant="outlined" color="primary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="outlined" color="success" onClick={handleEditAgree}>
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openAdd} onClose={handleClose}>
+      <Dialog
+        open={openAdd}
+        onClose={handleClose}
+        data-aos="zomm-in"
+        data-aos-duration="300"
+      >
         <DialogTitle>Add Module</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Select a filière and enter the module name:
+            Select a filière and enter the module details:
           </DialogContentText>
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Filière</InputLabel>
-            <Select
-              value={selectedFiliereId || ""}
-              onChange={(e) => setSelectedFiliereId(e.target.value)}
-              label="Filière"
-            >
-              {filiers.map((filiere) => (
-                <MenuItem key={filiere.id} value={filiere.id}>
-                  {filiere.nom}
-                </MenuItem>
-              ))}
-            </Select>
+            <Autocomplete
+              style={{
+                paddingTop: "10px",
+                backgroundColor: "white",
+                borderRadius: "5px",
+              }}
+              id="filiere"
+              options={filiers}
+              getOptionLabel={(filiere) => filiere.nom}
+              renderInput={(params) => (
+                <TextField {...params} label="Filière" />
+              )}
+              value={
+                filiers.find((filiere) => filiere.id === selectedFiliereId) ||
+                null
+              }
+              onChange={(e, filiere) =>
+                setSelectedFiliereId(filiere ? filiere.id : "")
+              }
+            />
           </FormControl>
           <TextField
             autoFocus
             required
             margin="dense"
-            id="name"
+            id="semestre"
             type="number"
+            inputProps={{ min: 1, max: 12 }}
             fullWidth
             variant="standard"
             value={semestreSelected || ""}
@@ -401,13 +497,26 @@ const ModuleTable = () => {
             value={addModuleName}
             onChange={(e) => setAddModuleName(e.target.value)}
           />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="description"
+            label="Description"
+            type="text"
+            fullWidth
+            variant="filled"
+            multiline
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button onClick={handleAddAgree}>Add</Button>
         </DialogActions>
       </Dialog>
-    </>
+    </div>
   );
 };
 

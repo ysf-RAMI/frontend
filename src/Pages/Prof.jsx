@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   List,
@@ -7,7 +7,6 @@ import {
   ListItemText,
   Typography,
   Drawer,
-  useTheme,
   Menu,
   MenuItem,
   IconButton,
@@ -17,18 +16,16 @@ import {
 } from "@mui/material";
 import {
   Assignment,
-  Dashboard,
   Logout,
   Person,
   Home,
   AccountCircle,
-  Brightness4,
-  Brightness7,
   MenuOutlined,
   Book,
   Description,
   Article,
   Quiz,
+  Announcement,
 } from "@mui/icons-material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -36,56 +33,39 @@ import CorsTable from "../Components/ProfElement/CorsTable";
 import ExamTable from "../Components/ProfElement/ExamTable";
 import ModuleTable from "../Components/ProfElement/ModuleTable";
 import TDTable from "../Components/ProfElement/TdTable";
-import TPTable from "../Components/ProfElement/TpTable";
+import TpTable from "../Components/ProfElement/TpTable";
 import { Link, useNavigate } from "react-router-dom";
-import { ThemeContext } from "../context/ThemeContext"; // Import the ThemeContext
 import logo from "../assets/logoSite.png";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
-import ResourceManager from "../Components/ProfElement/ResourceManager";
+import Annonce from "../Components/ProfElement/Annoce";
 
+// eslint-disable-next-line react/prop-types
 const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const [selectedSection, setSelectedSection] = useState("module");
   const [anchorEl, setAnchorEl] = useState(null);
-  const { darkMode, toggleTheme } = useContext(ThemeContext); // Use ThemeContext
-  const theme = useTheme();
   const navigate = useNavigate();
-  const [modules, setModules] = useState([]);
-  const basUrl = "http://localhost:8080/api/professeur";
-  const [cors, setCors] = useState([]);
-  const [exams, setExams] = useState([]);
-  const [tds, setTds] = useState([]);
-  const [tps, setTps] = useState([]);
+  const baseUrl = "http://localhost:8080/api/professeur";
 
+  const token = JSON.parse(localStorage.getItem("auth")).token;
+
+  const decoded = jwtDecode(token);
+  const email = decoded.sub;
   useEffect(() => {
-    const storedAuth = localStorage.getItem("auth");
-    if (!storedAuth) {
-      return;
-    }
-    try {
-      const { token } = JSON.parse(storedAuth);
-      console.log(token);
-      const email = jwtDecode(token).sub;
-      console.log(email);
-      axios
-        .get(`${basUrl}/GetProfesseur/${email}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          setModules(response.data);
-          localStorage.setItem("profId", JSON.stringify(response.data.id));
-        })
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-          if (error.response) {
-            console.error("Response Data:", error.response.data);
-          }
-        });
-    } catch (error) {
-      console.error("Error parsing token:", error);
-    }
+
+    axios
+      .get(`${baseUrl}/GetProfesseur/${email}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        const {id} = response.data;
+        localStorage.setItem("profId", id);
+      })
+      .catch((error) => {
+        console.error("Error fetching professeur:", error);
+      });
   }, []);
 
   const handleSectionClick = (section) => {
@@ -115,23 +95,14 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
     <Box
       sx={{
         width: 250,
+        backgroundColor: "#01162e",
         height: "100vh",
-        backgroundColor: darkMode ? "#121212" : "#01162e", // Dark mode background
         color: "#fff",
         padding: "20px",
         borderRadius: "0 10px 10px 0",
       }}
     >
-      <ToastContainer
-        autoClose={2500}
-        hideProgressBar={false}
-        closeOnClick={true}
-        newestOnTop={true}
-        closeButton={false}
-        enableMultiContainer={true}
-        position="top-center"
-        zIndex={9999}
-      />
+    
       <Typography variant="h6" sx={{ textAlign: "center", mb: 2 }}>
         <Link to="/">
           <img
@@ -141,31 +112,25 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           />
         </Link>
       </Typography>
-      <List style={{ userSelect: "none", marginTop: "50px" }}>
-        <p style={{ color: "grey", fontSize: "14px" }}>Management</p>
+      <List style={{ userSelect: "none", marginTop: "auto" }}>
+        <p style={{ color: "grey", fontSize: "12px" }}>Management</p>
         {[
           { name: "Module", icon: <Assignment />, section: "module" },
           { name: "Cours", icon: <Book />, section: "cors" },
           { name: "TD", icon: <Description />, section: "td" },
           { name: "TP", icon: <Article />, section: "tp" },
           { name: "Exam", icon: <Quiz />, section: "exam" },
+          { name: "Annonce", icon: <Announcement />, section: "annonce" },
         ].map(({ name, icon, section }) => (
           <ListItem
             key={section}
             onClick={() => handleSectionClick(section)}
             sx={{
               cursor: "pointer",
-              "&:hover": { backgroundColor: darkMode ? "#333" : "#003366" }, // Dark mode hover
+              "&:hover": { backgroundColor: "#003366" },
               borderRadius: 1,
               mb: 1,
-              ":active": { backgroundColor: darkMode ? "#444" : "#004466" }, // Dark mode active
-              backgroundColor:
-                selectedSection === section
-                  ? darkMode
-                    ? "#333"
-                    : "#003366"
-                  : "",
-              "&:first-of-type": { mt: -1 },
+              backgroundColor: selectedSection === section ? "#003366" : "",
             }}
           >
             <ListItemIcon sx={{ color: "#fff" }}>{icon}</ListItemIcon>
@@ -173,17 +138,17 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           </ListItem>
         ))}
       </List>
-      <p style={{ color: "grey", fontSize: "14px", marginTop: "65px" }}>
+      <p style={{ color: "grey", fontSize: "12px", marginTop: "1px" }}>
         Settings
       </p>
       <ListItem
         button
         onClick={() => navigate("/profile")}
-        sx={{
-          "&:hover": { backgroundColor: darkMode ? "#333" : "#003366" }, // Dark mode hover
+        sx={{ 
+          "&:hover": { backgroundColor: "#003366" },
           borderRadius: 1,
           mb: 1,
-          backgroundColor: selectedSection === "admin" ? "#003366" : "",
+          backgroundColor: selectedSection === "admin" ? "#01162e" : "",
           userSelect: "none",
           cursor: "pointer",
         }}
@@ -197,7 +162,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         button
         onClick={handleLogout}
         sx={{
-          "&:hover": { backgroundColor: darkMode ? "#333" : "#003366" }, // Dark mode hover
+          "&:hover": { backgroundColor: "#003366" },
           borderRadius: 1,
           mb: 1,
           backgroundColor: selectedSection === "admin" ? "#003366" : "",
@@ -215,11 +180,21 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
 
   return (
     <>
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
       <Box sx={{ flexGrow: 1 }}>
         <AppBar
           style={{ boxShadow: "none", padding: "10px" }}
           sx={{
-            bgcolor: darkMode ? "#121212" : "transparent", // Dark mode background
+            bgcolor: "transparent",
             zIndex: (theme) => theme.zIndex.drawer + 1,
             width: isSmallScreen
               ? "100%"
@@ -247,7 +222,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                 <Badge color="error">
                   <Home
                     style={{
-                      color: darkMode ? "#fff" : "#01162e", // Dark mode icon color
+                      color: "#01162e",
                     }}
                     onClick={() => navigate("/")}
                   />
@@ -262,8 +237,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                 onClick={handleProfileMenuOpen}
                 color="inherit"
               >
-                <AccountCircle sx={{ color: darkMode ? "#fff" : "#01162e" }} />{" "}
-                {/* Dark mode icon color */}
+                <AccountCircle sx={{ color: "#01162e" }} />
               </IconButton>
               <Menu
                 id="primary-search-account-menu"
@@ -274,17 +248,13 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                 <MenuItem onClick={() => navigate("/profile")}>
                   Profile
                 </MenuItem>
-                <MenuItem onClick={toggleTheme}>
-                  {darkMode ? <Brightness7 /> : <Brightness4 />}
-                  {darkMode ? "Light Mode" : "Dark Mode"}
-                </MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </Box>
           </Toolbar>
         </AppBar>
       </Box>
-      <Box sx={{ display: "flex", height: "100vh" }}>
+      <Box sx={{ display: "flex", height: "100%" }}>
         <Drawer
           variant={isSmallScreen ? "temporary" : "permanent"}
           open={isDrawerOpen}
@@ -293,13 +263,15 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           sx={{
             "& .MuiDrawer-paper": {
               width: 255,
-              height: "100vh",
               boxSizing: "border-box",
-              transition: theme.transitions.create("width", {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
+              transition: (theme) =>
+                theme.transitions.create("width", {
+                  easing: theme.transitions.easing.sharp,
+                  duration: theme.transitions.duration.enteringScreen,
+                }),
+              backgroundColor: "#01162e !important", // Add !important
             },
+            height: "100vh",
           }}
         >
           {drawerContent}
@@ -310,17 +282,16 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           sx={{
             flexGrow: 1,
             p: 3,
-            transition: theme.transitions.create("margin", {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.leavingScreen,
-            }),
+            transition: (theme) =>
+              theme.transitions.create("margin", {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.leavingScreen,
+              }),
             marginLeft: isSmallScreen ? 0 : isDrawerOpen ? "250px" : 0,
             width: isSmallScreen
               ? "100%"
               : `calc(100% - ${isDrawerOpen ? 250 : 0}px)`,
             marginTop: "64px",
-            backgroundColor: darkMode ? "#121212" : "#fff", // Dark mode background
-            color: darkMode ? "#fff" : "#000", // Dark mode text color
           }}
         >
           <Box>
@@ -329,14 +300,11 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                 selectedSection.slice(1)}
             </Typography>
             {selectedSection === "module" && <ModuleTable />}
-            {selectedSection === "cors" && (
-              <ResourceManager resourceType="COURS" />
-            )}
-            {selectedSection === "td" && <ResourceManager resourceType="TD" />}
-            {selectedSection === "tp" && <ResourceManager resourceType="TP" />}
-            {selectedSection === "exam" && (
-              <ResourceManager resourceType="EXAM" />
-            )}
+            {selectedSection === "cors" && <CorsTable />}
+            {selectedSection === "td" && <TDTable />}
+            {selectedSection === "tp" && <TpTable />}
+            {selectedSection === "exam" && <ExamTable />}
+            {selectedSection === "annonce" && <Annonce />}
           </Box>
         </Box>
       </Box>

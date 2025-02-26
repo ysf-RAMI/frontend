@@ -19,6 +19,12 @@ import {
   Card,
   Grid,
   Fade,
+  TextField,
+  Pagination,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -32,6 +38,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap CSS
 import "../styles/Module.css";
+import AOS from "aos";
+import "aos/dist/aos.css"; // AOS CSS
 
 // Helper function to convert YouTube URL to embed format
 const getEmbedUrl = (youtubeUrl) => {
@@ -48,10 +56,15 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const [selectedContent, setSelectedContent] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedModule, setSelectedModule] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 5;
 
   const handleSectionClick = (section) => {
     setSelectedSection(section);
     setSelectedContent(null);
+    setPage(1); // Reset to first page when section changes
     if (isSmallScreen && isDrawerOpen) {
       toggleDrawer(false);
     }
@@ -66,6 +79,24 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
     setSelectedContent(null);
     setOpenDialog(false);
   };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    setPage(1); // Reset to first page when search query changes
+  };
+
+  const handleFilterChange = (event) => {
+    setFilterType(event.target.value);
+    setPage(1); // Reset to first page when filter changes
+  };
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
+  useEffect(() => {
+    AOS.init({ duration: 1000 }); // Initialize AOS
+  }, []);
 
   useEffect(() => {
     const foundFiliere = filiere.find(
@@ -87,12 +118,21 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
     );
   }
 
+  const filteredContent = selectedModule[selectedSection]
+    ?.filter((item) => {
+      const matchesSearch = item.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesFilter = filterType === "all" || item.type === filterType;
+      return matchesSearch && matchesFilter;
+    })
+    .slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
   return (
     <Box
       sx={{
         display: "flex",
         height: "100vh",
-        marginTop: "76px",
         userSelect: "none",
       }}
     >
@@ -108,7 +148,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             width: 270,
             boxSizing: "border-box",
             backgroundColor: "#01162e",
-            borderRadius:"0 20px 20px 0",
+            borderRadius: "0 20px 20px 0",
             color: "#fff",
             height: "calc(100% - 76px)",
             marginTop: "76px",
@@ -171,17 +211,44 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             </Typography>
           </Grid>
           <Grid item xs={12}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <TextField
+                label="Search"
+                variant="outlined"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                sx={{ width: "300px" }}
+              />
+              <FormControl sx={{ width: "200px" }}>
+                <InputLabel>Filter by Type</InputLabel>
+                <Select
+                  value={filterType}
+                  onChange={handleFilterChange}
+                  label="Filter by Type"
+                >
+                  <MenuItem value="all">All</MenuItem>
+                  <MenuItem value="pdf">PDF</MenuItem>
+                  <MenuItem value="video">Video</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
             <Card
               sx={{
                 p: 2,
                 borderRadius: 2,
                 boxShadow: 5,
                 backgroundColor: "#f9f9f9",
-                animation: "fadeIn 1s ease-in-out",
               }}
             >
               <List>
-                {selectedModule[selectedSection]?.map((item) => (
+                {filteredContent?.map((item) => (
                   <ListItem
                     key={item.name}
                     button
@@ -191,6 +258,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                       borderRadius: 1,
                       mb: 1,
                     }}
+                    data-aos="fade-up" // Add AOS animation
                   >
                     <ListItemIcon>
                       {item.type === "pdf" ? (
@@ -209,6 +277,16 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                   </ListItem>
                 ))}
               </List>
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                <Pagination
+                  count={Math.ceil(
+                    selectedModule[selectedSection]?.length / itemsPerPage
+                  )}
+                  page={page}
+                  onChange={handlePageChange}
+                  color="primary"
+                />
+              </Box>
             </Card>
           </Grid>
         </Grid>

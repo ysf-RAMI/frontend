@@ -13,138 +13,218 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
-  Select,
-  MenuItem,
+  Autocomplete,
   FormControl,
   InputLabel,
+  MenuItem,
+  Select,
+  LinearProgress,
+  Typography,
+  CircularProgress,
+  TablePagination,
 } from "@mui/material";
-import { useContext, useState } from "react";
-import moduleContext from "../../Context/ModuleContext";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import AOS from "aos";
+import "aos/dist/aos.css"; // Import AOS styles
 
 const CorsTable = () => {
-  const { filiere, setFiliere } = useContext(moduleContext);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [dialogType, setDialogType] = useState(""); // "add", "edit", "delete"
-  const [selectedFiliere, setSelectedFiliere] = useState("");
+  const [resource, setResource] = useState([]);
+  const [filieres, setFilieres] = useState([]);
+  const [modules, setModules] = useState([]);
+  const [cors, setCors] = useState([]);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
-  const [courseData, setCourseData] = useState({
-    id: null,
-    name: "",
-    type: "",
-    url: "",
-  });
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [fileName, setFileName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const courses = filiere.flatMap((f) =>
-    f.modules.flatMap((module) =>
-      module.courses.map((course) => ({
-        ...course,
-        moduleName: module.name,
-        filiereName: f.name,
-      }))
-    )
+  const baseUrl = "http://localhost:8080/api/professeur";
+  const token = JSON.parse(localStorage.getItem("auth")).token;
+  const profId = localStorage.getItem("profId");
+
+  // Initialize AOS
+  useEffect(() => {
+    AOS.init({
+      duration: 200, // Animation duration
+      once: true, // Whether animation should happen only once
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([fetchResources(), fetchFilieres(), fetchModules()]);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Failed to fetch data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchResources = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/getAllResources/${profId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setResource(response.data);
+      setCors(response.data.filter((r) => r.type === "COURS"));
+    } catch (error) {
+      console.error("Error fetching resources:", error);
+      toast.error("Failed to fetch resources.");
+    }
+  };
+
+  const fetchFilieres = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/getAllFiliere`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setFilieres(response.data);
+    } catch (error) {
+      console.error("Error fetching filieres:", error);
+      toast.error("Failed to fetch filieres.");
+    }
+  };
+
+  const fetchModules = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/getAllModuleByProfId/${profId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setModules(response.data);
+    } catch (error) {
+      console.error("Error fetching modules:", error);
+      toast.error("Failed to fetch modules.");
+    }
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setPage(0);
+  };
+
+  const filteredCors = cors.filter(
+    (course) =>
+      course.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course.moduleName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleOpenDialog = (type, course = null) => {
-    setDialogType(type);
-    if (course) {
-      setCourseData({
-        id: course.id,
-        name: course.name,
-        type: course.type,
-        url: course.url,
-      });
-      setSelectedFiliere(course.filiereName);
-      setSelectedModule(course.moduleName);
-    } else {
-      setCourseData({ id: null, name: "", type: "", url: "" });
-      setSelectedFiliere("");
-      setSelectedModule("");
-    }
-    setOpenDialog(true);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
   };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setCourseData({ id: null, name: "", type: "", url: "" });
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
-  const handleSave = () => {
-    setFiliere((prevFiliere) =>
-      prevFiliere.map((f) => {
-        if (f.name === selectedFiliere) {
-          return {
-            ...f,
-            modules: f.modules.map((m) => {
-              if (m.name === selectedModule) {
-                return {
-                  ...m,
-                  courses:
-                    dialogType === "edit"
-                      ? m.courses.map((c) =>
-                          c.id === courseData.id ? { ...courseData } : c
-                        )
-                      : [...m.courses, { ...courseData, id: Date.now() }],
-                };
-              }
-              return m;
-            }),
-          };
-        }
-        return f;
-      })
-    );
-    handleCloseDialog();
+  const paginatedCors = filteredCors.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  const handleOpenAddDialog = () => {
+    setSelectedCourse(null);
+    setSelectedModule("");
+    setOpenAddDialog(true);
   };
 
-  const handleDelete = () => {
-    setFiliere((prevFiliere) =>
-      prevFiliere.map((f) => ({
-        ...f,
-        modules: f.modules.map((m) => ({
-          ...m,
-          courses: m.courses.filter((c) => c.id !== courseData.id),
-        })),
-      }))
-    );
-    handleCloseDialog();
+  const handleOpenEditDialog = (course) => {
+    setSelectedCourse(course);
+    setSelectedModule(course.moduleName);
+    setOpenEditDialog(true);
+  };
+
+  const handleOpenDeleteDialog = (course) => {
+    setSelectedCourse(course);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleCloseDialogs = () => {
+    setOpenAddDialog(false);
+    setOpenEditDialog(false);
+    setOpenDeleteDialog(false);
+    setSelectedCourse(null);
+    setSelectedModule("");
+    setFileName("");
+    setUploadProgress(0);
   };
 
   return (
     <>
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
+      {loading && (
+        <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
+      )}
+
       {/* Add Course Button */}
       <Button
         variant="contained"
         color="primary"
-        onClick={() => handleOpenDialog("add")}
+        onClick={handleOpenAddDialog}
         sx={{ m: 2 }}
+        data-aos="fade-down"
       >
         Add Course
       </Button>
 
+      {/* Search Box */}
+      <TextField
+        label="Search Courses"
+        variant="outlined"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        sx={{ m: 2, width: "300px" }}
+        data-aos="fade-down"
+      />
+
       {/* Course Table */}
-      <TableContainer component={Paper} sx={{ m: 2 }}>
+      <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
-              <TableCell>Type</TableCell>
               <TableCell>Link</TableCell>
               <TableCell>Module</TableCell>
-              <TableCell>Filière</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {courses.map((course) => (
-              <TableRow key={course.id}>
-                <TableCell>{course.id}</TableCell>
-                <TableCell>{course.name}</TableCell>
-                <TableCell>{course.type}</TableCell>
+            {paginatedCors.map((course, index) => (
+              <TableRow key={index} data-aos="fade-right">
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{course.nom}</TableCell>
                 <TableCell>
-                  {course.type === "video" ? (
+                  {course.dataType === "VIDEO" ? (
                     <a
-                      href={course.url}
+                      href={course.lien}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -154,7 +234,7 @@ const CorsTable = () => {
                     <Button
                       variant="outlined"
                       component="a"
-                      href={course.url}
+                      href={"http://localhost:8080" + course.lien}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -163,16 +243,15 @@ const CorsTable = () => {
                   )}
                 </TableCell>
                 <TableCell>{course.moduleName}</TableCell>
-                <TableCell>{course.filiereName}</TableCell>
                 <TableCell>
                   <Button
-                    onClick={() => handleOpenDialog("edit", course)}
+                    onClick={() => handleOpenEditDialog(course)}
                     color="info"
                   >
                     Edit
                   </Button>
                   <Button
-                    onClick={() => handleOpenDialog("delete", course)}
+                    onClick={() => handleOpenDeleteDialog(course)}
                     color="secondary"
                   >
                     Delete
@@ -184,114 +263,287 @@ const CorsTable = () => {
         </Table>
       </TableContainer>
 
-      {/* Add/Edit/Delete Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>
-          {dialogType === "delete"
-            ? "Delete Course"
-            : dialogType === "edit"
-            ? "Edit Course"
-            : "Add Course"}
-        </DialogTitle>
-        <DialogContent>
-          {dialogType === "delete" ? (
-            <DialogContentText>
-              Are you sure you want to delete this course?
-            </DialogContentText>
-          ) : (
-            <>
-              <TextField
-                label="Course Name"
-                fullWidth
-                value={courseData.name}
-                onChange={(e) =>
-                  setCourseData({ ...courseData, name: e.target.value })
-                }
-                sx={{ mb: 2 }}
-              />
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Type</InputLabel>
-                <Select
-                  value={courseData.type}
-                  onChange={(e) =>
-                    setCourseData({ ...courseData, type: e.target.value })
-                  }
-                >
-                  <MenuItem value="video">Video</MenuItem>
-                  <MenuItem value="pdf">PDF</MenuItem>
-                </Select>
-              </FormControl>
-              {courseData.type === "video" ? (
-                <TextField
-                  label="Video URL"
-                  fullWidth
-                  value={courseData.url}
-                  onChange={(e) =>
-                    setCourseData({ ...courseData, url: e.target.value })
-                  }
-                  sx={{ mb: 2 }}
-                />
-              ) : (
-                <Button
-                  variant="outlined"
-                  component="label"
-                  fullWidth
-                  sx={{ mb: 2 }}
-                >
-                  Upload PDF
-                  <input
-                    type="file"
-                    hidden
-                    onChange={(e) =>
-                      setCourseData({
-                        ...courseData,
-                        url: URL.createObjectURL(e.target.files[0]),
-                      })
-                    }
-                  />
-                </Button>
-              )}
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Filière</InputLabel>
-                <Select
-                  value={selectedFiliere}
-                  onChange={(e) => setSelectedFiliere(e.target.value)}
-                >
-                  {filiere.map((f) => (
-                    <MenuItem key={f.name} value={f.name}>
-                      {f.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Module</InputLabel>
-                <Select
-                  value={selectedModule}
-                  onChange={(e) => setSelectedModule(e.target.value)}
-                >
-                  {filiere
-                    .find((f) => f.name === selectedFiliere)
-                    ?.modules.map((m) => (
-                      <MenuItem key={m.name} value={m.name}>
-                        {m.name}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          {dialogType === "delete" ? (
-            <Button onClick={handleDelete}>Delete</Button>
-          ) : (
-            <Button onClick={handleSave}>Save</Button>
-          )}
-        </DialogActions>
-      </Dialog>
+      {/* Pagination */}
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={filteredCors.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        data-aos="fade-up"
+      />
+
+      {/* Add Dialog */}
+      <CourseFormDialog
+        open={openAddDialog}
+        onClose={handleCloseDialogs}
+        modules={modules}
+        selectedModule={selectedModule}
+        setSelectedModule={setSelectedModule}
+        fileName={fileName}
+        setFileName={setFileName}
+        uploadProgress={uploadProgress}
+        fetchResources={fetchResources}
+        baseUrl={baseUrl}
+        token={token}
+        profId={profId}
+        mode="add"
+      />
+
+      {/* Edit Dialog */}
+      <CourseFormDialog
+        open={openEditDialog}
+        onClose={handleCloseDialogs}
+        course={selectedCourse}
+        modules={modules}
+        selectedModule={selectedModule}
+        setSelectedModule={setSelectedModule}
+        fileName={fileName}
+        setFileName={setFileName}
+        uploadProgress={uploadProgress}
+        fetchResources={fetchResources}
+        baseUrl={baseUrl}
+        token={token}
+        profId={profId}
+        mode="edit"
+      />
+
+      {/* Delete Dialog */}
+      <DeleteDialog
+        open={openDeleteDialog}
+        onClose={handleCloseDialogs}
+        course={selectedCourse}
+        fetchResources={fetchResources}
+        baseUrl={baseUrl}
+        token={token}
+      />
     </>
+  );
+};
+
+// Reusable Course Form Dialog
+const CourseFormDialog = ({
+  open,
+  onClose,
+  course,
+  modules,
+  selectedModule,
+  setSelectedModule,
+  fileName,
+  setFileName,
+  uploadProgress,
+  fetchResources,
+  baseUrl,
+  token,
+  profId,
+  mode,
+}) => {
+  const [courseData, setCourseData] = useState({
+    id: course?.id || "",
+    name: course?.nom || "",
+    dataType: course?.dataType || "",
+    lien: course?.lien || "",
+    file: null,
+  });
+
+  useEffect(() => {
+    if (course) {
+      setCourseData({
+        id: course.id,
+        name: course.nom,
+        dataType: course.dataType,
+        lien: course.lien,
+        file: null,
+      });
+      setSelectedModule(course.moduleName);
+      setFileName("");
+    }
+  }, [course]);
+
+  const handleSave = async () => {
+    if (
+      !courseData.name ||
+      !selectedModule ||
+      (courseData.dataType === "VIDEO" && !courseData.lien) ||
+      (courseData.dataType === "FICHIER" && !courseData.file)
+    ) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("id", courseData.id);
+    formData.append("nom", courseData.name);
+    formData.append("type", "COURS");
+    formData.append("dataType", courseData.dataType);
+
+    if (courseData.dataType === "VIDEO") {
+      formData.append("lien", courseData.lien);
+    } else if (courseData.dataType === "FICHIER") {
+      formData.append("data", courseData.file);
+    }
+
+    const selectedModuleObj = modules.find((m) => m.name === selectedModule);
+    if (selectedModuleObj) {
+      formData.append("moduleId", selectedModuleObj.id);
+    }
+    formData.append("professorId", profId);
+
+    try {
+      const url =
+        mode === "add" ? `${baseUrl}/addResource` : `${baseUrl}/updateResource`;
+      const method = mode === "add" ? "post" : "put";
+
+      await axios[method](url, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round(
+            (progressEvent.loaded / progressEvent.total) * 100
+          );
+          setUploadProgress(progress);
+        },
+      });
+
+      toast.success(
+        `Course ${mode === "add" ? "added" : "updated"} successfully!`
+      );
+      fetchResources();
+      onClose();
+    } catch (error) {
+      console.error(
+        `Error ${mode === "add" ? "adding" : "updating"} resource:`,
+        error
+      );
+      toast.error(`Failed to ${mode === "add" ? "add" : "update"} course.`);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCourseData({ ...courseData, file });
+      setFileName(file.name);
+    } else {
+      setFileName("");
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
+      <DialogTitle>{mode === "add" ? "Add Course" : "Edit Course"}</DialogTitle>
+      <DialogContent>
+        <TextField
+          label="Course Name"
+          fullWidth
+          value={courseData.name}
+          onChange={(e) =>
+            setCourseData({ ...courseData, name: e.target.value })
+          }
+          sx={{ mb: 2 }}
+        />
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel>Type</InputLabel>
+          <Select
+            value={courseData.dataType}
+            onChange={(e) =>
+              setCourseData({ ...courseData, dataType: e.target.value })
+            }
+          >
+            <MenuItem value="VIDEO">Video</MenuItem>
+            <MenuItem value="FICHIER">PDF</MenuItem>
+          </Select>
+        </FormControl>
+        {courseData.dataType === "VIDEO" ? (
+          <TextField
+            label="Video URL"
+            fullWidth
+            value={courseData.lien}
+            onChange={(e) =>
+              setCourseData({ ...courseData, lien: e.target.value })
+            }
+            sx={{ mb: 2 }}
+          />
+        ) : (
+          <>
+            <Button
+              variant="outlined"
+              component="label"
+              fullWidth
+              sx={{ mb: 2 }}
+            >
+              Upload PDF
+              <input type="file" hidden onChange={handleFileChange} />
+            </Button>
+            {fileName && <Typography>{fileName}</Typography>}
+            {uploadProgress > 0 && (
+              <LinearProgress variant="determinate" value={uploadProgress} />
+            )}
+          </>
+        )}
+        <Autocomplete
+          options={modules}
+          getOptionLabel={(option) => option.name}
+          value={modules.find((m) => m.name === selectedModule) || null}
+          onChange={(e, newValue) =>
+            setSelectedModule(newValue ? newValue.name : "")
+          }
+          renderInput={(params) => (
+            <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
+          )}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSave}>Save</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Delete Dialog Component
+const DeleteDialog = ({
+  open,
+  onClose,
+  course,
+  fetchResources,
+  baseUrl,
+  token,
+}) => {
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`${baseUrl}/deleteResource/${course.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("Course deleted successfully!");
+      fetchResources();
+      onClose();
+    } catch (error) {
+      console.error("Error deleting resource:", error);
+      toast.error("Failed to delete course.");
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
+      <DialogTitle>Delete Course</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Are you sure you want to delete this course:{" "}
+          <strong>{course?.nom}</strong>?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleDelete} color="secondary">
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

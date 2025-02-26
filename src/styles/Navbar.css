@@ -1,16 +1,21 @@
+
 /* TRANSPARENT NAVBAR */
 .custom-navbar.transparent-navbar {
   background-color: transparent !important;
   border-bottom: none !important;
-  transition: background-color 0.3s ease, border-bottom 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-bottom 0.3s ease;
   padding: 10px;
 }
 
 /* SOLID NAVBAR */
 .custom-navbar.solid-navbar {
   background-color: #011b38c1 !important; /* Slightly transparent dark background */
-  border-bottom: 2px solid #01162e !important; /* Subtle border */  
-  transition: background-color 0.3s ease, border-bottom 0.3s ease;
+  border-bottom: 2px solid #01162e !important; /* Subtle border */
+  transition:
+    background-color 0.3s ease,
+    border-bottom 0.3s ease;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.374); /* Slight shadow */
   padding: -10px;
 }
@@ -25,16 +30,17 @@
 .custom-navbar .nav-link {
   color: white;
   font-size: 16px;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
   transition: color 0.2s ease-in-out;
   animation: slideInRight 0.8s ease-in-out;
 }
 
-
-
 /* BOUTON LOGIN */
 .nav-btn {
   margin-left: 10px;
-  transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  transition:
+    transform 0.3s ease-in-out,
+    background-color 0.3s ease-in-out;
   animation: slideInDown 0.8s ease-out;
 }
 
@@ -58,4 +64,3 @@
     max-height: 40px; /* Smaller logo for mobile */
   }
 }
-

@@ -24,9 +24,9 @@ import Testimonial from "../Components/Home/Testimonial";
 import Features from "../Components/Home/Features";
 import Hero from "../Components/Home/Hero";
 import Footer from "../Components/Footer";
-import ProfessorsSection from "../Components/Home/ProfessorsSection";
 import AnnouncementSection from "../Components/Home/AnnouncementSection";
 import HomeSectionProf from "../Components/Hamout/homeSectionProf";
+import TeamSection from "../Components/TeamSection";
 
 AOS.init();
 
@@ -63,7 +63,7 @@ export const Home = () => {
       <Hero />
       <HomeSectionProf />
       <AnnouncementSection />
-      <ProfessorsSection />
+      <TeamSection />
       <Features />
       <Testimonial />
       <Call />

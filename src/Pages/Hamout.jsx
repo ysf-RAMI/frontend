@@ -94,14 +94,14 @@ const Hamout = () => {
           @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
 
           .modern-portfolio {
-            background:rgba(137, 88, 78, 0.11);
+            background:rgba(137, 88, 78, 0);
             min-height: 100vh;
             font-family: 'Open Sans', sans-serif;
           }
           
           .hero-section {
             min-height: 100vh;
-            background: linear-gradient(135deg,rgba(71, 17, 17, 0.08) 0%,rgba(186, 84, 0, 0.06) 100%);
+            background: linear-gradient(135deg,rgba(169, 169, 169, 0.31) 0%,rgba(0, 0, 0, 0.15) 100%);
             color: white;
             padding: 4rem 0;
           }

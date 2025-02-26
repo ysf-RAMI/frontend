@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap");
+
+
 .home-container {
   position: relative;
   min-height: 100vh;
@@ -193,7 +196,6 @@
 }
 
 /* Home.css prof secctio */
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap");
 
 .modern-portfolio {
   background: rgba(137, 88, 78, 0.11);

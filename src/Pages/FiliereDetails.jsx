@@ -1,12 +1,10 @@
-import { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Col, Row, Container } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import moduleContext from "../Context/ModuleContext";
-import "../styles/FiliereDetails.css";
 import {
-  TextField,
   Typography,
   Card,
   CardContent,
@@ -14,8 +12,11 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  TextField,
   Autocomplete,
+  Button,
 } from "@mui/material";
+import "../styles/FiliereDetails.css";
 
 // Animated Card Component for smooth animation
 const AnimatedCard = ({ children }) => {
@@ -72,17 +73,24 @@ export default function FiliereDetails() {
     <>
       {selectedFiliere ? (
         <Container className="main-content" style={{ marginTop: "100px" }}>
+          {/* Filière Title */}
           <Typography variant="h3" className="serviceMainTitle">
-            Modules de {selectedFiliere.nomFiliere}
+            {selectedFiliere.nomFiliere}
           </Typography>
 
+          {/* Search Bar */}
           <div style={{ textAlign: "left", paddingTop: "30px" }}>
             <Typography variant="h5" style={{ marginBottom: "20px" }}>
-              Cherchez un module
+              Rechercher un module
             </Typography>
-            <TextField onClick={handleSearchClick} fullWidth />
+            <TextField
+              onClick={handleSearchClick}
+              fullWidth
+              placeholder="Tapez pour rechercher..."
+            />
           </div>
 
+          {/* Module List */}
           <div className="module-list">
             <Row className="justify-content-center">
               {filteredModules.map((module) => (
@@ -94,10 +102,21 @@ export default function FiliereDetails() {
                     <AnimatedCard>
                       <Card className="moduleCard">
                         <CardContent>
-                          <Typography variant="h5">{module.name}</Typography>
+                          <Typography variant="h5" gutterBottom>
+                            {module.name}
+                          </Typography>
                           <Divider style={{ margin: "15px 0" }} />
-                          <Typography variant="body1">
+                          <Typography variant="body1" color="textSecondary">
                             {module.description}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            style={{ marginTop: "10px", color: "#666" }}
+                          >
+                            <strong>Crédits:</strong> {module.credits}
+                          </Typography>
+                          <Typography variant="body2" style={{ color: "#666" }}>
+                            <strong>Responsable:</strong> {module.responsable}
                           </Typography>
                         </CardContent>
                       </Card>
@@ -116,6 +135,7 @@ export default function FiliereDetails() {
         </Container>
       )}
 
+      {/* Search Modal */}
       <Dialog
         open={openModal}
         onClose={handleCloseModal}
@@ -157,6 +177,9 @@ export default function FiliereDetails() {
                     <CardContent>
                       <Typography variant="body1" style={{ fontWeight: 600 }}>
                         {module.name}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {module.description}
                       </Typography>
                     </CardContent>
                   </Card>

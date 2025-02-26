@@ -1,11 +1,21 @@
+import React, { useEffect } from "react"; // Import useEffect
 import { motion } from "framer-motion"; // Import `motion` from framer-motion
 import { Col, Container, Row } from "react-bootstrap"; // Import Bootstrap components
 import { useNavigate } from "react-router-dom"; // For navigation
-import hamoutimage from "../../assets/hamoutimage.jpg"; // Adjust the path to your image
+import hamoutimage from "../../assets/hamoutpic.jpg"; // Adjust the path to your image
 import { Button } from "@mui/material"; // Import MUI Button
+import AOS from "aos"; // Import AOS
+import "aos/dist/aos.css"; // Import AOS CSS
 
 export default function HomeSectionProf() {
   const navigate = useNavigate();
+
+  // Initialize AOS
+  useEffect(() => {
+    AOS.init({
+      duration: 800, 
+    });
+  }, []);
 
   return (
     <section className="hero-section">
@@ -25,18 +35,24 @@ export default function HomeSectionProf() {
               src={hamoutimage}
               alt="Dr. Hamza HAMOUT"
               className="profile-image"
-              initial={{ opacity: 0, x: -100 }} // Start off-screen to the left
-              animate={{ opacity: 1, x: 0 }} // Animate to the center
-              transition={{ duration: 0.8, ease: "easeOut" }} // Smooth transition
+              style={{
+                width: "400px",
+                height: "400px",
+                borderRadius: "10%", 
+                border: "2px solid white", 
+                boxShadow: "0 0 110px rgba(70, 31, 31, 0.21)", 
+                cursor: "pointer", 
+              }}
+              data-aos="fade-right" 
+              data-aos-delay="200" 
             />
           </Col>
 
           {/* Text Column - Animates from the right */}
           <Col md={6}>
             <motion.div
-              initial={{ opacity: 0, x: 100 }} // Start off-screen to the right
-              animate={{ opacity: 1, x: 0 }} // Animate to the center
-              transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }} // Smooth transition with delay
+              data-aos="fade-left" // AOS animation for the text
+              data-aos-delay="400" // Delay for the animation
             >
               <div
                 className="social-icons"
@@ -65,7 +81,10 @@ export default function HomeSectionProf() {
                 <Button
                   variant="outlined"
                   color="brown"
-                  style={{ width: "110px" ,"&hover": { color: "white" ,backgroundColor: "brown"} }}
+                  style={{
+                    width: "110px",
+                    "&:hover": { color: "white", backgroundColor: "brown" },
+                  }}
                   onClick={() => navigate("/hamout")}
                 >
                   More

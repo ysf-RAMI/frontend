@@ -13,144 +13,276 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
-  Select,
-  MenuItem,
+  Autocomplete,
   FormControl,
   InputLabel,
+  MenuItem,
+  Select,
+  LinearProgress,
+  Typography,
+  TablePagination,
 } from "@mui/material";
-import { useContext, useState } from "react";
-import moduleContext from "../../Context/ModuleContext";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import AOS from "aos";
+import "aos/dist/aos.css"; // Import AOS styles
 
 const TDTable = () => {
-  const { filiere, setFiliere } = useContext(moduleContext);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [dialogType, setDialogType] = useState(""); // "add", "edit", "delete"
-  const [selectedFiliere, setSelectedFiliere] = useState("");
+  const [resource, setResource] = useState([]);
+  const [modules, setModules] = useState([]);
+  const [tds, setTds] = useState([]);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [selectedTd, setSelectedTd] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
-  const [tdData, setTdData] = useState({
-    id: null,
-    name: "",
-    type: "",
-    url: "",
-  });
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [fileName, setFileName] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const tds = filiere.flatMap((f) =>
-    f.modules.flatMap((module) =>
-      module.TD.map((td) => ({
-        ...td,
-        moduleName: module.name,
-        filiereName: f.name,
-      }))
-    )
+  const baseUrl = "http://localhost:8080/api/professeur";
+  const token = JSON.parse(localStorage.getItem("auth")).token;
+  const profId = localStorage.getItem("profId");
+
+  // Initialize AOS
+  useEffect(() => {
+    AOS.init({
+      duration: 200, // Animation duration
+      once: true, // Whether animation should happen only once
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchResources();
+    fetchModules();
+  }, []);
+
+  const fetchResources = () => {
+    axios
+      .get(`${baseUrl}/getAllResources/${profId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        console.log("Fetched Resources:", response.data);
+        setResource(response.data);
+        setTds(response.data.filter((r) => r.type === "TD")); // Filter for TDs
+      })
+      .catch((error) => {
+        console.error("Error fetching resources:", error);
+      });
+  };
+
+  const fetchModules = () => {
+    axios
+      .get(`${baseUrl}/getAllModuleByProfId/${profId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        console.log("Fetched Modules:", response.data);
+        setModules(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching modules:", error);
+      });
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setPage(0);
+  };
+
+  const filteredTds = tds.filter(
+    (td) =>
+      td.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      td.moduleName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleOpenDialog = (type, td = null) => {
-    setDialogType(type);
-    if (td) {
-      setTdData({
-        id: td.id,
-        name: td.name,
-        type: td.type,
-        url: td.url,
-      });
-      setSelectedFiliere(td.filiereName);
-      setSelectedModule(td.moduleName);
-    } else {
-      setTdData({ id: null, name: "", type: "", url: "" });
-      setSelectedFiliere("");
-      setSelectedModule("");
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const paginatedTds = filteredTds.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  const handleOpenAddDialog = () => {
+    setSelectedTd(null);
+    setSelectedModule("");
+    setOpenAddDialog(true);
+  };
+
+  const handleOpenEditDialog = (td) => {
+    setSelectedTd(td);
+    setSelectedModule(td.moduleName);
+    setOpenEditDialog(true);
+  };
+
+  const handleOpenDeleteDialog = (td) => {
+    setSelectedTd(td);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleCloseDialogs = () => {
+    setOpenAddDialog(false);
+    setOpenEditDialog(false);
+    setOpenDeleteDialog(false);
+    setSelectedTd(null);
+    setSelectedModule("");
+    setFileName("");
+    setUploadProgress(0);
+  };
+
+  const handleSave = (tdData, isEdit = false) => {
+    const formData = new FormData();
+
+    // Append fields in the required order and with the correct names
+    formData.append("nom", tdData.name); // TD name
+    formData.append("type", "TD"); // Hardcoded as "TD"
+
+    // Set dataType based on the resource type
+    if (tdData.dataType === "VIDEO") {
+      formData.append("dataType", "VIDEO"); // Video resource
+      formData.append("lien", tdData.url); // Video URL
+    } else if (tdData.dataType === "FICHIER") {
+      formData.append("dataType", "FICHIER"); // PDF resource
+      if (tdData.file) {
+        formData.append("data", tdData.file); // PDF file
+      }
     }
-    setOpenDialog(true);
-  };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setTdData({ id: null, name: "", type: "", url: "" });
-  };
+    // Append moduleId and professorId
+    const selectedModuleObj = modules.find((m) => m.name === selectedModule);
+    if (selectedModuleObj) {
+      formData.append("moduleId", selectedModuleObj.id); // Module ID
+    }
+    formData.append("professorId", profId); // Professor ID
 
-  const handleSave = () => {
-    setFiliere((prevFiliere) =>
-      prevFiliere.map((f) => {
-        if (f.name === selectedFiliere) {
-          return {
-            ...f,
-            modules: f.modules.map((m) => {
-              if (m.name === selectedModule) {
-                return {
-                  ...m,
-                  TD:
-                    dialogType === "edit"
-                      ? m.TD.map((t) =>
-                          t.id === tdData.id ? { ...tdData } : t
-                        )
-                      : [...m.TD, { ...tdData, id: Date.now() }],
-                };
-              }
-              return m;
-            }),
-          };
-        }
-        return f;
+    // For editing, append the TD ID
+    if (isEdit && tdData.id) {
+      formData.append("id", tdData.id);
+    }
+
+    // Debugging: Log FormData contents
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    const url = isEdit ? `${baseUrl}/updateResource` : `${baseUrl}/addResource`;
+
+    const method = isEdit ? "put" : "post";
+
+    axios[method](url, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: (progressEvent) => {
+        const progress = Math.round(
+          (progressEvent.loaded / progressEvent.total) * 100
+        );
+        setUploadProgress(progress);
+      },
+    })
+      .then((response) => {
+        console.log("Resource saved/updated:", response.data);
+        toast.success(`TD ${isEdit ? "updated" : "added"} successfully!`);
+        fetchResources(); // Refresh the resource list
+        handleCloseDialogs();
       })
-    );
-    handleCloseDialog();
+      .catch((error) => {
+        console.error("Error saving/updating resource:", error);
+        toast.error("Failed to save/update TD.");
+      });
   };
 
   const handleDelete = () => {
-    setFiliere((prevFiliere) =>
-      prevFiliere.map((f) => ({
-        ...f,
-        modules: f.modules.map((m) => ({
-          ...m,
-          TD: m.TD.filter((t) => t.id !== tdData.id),
-        })),
-      }))
-    );
-    handleCloseDialog();
+    axios
+      .delete(`${baseUrl}/deleteResource/${selectedTd.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => {
+        console.log("Resource deleted:", selectedTd.id);
+        toast.success("TD deleted successfully!");
+        fetchResources(); // Refresh the resource list
+        handleCloseDialogs();
+      })
+      .catch((error) => {
+        console.error("Error deleting resource:", error);
+        toast.error("Failed to delete TD.");
+      });
   };
 
   return (
     <>
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
+
       {/* Add TD Button */}
       <Button
         variant="contained"
         color="primary"
-        onClick={() => handleOpenDialog("add")}
+        onClick={handleOpenAddDialog}
         sx={{ m: 2 }}
+        data-aos="fade-down"
       >
         Add TD
       </Button>
 
+      {/* Search Box */}
+      <TextField
+        label="Search TDs"
+        variant="outlined"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        sx={{ m: 2, width: "300px" }}
+        data-aos="fade-down"
+      />
+
       {/* TD Table */}
-      <TableContainer component={Paper} sx={{ m: 2 }}>
+      <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
-              <TableCell>Type</TableCell>
               <TableCell>Link</TableCell>
-              <TableCell>Module Name</TableCell>
-              <TableCell>Filière Name</TableCell>
+              <TableCell>Module</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {tds.map((td) => (
-              <TableRow key={td.id}>
-                <TableCell>{td.id}</TableCell>
-                <TableCell>{td.name}</TableCell>
-                <TableCell>{td.type}</TableCell>
+            {paginatedTds.map((td, index) => (
+              <TableRow key={index} data-aos="fade-right">
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{td.nom}</TableCell>
                 <TableCell>
-                  {td.type === "video" ? (
-                    <a href={td.url} target="_blank" rel="noopener noreferrer">
+                  {td.dataType === "VIDEO" ? (
+                    <a href={td.lien} target="_blank" rel="noopener noreferrer">
                       View
                     </a>
                   ) : (
                     <Button
                       variant="outlined"
                       component="a"
-                      href={td.url}
+                      href={"http://localhost:8080" + td.lien}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -159,16 +291,12 @@ const TDTable = () => {
                   )}
                 </TableCell>
                 <TableCell>{td.moduleName}</TableCell>
-                <TableCell>{td.filiereName}</TableCell>
                 <TableCell>
-                  <Button
-                    onClick={() => handleOpenDialog("edit", td)}
-                    color="info"
-                  >
+                  <Button onClick={() => handleOpenEditDialog(td)} color="info">
                     Edit
                   </Button>
                   <Button
-                    onClick={() => handleOpenDialog("delete", td)}
+                    onClick={() => handleOpenDeleteDialog(td)}
                     color="secondary"
                   >
                     Delete
@@ -180,112 +308,275 @@ const TDTable = () => {
         </Table>
       </TableContainer>
 
-      {/* Add/Edit/Delete Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>
-          {dialogType === "delete"
-            ? "Delete TD"
-            : dialogType === "edit"
-              ? "Edit TD"
-              : "Add TD"}
-        </DialogTitle>
-        <DialogContent>
-          {dialogType === "delete" ? (
-            <DialogContentText>
-              Are you sure you want to delete this TD?
-            </DialogContentText>
-          ) : (
-            <>
-              <TextField
-                label="TD Name"
-                fullWidth
-                value={tdData.name}
-                onChange={(e) => setTdData({ ...tdData, name: e.target.value })}
-                sx={{ mb: 2 }}
-              />
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Type</InputLabel>
-                <Select
-                  value={tdData.type}
-                  onChange={(e) =>
-                    setTdData({ ...tdData, type: e.target.value })
-                  }
-                >
-                  <MenuItem value="video">Video</MenuItem>
-                  <MenuItem value="pdf">PDF</MenuItem>
-                </Select>
-              </FormControl>
-              {tdData.type === "video" ? (
-                <TextField
-                  label="Video URL"
-                  fullWidth
-                  value={tdData.url}
-                  onChange={(e) =>
-                    setTdData({ ...tdData, url: e.target.value })
-                  }
-                  sx={{ mb: 2 }}
-                />
-              ) : (
-                <Button
-                  variant="outlined"
-                  component="label"
-                  fullWidth
-                  sx={{ mb: 2 }}
-                >
-                  Upload PDF
-                  <input
-                    type="file"
-                    hidden
-                    onChange={(e) =>
-                      setTdData({
-                        ...tdData,
-                        url: URL.createObjectURL(e.target.files[0]),
-                      })
-                    }
-                  />
-                </Button>
-              )}
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Filière</InputLabel>
-                <Select
-                  value={selectedFiliere}
-                  onChange={(e) => setSelectedFiliere(e.target.value)}
-                >
-                  {filiere.map((f) => (
-                    <MenuItem key={f.name} value={f.name}>
-                      {f.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Module</InputLabel>
-                <Select
-                  value={selectedModule}
-                  onChange={(e) => setSelectedModule(e.target.value)}
-                >
-                  {filiere
-                    .find((f) => f.name === selectedFiliere)
-                    ?.modules.map((m) => (
-                      <MenuItem key={m.name} value={m.name}>
-                        {m.name}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          {dialogType === "delete" ? (
-            <Button onClick={handleDelete}>Delete</Button>
-          ) : (
-            <Button onClick={handleSave}>Save</Button>
-          )}
-        </DialogActions>
-      </Dialog>
+      {/* Pagination */}
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={filteredTds.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        data-aos="fade-up"
+      />
+
+      {/* Add Dialog */}
+      <AddDialog
+        open={openAddDialog}
+        onClose={handleCloseDialogs}
+        onSave={handleSave}
+        modules={modules}
+        selectedModule={selectedModule}
+        setSelectedModule={setSelectedModule}
+        fileName={fileName}
+        setFileName={setFileName}
+        uploadProgress={uploadProgress}
+      />
+
+      {/* Edit Dialog */}
+      <EditDialog
+        open={openEditDialog}
+        onClose={handleCloseDialogs}
+        onSave={handleSave}
+        td={selectedTd}
+        modules={modules}
+        selectedModule={selectedModule}
+        setSelectedModule={setSelectedModule}
+        fileName={fileName}
+        setFileName={setFileName}
+        uploadProgress={uploadProgress}
+      />
+
+      {/* Delete Dialog */}
+      <DeleteDialog
+        open={openDeleteDialog}
+        onClose={handleCloseDialogs}
+        onDelete={handleDelete}
+        td={selectedTd}
+      />
     </>
+  );
+};
+
+// Add Dialog Component
+const AddDialog = ({
+  open,
+  onClose,
+  onSave,
+  modules,
+  selectedModule,
+  setSelectedModule,
+  fileName,
+  setFileName,
+  uploadProgress,
+}) => {
+  const [tdData, setTdData] = useState({
+    name: "",
+    dataType: "",
+    url: "",
+    file: null,
+  });
+
+  const handleSave = () => {
+    console.log("Saving new TD:", tdData);
+    onSave(tdData);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setTdData({ ...tdData, file });
+      setFileName(file.name);
+    } else {
+      setFileName("");
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
+      <DialogTitle>Add TD</DialogTitle>
+      <DialogContent>
+        <TextField
+          label="TD Name"
+          fullWidth
+          value={tdData.name}
+          onChange={(e) => setTdData({ ...tdData, name: e.target.value })}
+          sx={{ mb: 2 }}
+        />
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel>Type</InputLabel>
+          <Select
+            value={tdData.dataType}
+            onChange={(e) => setTdData({ ...tdData, dataType: e.target.value })}
+          >
+            <MenuItem value="VIDEO">Video</MenuItem>
+            <MenuItem value="FICHIER">PDF</MenuItem>
+          </Select>
+        </FormControl>
+        {tdData.dataType === "VIDEO" ? (
+          <TextField
+            label="Video URL"
+            fullWidth
+            value={tdData.url}
+            onChange={(e) => setTdData({ ...tdData, url: e.target.value })}
+            sx={{ mb: 2 }}
+          />
+        ) : (
+          <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
+            Upload PDF
+            <input type="file" hidden onChange={handleFileChange} />
+          </Button>
+        )}
+        {fileName && <Typography>{fileName}</Typography>}
+        {uploadProgress > 0 && (
+          <LinearProgress variant="determinate" value={uploadProgress} />
+        )}
+        <Autocomplete
+          options={modules}
+          getOptionLabel={(option) => option.name}
+          value={modules.find((m) => m.name === selectedModule) || null}
+          onChange={(e, newValue) => {
+            setSelectedModule(newValue ? newValue.name : "");
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
+          )}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSave}>Save</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Edit Dialog Component
+const EditDialog = ({
+  open,
+  onClose,
+  onSave,
+  td,
+  modules,
+  selectedModule,
+  setSelectedModule,
+  fileName,
+  setFileName,
+  uploadProgress,
+}) => {
+  const [tdData, setTdData] = useState({
+    id: td?.id || "",
+    name: td?.nom || "",
+    dataType: td?.dataType || "",
+    url: td?.lien || "",
+    file: null,
+  });
+
+  useEffect(() => {
+    if (td) {
+      setTdData({
+        id: td.id,
+        name: td.nom,
+        dataType: td.dataType,
+        url: td.lien,
+        file: null,
+      });
+      setSelectedModule(td.moduleName);
+      setFileName(""); // Reset file name when opening the dialog
+    }
+  }, [td]);
+
+  const handleSave = () => {
+    console.log("Updating TD:", tdData);
+    onSave(tdData, true);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setTdData({ ...tdData, file });
+      setFileName(file.name);
+    } else {
+      setFileName("");
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
+      <DialogTitle>Edit TD</DialogTitle>
+      <DialogContent>
+        <TextField
+          label="TD Name"
+          fullWidth
+          value={tdData.name}
+          onChange={(e) => setTdData({ ...tdData, name: e.target.value })}
+          sx={{ mb: 2 }}
+        />
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel>Type</InputLabel>
+          <Select
+            value={tdData.dataType}
+            onChange={(e) => setTdData({ ...tdData, dataType: e.target.value })}
+          >
+            <MenuItem value="VIDEO">Video</MenuItem>
+            <MenuItem value="FICHIER">PDF</MenuItem>
+          </Select>
+        </FormControl>
+        {tdData.dataType === "VIDEO" ? (
+          <TextField
+            label="Video URL"
+            fullWidth
+            value={tdData.url}
+            onChange={(e) => setTdData({ ...tdData, url: e.target.value })}
+            sx={{ mb: 2 }}
+          />
+        ) : (
+          <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
+            Upload PDF
+            <input type="file" hidden onChange={handleFileChange} />
+          </Button>
+        )}
+        {fileName && <Typography>{fileName}</Typography>}
+        {uploadProgress > 0 && (
+          <LinearProgress variant="determinate" value={uploadProgress} />
+        )}
+        <Autocomplete
+          options={modules}
+          getOptionLabel={(option) => option.name}
+          value={modules.find((m) => m.name === selectedModule) || null}
+          onChange={(e, newValue) => {
+            setSelectedModule(newValue ? newValue.name : "");
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
+          )}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSave}>Save</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Delete Dialog Component
+const DeleteDialog = ({ open, onClose, onDelete, td }) => {
+  return (
+    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
+      <DialogTitle>Delete TD</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Are you sure you want to delete this TD: <strong>{td?.nom}</strong>?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onDelete} color="secondary">
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

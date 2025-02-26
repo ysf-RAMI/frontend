@@ -26,6 +26,7 @@ import { useTheme } from "@mui/material";
 import { ToastContainer } from "react-toastify";
 import AnnouncementsPage from "./Pages/AnnouncementsPage";
 import Hamout from "./Pages/Hamout";
+import { AboutPage } from "./Pages/AboutPage";
 
 function App() {
   const [filiere, setFiliere] = useState([]);
@@ -158,10 +159,10 @@ function App() {
                 </Route>
 
                 <Route path="/profile" element={<Profile />} />
-
                 <Route path="/*" element={<NotFound />} />
                 <Route path="/announcements" element={<AnnouncementsPage />} />
                 <Route path="/hamout" element={<Hamout />} />
+                <Route path="/about" element={<AboutPage />} />
               </Routes>
             </BrowserRouter>
           </moduleContext.Provider>
