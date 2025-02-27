@@ -101,6 +101,15 @@ const Profile = () => {
   const profId = localStorage.getItem("profId");
   const baseUrl = "http://localhost:8080/api/professeur";
 
+  // Theme colors
+  const themeColors = {
+    primary: "#003366",
+    secondary: "#01162e",
+    white: "#ffffff",
+    lightBlue: "#e6eef5",
+    midBlue: "#0055a4",
+  };
+
   // State management
   const [isLoading, setIsLoading] = useState(true);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
@@ -329,6 +338,8 @@ const Profile = () => {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
+          bgcolor: themeColors.secondary,
+          color: themeColors.white,
         }}
       >
         <Typography variant="h6">Loading profile...</Typography>
@@ -339,13 +350,15 @@ const Profile = () => {
   return (
     <Box
       sx={{
-        background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+        background: `linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.secondary} 100%)`,
         minHeight: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         fontFamily: "'Poppins', sans-serif",
-        padding: "20px",
+        padding: "0",
+        margin: "0",
+        overflow: "hidden",
       }}
     >
       <ToastContainer
@@ -373,146 +386,251 @@ const Profile = () => {
       </Snackbar>
 
       <Paper
-        elevation={8}
+        elevation={10}
         sx={{
-          maxWidth: "800px",
-          width: "100%",
-          borderRadius: "16px",
+          width: "90%",
+          height: "90vh",
+          maxWidth: "1400px",
+          borderRadius: "20px",
           overflow: "hidden",
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          margin: "auto",
         }}
         data-aos="fade-up"
       >
-        <Grid container>
-          {/* Profile Sidebar */}
-          <Grid
-            item
-            xs={12}
-            md={4}
+        {/* Profile Sidebar */}
+        <Box
+          sx={{
+            width: { xs: "100%", md: "35%" },
+            backgroundColor: themeColors.secondary,
+            color: themeColors.white,
+            padding: "60px 30px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+          }}
+        >
+          <Box
             sx={{
-              background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
-              color: "white",
-              padding: "40px 20px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              opacity: 0.05,
+              backgroundImage:
+                'url(\'data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z" fill="%23ffffff" fill-opacity="1" fill-rule="evenodd"/%3E%3C/svg%3E\')',
+              backgroundSize: "80px 80px",
+              zIndex: 0,
+            }}
+          />
+
+          <Avatar
+            alt={profileValues.prenom}
+            src={logo}
+            sx={{
+              width: 180,
+              height: 180,
+              border: `4px solid ${themeColors.white}`,
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+              mb: 4,
+              zIndex: 1,
             }}
           >
-            <Avatar
-              alt={profileValues.prenom}
-              src={logo}
-              sx={{
-                width: 120,
-                height: 120,
-                border: "4px solid white",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.25)",
-                mb: 3,
-              }}
-            >
-              {profileValues.prenom ? profileValues.prenom[0] : "U"}
-            </Avatar>
+            {profileValues.prenom ? profileValues.prenom[0] : "U"}
+          </Avatar>
 
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
-              Dr. {profileValues.prenom} {profileValues.nom}
-            </Typography>
+          <Typography variant="h4" sx={{ fontWeight: 600, mb: 1, zIndex: 1 }}>
+            Dr. {profileValues.prenom} {profileValues.nom}
+          </Typography>
 
-            <Typography
-              variant="body2"
-              sx={{
-                mb: 3,
-                opacity: 0.8,
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <Email sx={{ mr: 1, fontSize: 16 }} /> {profileValues.email}
-            </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              mb: 3,
+              opacity: 0.9,
+              display: "flex",
+              alignItems: "center",
+              zIndex: 1,
+            }}
+          >
+            <Email sx={{ mr: 1, fontSize: 20 }} /> {profileValues.email}
+          </Typography>
 
-            <Divider
-              sx={{
-                width: "80%",
-                backgroundColor: "rgba(255,255,255,0.2)",
-                my: 2,
-              }}
-            />
+          <Divider
+            sx={{
+              width: "60%",
+              backgroundColor: "rgba(255,255,255,0.2)",
+              my: 4,
+            }}
+          />
 
-            <Typography variant="subtitle2" sx={{ mb: 1, mt: 2, opacity: 0.7 }}>
+          <Box sx={{ mt: 2, textAlign: "center", zIndex: 1 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1, opacity: 0.7 }}>
               Professor ID: {profId}
             </Typography>
-          </Grid>
+            <Typography variant="subtitle1" sx={{ mb: 1, opacity: 0.7 }}>
+              Department: Computer Science
+            </Typography>
+            <Typography variant="subtitle1" sx={{ mb: 1, opacity: 0.7 }}>
+              Status: Active
+            </Typography>
+          </Box>
+        </Box>
 
-          {/* Main Content */}
-          <Grid item xs={12} md={8} sx={{ padding: "40px" }}>
+        {/* Main Content */}
+        <Box
+          sx={{
+            flex: 1,
+            padding: { xs: "30px", md: "60px" },
+            backgroundColor: themeColors.white,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box>
             <Typography
               variant="h4"
-              sx={{ fontWeight: 600, color: "#333", mb: 4 }}
+              sx={{ fontWeight: 700, color: themeColors.primary, mb: 4 }}
             >
               Profile Information
             </Typography>
 
-            <Grid container spacing={3} sx={{ mb: 4 }}>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="text.secondary">
+            <Grid container spacing={4} sx={{ mb: 6 }}>
+              <Grid item xs={12} md={6}>
+                <Typography
+                  variant="subtitle1"
+                  color="text.secondary"
+                  gutterBottom
+                >
                   First Name
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 500, color: themeColors.secondary }}
+                >
                   {profileValues.prenom}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" color="text.secondary">
+
+              <Grid item xs={12} md={6}>
+                <Typography
+                  variant="subtitle1"
+                  color="text.secondary"
+                  gutterBottom
+                >
                   Last Name
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 500, color: themeColors.secondary }}
+                >
                   {profileValues.nom}
                 </Typography>
               </Grid>
+
               <Grid item xs={12}>
-                <Typography variant="subtitle2" color="text.secondary">
+                <Typography
+                  variant="subtitle1"
+                  color="text.secondary"
+                  gutterBottom
+                >
                   Email Address
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 500, color: themeColors.secondary }}
+                >
                   {profileValues.email}
                 </Typography>
               </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Typography
+                  variant="subtitle1"
+                  color="text.secondary"
+                  gutterBottom
+                >
+                  Academic Title
+                </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 500, color: themeColors.secondary }}
+                >
+                  Professor
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Typography
+                  variant="subtitle1"
+                  color="text.secondary"
+                  gutterBottom
+                >
+                  Join Date
+                </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 500, color: themeColors.secondary }}
+                >
+                  September 1, 2022
+                </Typography>
+              </Grid>
             </Grid>
+          </Box>
 
-            <Divider sx={{ my: 3 }} />
+          <Box sx={{ mt: 4 }}>
+            <Divider sx={{ my: 4 }} />
 
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-              <Grid item xs={12} sm={6}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
                 <Tooltip title="Edit your profile information" arrow>
                   <Button
                     variant="contained"
                     fullWidth
+                    size="large"
                     startIcon={<Edit />}
                     onClick={() => setIsEditProfileModalOpen(true)}
                     sx={{
-                      background: "linear-gradient(to right, #2575fc, #6a11cb)",
+                      backgroundColor: themeColors.primary,
+                      color: themeColors.white,
                       textTransform: "none",
-                      py: 1,
-                      boxShadow: "0 4px 12px rgba(37, 117, 252, 0.2)",
+                      py: 1.5,
+                      fontSize: "1rem",
+                      fontWeight: 500,
+                      boxShadow: "0 4px 12px rgba(0, 51, 102, 0.2)",
+                      "&:hover": {
+                        backgroundColor: themeColors.midBlue,
+                      },
                     }}
                   >
                     Edit Profile
                   </Button>
                 </Tooltip>
               </Grid>
-              <Grid item xs={12} sm={6}>
+
+              <Grid item xs={12} md={6}>
                 <Tooltip title="Change your account password" arrow>
                   <Button
                     variant="outlined"
                     fullWidth
+                    size="large"
                     startIcon={<Key />}
                     onClick={() => setIsChangePasswordModalOpen(true)}
                     sx={{
-                      borderColor: "#6a11cb",
-                      color: "#6a11cb",
+                      borderColor: themeColors.primary,
+                      color: themeColors.primary,
                       textTransform: "none",
-                      py: 1,
+                      py: 1.5,
+                      fontSize: "1rem",
+                      fontWeight: 500,
                       "&:hover": {
-                        borderColor: "#2575fc",
-                        backgroundColor: "rgba(37, 117, 252, 0.04)",
+                        borderColor: themeColors.midBlue,
+                        backgroundColor: "rgba(0, 51, 102, 0.04)",
                       },
                     }}
                   >
@@ -521,8 +639,8 @@ const Profile = () => {
                 </Tooltip>
               </Grid>
             </Grid>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Paper>
 
       {/* Edit Profile Modal */}
@@ -533,24 +651,25 @@ const Profile = () => {
         maxWidth="sm"
         PaperProps={{
           sx: {
-            borderRadius: "12px",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+            borderRadius: "16px",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
           },
         }}
       >
         <DialogTitle
           sx={{
-            background: "linear-gradient(to right, #2575fc, #6a11cb)",
-            color: "white",
+            backgroundColor: themeColors.primary,
+            color: themeColors.white,
             display: "flex",
             alignItems: "center",
+            py: 2.5,
           }}
         >
           <AccountCircle sx={{ mr: 1 }} /> Edit Profile Information
         </DialogTitle>
 
         <form onSubmit={handleProfileSubmit(updateProfile)}>
-          <DialogContent>
+          <DialogContent sx={{ pt: 3 }}>
             <DialogContentText
               sx={{ mb: 3, display: "flex", alignItems: "center" }}
             >
@@ -567,7 +686,17 @@ const Profile = () => {
               onBlur={handleProfileBlur}
               error={!!profileErrors.nom}
               helperText={profileErrors.nom}
-              sx={{ mb: 3 }}
+              sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-root": {
+                  "&.Mui-focused fieldset": {
+                    borderColor: themeColors.primary,
+                  },
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: themeColors.primary,
+                },
+              }}
             />
 
             <TextField
@@ -579,7 +708,17 @@ const Profile = () => {
               onBlur={handleProfileBlur}
               error={!!profileErrors.prenom}
               helperText={profileErrors.prenom}
-              sx={{ mb: 3 }}
+              sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-root": {
+                  "&.Mui-focused fieldset": {
+                    borderColor: themeColors.primary,
+                  },
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: themeColors.primary,
+                },
+              }}
             />
 
             <TextField
@@ -599,6 +738,16 @@ const Profile = () => {
                   </InputAdornment>
                 ),
               }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "&.Mui-focused fieldset": {
+                    borderColor: themeColors.primary,
+                  },
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: themeColors.primary,
+                },
+              }}
             />
           </DialogContent>
 
@@ -607,6 +756,14 @@ const Profile = () => {
               variant="outlined"
               onClick={() => setIsEditProfileModalOpen(false)}
               startIcon={<Cancel />}
+              sx={{
+                borderColor: "#666",
+                color: "#666",
+                "&:hover": {
+                  borderColor: "#333",
+                  backgroundColor: "rgba(0, 0, 0, 0.04)",
+                },
+              }}
             >
               Cancel
             </Button>
@@ -616,8 +773,11 @@ const Profile = () => {
               type="submit"
               startIcon={<Save />}
               sx={{
-                background: "linear-gradient(to right, #2575fc, #6a11cb)",
-                boxShadow: "0 4px 12px rgba(37, 117, 252, 0.2)",
+                backgroundColor: themeColors.primary,
+                color: themeColors.white,
+                "&:hover": {
+                  backgroundColor: themeColors.midBlue,
+                },
               }}
             >
               Save Changes
@@ -634,24 +794,25 @@ const Profile = () => {
         maxWidth="sm"
         PaperProps={{
           sx: {
-            borderRadius: "12px",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+            borderRadius: "16px",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
           },
         }}
       >
         <DialogTitle
           sx={{
-            background: "linear-gradient(to right, #2575fc, #6a11cb)",
-            color: "white",
+            backgroundColor: themeColors.primary,
+            color: themeColors.white,
             display: "flex",
             alignItems: "center",
+            py: 2.5,
           }}
         >
           <Lock sx={{ mr: 1 }} /> Change Password
         </DialogTitle>
 
         <form onSubmit={handlePasswordSubmit(updatePassword)}>
-          <DialogContent>
+          <DialogContent sx={{ pt: 3 }}>
             <TextField
               fullWidth
               name="oldPassword"
@@ -662,7 +823,18 @@ const Profile = () => {
               onBlur={handlePasswordBlur}
               error={!!passwordErrors.oldPassword}
               helperText={passwordErrors.oldPassword}
-              sx={{ mb: 3, mt: 1 }}
+              sx={{
+                mb: 3,
+                mt: 1,
+                "& .MuiOutlinedInput-root": {
+                  "&.Mui-focused fieldset": {
+                    borderColor: themeColors.primary,
+                  },
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: themeColors.primary,
+                },
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -692,7 +864,17 @@ const Profile = () => {
               onBlur={handlePasswordBlur}
               error={!!passwordErrors.newPassword}
               helperText={passwordErrors.newPassword}
-              sx={{ mb: 3 }}
+              sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-root": {
+                  "&.Mui-focused fieldset": {
+                    borderColor: themeColors.primary,
+                  },
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: themeColors.primary,
+                },
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -722,6 +904,16 @@ const Profile = () => {
               onBlur={handlePasswordBlur}
               error={!!passwordErrors.confirmPassword}
               helperText={passwordErrors.confirmPassword}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "&.Mui-focused fieldset": {
+                    borderColor: themeColors.primary,
+                  },
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: themeColors.primary,
+                },
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -749,6 +941,14 @@ const Profile = () => {
               variant="outlined"
               onClick={() => setIsChangePasswordModalOpen(false)}
               startIcon={<Cancel />}
+              sx={{
+                borderColor: "#666",
+                color: "#666",
+                "&:hover": {
+                  borderColor: "#333",
+                  backgroundColor: "rgba(0, 0, 0, 0.04)",
+                },
+              }}
             >
               Cancel
             </Button>
@@ -758,8 +958,11 @@ const Profile = () => {
               type="submit"
               startIcon={<Lock />}
               sx={{
-                background: "linear-gradient(to right, #2575fc, #6a11cb)",
-                boxShadow: "0 4px 12px rgba(37, 117, 252, 0.2)",
+                backgroundColor: themeColors.primary,
+                color: themeColors.white,
+                "&:hover": {
+                  backgroundColor: themeColors.midBlue,
+                },
               }}
             >
               Update Password
