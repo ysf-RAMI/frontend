@@ -26,6 +26,7 @@ import {
   Article,
   Quiz,
   Announcement,
+  Dashboard,
 } from "@mui/icons-material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -39,10 +40,12 @@ import logo from "../assets/logoSite.png";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import Annonce from "../Components/ProfElement/Annoce";
+import Profile from "../Components/ProfElement/Profile";
+import ProfDashboard from "../Components/ProfElement/ProfDashboard";
 
 // eslint-disable-next-line react/prop-types
 const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
-  const [selectedSection, setSelectedSection] = useState("module");
+  const [selectedSection, setSelectedSection] = useState("dashboard");
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
   const baseUrl = "http://localhost:8080/api/professeur";
@@ -51,8 +54,8 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
 
   const decoded = jwtDecode(token);
   const email = decoded.sub;
-  useEffect(() => {
 
+  useEffect(() => {
     axios
       .get(`${baseUrl}/GetProfesseur/${email}`, {
         headers: {
@@ -60,13 +63,14 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         },
       })
       .then((response) => {
-        const {id} = response.data;
+        console.log(response)
+        const { id } = response.data;
         localStorage.setItem("profId", id);
       })
       .catch((error) => {
         console.error("Error fetching professeur:", error);
       });
-  }, []);
+  }, [token]);
 
   const handleSectionClick = (section) => {
     setSelectedSection(section);
@@ -102,7 +106,6 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         borderRadius: "0 10px 10px 0",
       }}
     >
-    
       <Typography variant="h6" sx={{ textAlign: "center", mb: 2 }}>
         <Link to="/">
           <img
@@ -115,6 +118,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
       <List style={{ userSelect: "none", marginTop: "auto" }}>
         <p style={{ color: "grey", fontSize: "12px" }}>Management</p>
         {[
+          { name: "Dashboard", icon: <Dashboard />, section: "dashboard" },
           { name: "Module", icon: <Assignment />, section: "module" },
           { name: "Cours", icon: <Book />, section: "cors" },
           { name: "TD", icon: <Description />, section: "td" },
@@ -129,7 +133,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
               cursor: "pointer",
               "&:hover": { backgroundColor: "#003366" },
               borderRadius: 1,
-              mb: 1,
+              mb: 0.5,
               backgroundColor: selectedSection === section ? "#003366" : "",
             }}
           >
@@ -143,12 +147,12 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
       </p>
       <ListItem
         button
-        onClick={() => navigate("/profile")}
-        sx={{ 
+        onClick={() => handleSectionClick("profile")}
+        sx={{
           "&:hover": { backgroundColor: "#003366" },
           borderRadius: 1,
           mb: 1,
-          backgroundColor: selectedSection === "admin" ? "#01162e" : "",
+          backgroundColor: selectedSection === "profile" ? "#003366" : "",
           userSelect: "none",
           cursor: "pointer",
         }}
@@ -165,7 +169,6 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           "&:hover": { backgroundColor: "#003366" },
           borderRadius: 1,
           mb: 1,
-          backgroundColor: selectedSection === "admin" ? "#003366" : "",
           userSelect: "none",
           cursor: "pointer",
         }}
@@ -269,7 +272,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                   easing: theme.transitions.easing.sharp,
                   duration: theme.transitions.duration.enteringScreen,
                 }),
-              backgroundColor: "#01162e !important", // Add !important
+              backgroundColor: "#01162e !important",
             },
             height: "100vh",
           }}
@@ -281,7 +284,10 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           component="main"
           sx={{
             flexGrow: 1,
-            p: 3,
+            pb:2,
+            pr:2,
+            pl:2,
+            backgroundColor: "#f2f2f2",
             transition: (theme) =>
               theme.transitions.create("margin", {
                 easing: theme.transitions.easing.sharp,
@@ -305,6 +311,9 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             {selectedSection === "tp" && <TpTable />}
             {selectedSection === "exam" && <ExamTable />}
             {selectedSection === "annonce" && <Annonce />}
+            {selectedSection === "profile" && <Profile />}{" "}
+            {selectedSection === "dashboard" && <ProfDashboard />}
+            {/* Corrected here */}
           </Box>
         </Box>
       </Box>

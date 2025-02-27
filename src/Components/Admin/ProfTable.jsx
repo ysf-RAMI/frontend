@@ -42,8 +42,10 @@ const ProfTable = () => {
 
   const baseUrl = "http://localhost:8080/api/admin";
   const { token } = JSON.parse(localStorage.getItem("auth")) || {};
+ 
 
   useEffect(() => {
+     console.log(token);
     axios
       .get(`${baseUrl}/ListProfesseurs`, {
         headers: {
@@ -216,25 +218,28 @@ const ProfTable = () => {
       return;
     }
 
-    try {
-      await axios.put(
-        `${baseUrl}/ChangePassword`,
+    console.log(selectedProfId +" and  "+ newPassword)
+
+    await axios
+      .put(
+        `${baseUrl}/UpdateProfPassword`,
         {
           id: selectedProfId,
-          newPassword: newPassword,
+          password: newPassword,
         },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
-      );
-      toast.success("Mot de passe modifié avec succès");
-      handleClose();
-    } catch (error) {
-      console.error("Error changing password:", error);
-      toast.error("Erreur lors de la modification du mot de passe");
-    }
+      )
+      .then(() => {
+        toast.success("password updated");
+      })
+      .catch(() => {
+        toast.error("error for update password");
+      });
+      setOpenChangePassword(false)
   };
 
   const getPasswordStrength = (password) => {

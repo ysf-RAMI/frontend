@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Typography,
@@ -8,18 +8,15 @@ import {
   Card,
   CardContent,
   Avatar,
-  Button,
   InputAdornment,
   CardMedia,
 } from "@mui/material";
 import { Row, Col } from "react-bootstrap";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import SearchIcon from "@mui/icons-material/Search";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const AnnouncementsPage = () => {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [announcements, setAnnouncements] = useState([]);
 
@@ -185,7 +182,6 @@ const AnnouncementsPage = () => {
 
                   <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
                     <Avatar
-                        
                       alt={`${announcement.nomProfesseur} ${announcement.prenomProfesseur}`}
                       sx={{
                         mr: 2,
@@ -205,8 +201,6 @@ const AnnouncementsPage = () => {
                       </Typography>
                     </Box>
                   </Box>
-
-                
                 </CardContent>
               </Card>
             </Grid>

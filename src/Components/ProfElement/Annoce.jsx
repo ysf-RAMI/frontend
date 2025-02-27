@@ -14,6 +14,7 @@ import {
   TextField,
   DialogActions,
   Pagination,
+  styled,
 } from "@mui/material";
 import { Row, Col } from "react-bootstrap";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -25,6 +26,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { CloudUploadOutlined } from "@mui/icons-material";
 
 const baseUrl = "http://localhost:8080/api/professeur";
 const token = JSON.parse(localStorage.getItem("auth"))?.token;
@@ -42,7 +44,7 @@ export default function Annonce() {
 
   // Initialize AOS animations
   useEffect(() => {
-    AOS.init({ duration: 1000, once: true });
+    AOS.init({ duration: 1, once: true });
   }, []);
 
   // Fetch announcements on component mount
@@ -176,6 +178,18 @@ export default function Annonce() {
   const endIndex = startIndex + itemsPerPage;
   const displayedAnnouncements = announcements.slice(startIndex, endIndex);
 
+  const VisuallyHiddenInput = styled("input")({
+    clip: "rect(0 0 0 0)",
+    clipPath: "inset(50%)",
+    height: 1,
+    overflow: "hidden",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    whiteSpace: "nowrap",
+    width: 1,
+  });
+
   return (
     <Box sx={{ py: 8, bgcolor: "background.default" }}>
       <ToastContainer
@@ -213,6 +227,7 @@ export default function Annonce() {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleOpenAddDialog}
+                sx={{ bgcolor: "primary.main", color: "white" }}
               >
                 Add Announcement
               </Button>
@@ -313,14 +328,16 @@ export default function Annonce() {
                       variant="outlined"
                       color="primary"
                       onClick={() => handleOpenEditDialog(announcement)}
+                      startIcon={<EditIcon />}
                     >
                       Edit
                     </Button>
 
                     <Button
                       variant="outlined"
-                      color="secondary"
+                      color="error"
                       onClick={() => handleOpenDeleteDialog(announcement)}
+                      startIcon={<DeleteIcon />}
                       style={{ marginLeft: "10px" }}
                     >
                       Delete
@@ -353,6 +370,8 @@ export default function Annonce() {
                 fullWidth
                 margin="normal"
                 required
+                variant="outlined"
+                color="primary"
               />
               <TextField
                 name="description"
@@ -362,13 +381,39 @@ export default function Annonce() {
                 multiline
                 rows={4}
                 required
+                variant="outlined"
+                color="primary"
               />
-              <input type="file" name="image" accept="image/*" required />
+              <Button
+                component="label"
+                variant="outlined"
+                color="primary"
+                startIcon={<CloudUploadOutlined />}
+                sx={{ mt: 2 }}
+              >
+                Upload Image
+                <VisuallyHiddenInput
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                />
+              </Button>
             </form>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseAddDialog}>Cancel</Button>
-            <Button type="submit" form="add-announcement-form">
+            <Button
+              onClick={handleCloseAddDialog}
+              variant="outlined"
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              form="add-announcement-form"
+            >
               Save
             </Button>
           </DialogActions>
@@ -386,6 +431,8 @@ export default function Annonce() {
                 fullWidth
                 margin="normal"
                 required
+                variant="outlined"
+                color="primary"
               />
               <TextField
                 name="description"
@@ -396,13 +443,39 @@ export default function Annonce() {
                 multiline
                 rows={4}
                 required
+                variant="outlined"
+                color="primary"
               />
-              <input type="file" name="image" accept="image/*" />
+              <Button
+                component="label"
+                variant="outlined"
+                color="primary"
+                startIcon={<CloudUploadOutlined />}
+                sx={{ mt: 2 }}
+              >
+                Upload Image
+                <VisuallyHiddenInput
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                />
+              </Button>
             </form>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseEditDialog}>Cancel</Button>
-            <Button type="submit" form="edit-announcement-form">
+            <Button
+              onClick={handleCloseEditDialog}
+              variant="outlined"
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              form="edit-announcement-form"
+            >
               Save
             </Button>
           </DialogActions>
@@ -411,13 +484,23 @@ export default function Annonce() {
         {/* Delete Announcement Dialog */}
         <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
           <DialogTitle>Delete Announcement</DialogTitle>
-          <DialogContent>
+          <DialogContent style={{ color: "red" }}>
             Are you sure you want to delete the announcement "
             {currentAnnouncement?.titre}"?
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
-            <Button onClick={handleDeleteAnnouncement} color="error">
+            <Button
+              onClick={handleCloseDeleteDialog}
+              variant="outlined"
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteAnnouncement}
+              variant="contained"
+              color="error"
+            >
               Delete
             </Button>
           </DialogActions>

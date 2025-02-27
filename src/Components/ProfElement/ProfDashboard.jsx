@@ -4,13 +4,10 @@ import {
   Typography,
   Card,
   CardContent,
-  Button,
   Avatar,
-  Chip,
   Paper,
   Grid,
   CircularProgress,
-  useTheme,
   ThemeProvider,
   createTheme,
 } from "@mui/material";
@@ -21,19 +18,16 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col } from "reactstrap";
 import axios from "axios";
 import {
-  School,
   MenuBook,
   Announcement,
-  FileCopy,
-  Category,
   VideoLibrary,
   Book,
-  People,
   Assignment,
   LocalLibrary,
+  School,
 } from "@mui/icons-material";
 
-// Custom theme with specified colors
+// Thème personnalisé avec les couleurs spécifiées
 const theme = createTheme({
   palette: {
     primary: {
@@ -80,57 +74,65 @@ const theme = createTheme({
   },
 });
 
-const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
+export default function ProfDashboard() {
+  const baseUrl = "http://localhost:8080/api/professeur";
+  const token = JSON.parse(localStorage.getItem("auth"))?.token;
+  const profId = localStorage.getItem("profId");
+
+  const [stats, setStats] = useState({
+    nbrModule: 0,
+    nbrAnnonce: 0,
+    nbrResources: 0,
+    nbrTd: 0,
+    nbrTp: 0,
+    nbrCours: 0,
+    nbrExam: 0,
+    nbrFichier: 0,
+    nbrVideo: 0,
+  });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [professorInfo, setProfessorInfo] = useState({
+    name: "Professeur",
+    department: "Département",
+    email: "email@example.com",
+  });
 
   useEffect(() => {
-    // Initialize AOS animation library
+    // Initialiser la bibliothèque d'animation AOS
     AOS.init({
       duration: 800,
       once: true,
       easing: "ease-in-out",
     });
 
-    // Fetch data from the API
+    // Récupérer les données de l'API
     const fetchData = async () => {
       try {
-        const token = JSON.parse(localStorage.getItem("auth"))?.token;
-        const response = await axios.get(
-          "http://localhost:8080/api/admin/dashboardAdmin",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        setDashboardData(response.data);
+        const response = await axios.get(`${baseUrl}/getDashboard/${profId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log(response.data);
+        setStats(response.data);
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching dashboard data:", err);
-        setError("Failed to load dashboard data. Please try again later.");
+        console.error(
+          "Erreur lors de la récupération des données du tableau de bord:",
+          err
+        );
+        setError(
+          "Impossible de charger les données. Veuillez réessayer plus tard."
+        );
         setLoading(false);
-
-        // For development purposes - use example data if API fails
-        setDashboardData({
-          nbrProfesseur: 1,
-          nbrFiliere: 4,
-          nbrModule: 3,
-          nbrAnnonce: 7,
-          nbrResources: 2,
-          nbrTd: 0,
-          nbrTp: 0,
-          nbrCours: 2,
-          nbrExam: 0,
-          nbrFichier: 2,
-          nbrVideo: 0,
-        });
       }
     };
 
     fetchData();
-  }, []);
+  }, [baseUrl, profId, token]);
 
-  // If still loading, show loading spinner
+  // Si chargement en cours, afficher un spinner
   if (loading) {
     return (
       <Box
@@ -147,8 +149,8 @@ const Dashboard = () => {
     );
   }
 
-  // If error occurred, show error message
-  if (error && !dashboardData) {
+  // Si une erreur s'est produite, afficher un message d'erreur
+  if (error) {
     return (
       <Box
         sx={{
@@ -167,55 +169,45 @@ const Dashboard = () => {
     );
   }
 
-  // Prepare data for charts
+  // Préparer les données pour les graphiques
   const resourcesPieData = [
-    {
-      id: 0,
-      value: dashboardData.nbrCours,
-      label: "Courses",
-      color: "#4caf50",
-    },
-    { id: 1, value: dashboardData.nbrTd, label: "TD", color: "#2196f3" },
-    { id: 2, value: dashboardData.nbrTp, label: "TP", color: "#ff9800" },
-    { id: 3, value: dashboardData.nbrExam, label: "Exams", color: "#f44336" },
+    { id: 0, value: stats.nbrCours, label: "Cours", color: "#4caf50" },
+    { id: 1, value: stats.nbrTd, label: "TD", color: "#2196f3" },
+    { id: 2, value: stats.nbrTp, label: "TP", color: "#ff9800" },
+    { id: 3, value: stats.nbrExam, label: "Examens", color: "#f44336" },
   ].filter((item) => item.value > 0);
 
   const filesPieData = [
-    {
-      id: 0,
-      value: dashboardData.nbrFichier,
-      label: "Files",
-      color: "#9c27b0",
-    },
-    { id: 1, value: dashboardData.nbrVideo, label: "Videos", color: "#009688" },
+    { id: 0, value: stats.nbrFichier, label: "Fichiers", color: "#9c27b0" },
+    { id: 1, value: stats.nbrVideo, label: "Vidéos", color: "#009688" },
   ].filter((item) => item.value > 0);
 
-  // Stats cards data
+  // Données des cartes statistiques
   const statsCards = [
     {
-      title: "Professors",
-      value: dashboardData.nbrProfesseur,
-      icon: <People />,
-      bgColor: "#003366",
-      textColor: "white",
-    },
-    {
-      title: "Filières",
-      value: dashboardData.nbrFiliere,
-      icon: <Category />,
-      bgColor: "#01162e",
-      textColor: "white",
-    },
-    {
       title: "Modules",
-      value: dashboardData.nbrModule,
+      value: stats.nbrModule,
       icon: <MenuBook />,
       bgColor: "#003366",
       textColor: "white",
     },
     {
-      title: "Announcements",
-      value: dashboardData.nbrAnnonce,
+      title: "Ressources",
+      value: stats.nbrResources,
+      icon: <Assignment />,
+      bgColor: "#01162e",
+      textColor: "white",
+    },
+    {
+      title: "Cours",
+      value: stats.nbrCours,
+      icon: <School />,
+      bgColor: "#003366",
+      textColor: "white",
+    },
+    {
+      title: "Annonces",
+      value: stats.nbrAnnonce,
       icon: <Announcement />,
       bgColor: "#01162e",
       textColor: "white",
@@ -226,7 +218,7 @@ const Dashboard = () => {
     <ThemeProvider theme={theme}>
       <Box sx={{ bgcolor: "#f5f9fc", minHeight: "100vh", pt: 3, pb: 6 }}>
         <Container fluid>
-          {/* Header */}
+          {/* En-tête avec profil du professeur */}
           <Box
             sx={{
               mb: 4,
@@ -238,15 +230,31 @@ const Dashboard = () => {
             }}
             data-aos="fade-down"
           >
-            <Typography variant="h4" component="h1" fontWeight="bold">
-              School Dashboard
-            </Typography>
-            <Typography variant="subtitle1" sx={{ opacity: 0.9, mt: 1 }}>
-              Manage your educational platform effectively
-            </Typography>
+            <Grid container alignItems="center" spacing={2}>
+              <Grid item>
+                <Avatar
+                  sx={{
+                    width: 64,
+                    height: 64,
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    border: "2px solid white",
+                  }}
+                >
+                  {professorInfo.name.charAt(0)}
+                </Avatar>
+              </Grid>
+              <Grid item xs>
+                <Typography variant="h4" component="h1" fontWeight="bold">
+                  Tableau de Bord Professeur
+                </Typography>
+                <Typography variant="subtitle1" sx={{ opacity: 0.9, mt: 1 }}>
+                  Bienvenue, {professorInfo.name}
+                </Typography>
+              </Grid>
+            </Grid>
           </Box>
 
-          {/* Stats Cards */}
+          {/* Cartes statistiques */}
           <Row className="mb-4">
             {statsCards.map((stat, index) => (
               <Col key={index} xs={12} sm={6} lg={3} className="mb-4">
@@ -284,7 +292,7 @@ const Dashboard = () => {
             ))}
           </Row>
 
-          {/* Resources Overview */}
+          {/* Aperçu des ressources */}
           <Row className="mb-4">
             <Col xs={12}>
               <Card data-aos="fade-up">
@@ -293,7 +301,7 @@ const Dashboard = () => {
                     variant="h5"
                     sx={{ mb: 3, color: "#003366", fontWeight: "bold" }}
                   >
-                    Resources Overview
+                    Aperçu des Ressources Pédagogiques
                   </Typography>
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={6} lg={3}>
@@ -311,10 +319,10 @@ const Dashboard = () => {
                           sx={{ display: "flex", alignItems: "center", mb: 2 }}
                         >
                           <LocalLibrary sx={{ mr: 1 }} />
-                          <Typography variant="h6">Total Resources</Typography>
+                          <Typography variant="h6">Total Ressources</Typography>
                         </Box>
                         <Typography variant="h3" sx={{ mb: 2 }}>
-                          {dashboardData.nbrResources}
+                          {stats.nbrResources}
                         </Typography>
                         <Grid container spacing={1}>
                           <Grid item xs={6}>
@@ -326,9 +334,9 @@ const Dashboard = () => {
                                 textAlign: "center",
                               }}
                             >
-                              <Typography variant="body2">Files</Typography>
+                              <Typography variant="body2">Fichiers</Typography>
                               <Typography variant="h6">
-                                {dashboardData.nbrFichier}
+                                {stats.nbrFichier}
                               </Typography>
                             </Box>
                           </Grid>
@@ -341,9 +349,9 @@ const Dashboard = () => {
                                 textAlign: "center",
                               }}
                             >
-                              <Typography variant="body2">Videos</Typography>
+                              <Typography variant="body2">Vidéos</Typography>
                               <Typography variant="h6">
-                                {dashboardData.nbrVideo}
+                                {stats.nbrVideo}
                               </Typography>
                             </Box>
                           </Grid>
@@ -366,7 +374,7 @@ const Dashboard = () => {
                           variant="h6"
                           sx={{ mb: 2, color: "#003366" }}
                         >
-                          Educational Content
+                          Contenu Éducatif
                         </Typography>
                         <Grid container spacing={2}>
                           <Grid item xs={6} sm={3}>
@@ -386,9 +394,9 @@ const Dashboard = () => {
                             >
                               <Book sx={{ fontSize: 36, mb: 1 }} />
                               <Typography variant="h4">
-                                {dashboardData.nbrCours}
+                                {stats.nbrCours}
                               </Typography>
-                              <Typography variant="body1">Courses</Typography>
+                              <Typography variant="body1">Cours</Typography>
                             </Box>
                           </Grid>
                           <Grid item xs={6} sm={3}>
@@ -408,9 +416,9 @@ const Dashboard = () => {
                             >
                               <Assignment sx={{ fontSize: 36, mb: 1 }} />
                               <Typography variant="h4">
-                                {dashboardData.nbrTd}
+                                {stats.nbrTd}
                               </Typography>
-                              <Typography variant="body1">TDs</Typography>
+                              <Typography variant="body1">TD</Typography>
                             </Box>
                           </Grid>
                           <Grid item xs={6} sm={3}>
@@ -430,9 +438,9 @@ const Dashboard = () => {
                             >
                               <School sx={{ fontSize: 36, mb: 1 }} />
                               <Typography variant="h4">
-                                {dashboardData.nbrTp}
+                                {stats.nbrTp}
                               </Typography>
-                              <Typography variant="body1">TPs</Typography>
+                              <Typography variant="body1">TP</Typography>
                             </Box>
                           </Grid>
                           <Grid item xs={6} sm={3}>
@@ -452,9 +460,9 @@ const Dashboard = () => {
                             >
                               <MenuBook sx={{ fontSize: 36, mb: 1 }} />
                               <Typography variant="h4">
-                                {dashboardData.nbrExam}
+                                {stats.nbrExam}
                               </Typography>
-                              <Typography variant="body1">Exams</Typography>
+                              <Typography variant="body1">Examens</Typography>
                             </Box>
                           </Grid>
                         </Grid>
@@ -466,9 +474,9 @@ const Dashboard = () => {
             </Col>
           </Row>
 
-          {/* Charts */}
+          {/* Graphiques */}
           <Row className="mb-4">
-            {/* Resource Distribution Pie Chart */}
+            {/* Distribution des ressources */}
             <Col xs={12} md={6} className="mb-4">
               <Card
                 sx={{ height: "100%" }}
@@ -481,7 +489,7 @@ const Dashboard = () => {
                     gutterBottom
                     sx={{ color: "#003366", fontWeight: "bold" }}
                   >
-                    Educational Content Distribution
+                    Distribution du Contenu Éducatif
                   </Typography>
                   <Box
                     sx={{
@@ -529,7 +537,7 @@ const Dashboard = () => {
                     ) : (
                       <Box sx={{ textAlign: "center", p: 4 }}>
                         <Typography variant="body1" color="text.secondary">
-                          No educational content data available
+                          Aucune donnée de contenu éducatif disponible
                         </Typography>
                       </Box>
                     )}
@@ -538,7 +546,7 @@ const Dashboard = () => {
               </Card>
             </Col>
 
-            {/* File Types Pie Chart */}
+            {/* Distribution des types de fichiers */}
             <Col xs={12} md={6} className="mb-4">
               <Card
                 sx={{ height: "100%" }}
@@ -551,7 +559,7 @@ const Dashboard = () => {
                     gutterBottom
                     sx={{ color: "#003366", fontWeight: "bold" }}
                   >
-                    File Type Distribution
+                    Distribution des Types de Fichiers
                   </Typography>
                   <Box
                     sx={{
@@ -572,7 +580,6 @@ const Dashboard = () => {
                             cornerRadius: 8,
                             startAngle: -90,
                             endAngle: 270,
-                            colorScale: "category10",
                             highlightScope: {
                               faded: "global",
                               highlighted: "item",
@@ -600,7 +607,7 @@ const Dashboard = () => {
                     ) : (
                       <Box sx={{ textAlign: "center", p: 4 }}>
                         <Typography variant="body1" color="text.secondary">
-                          No file type data available
+                          Aucune donnée de type de fichier disponible
                         </Typography>
                       </Box>
                     )}
@@ -610,7 +617,7 @@ const Dashboard = () => {
             </Col>
           </Row>
 
-          {/* Bar Chart - Resource Overview */}
+          {/* Graphique en barres - Aperçu des ressources */}
           <Row>
             <Col xs={12}>
               <Card data-aos="fade-up" data-aos-delay="300">
@@ -620,7 +627,7 @@ const Dashboard = () => {
                     gutterBottom
                     sx={{ color: "#003366", fontWeight: "bold" }}
                   >
-                    Resource Overview
+                    Aperçu du Matériel Pédagogique
                   </Typography>
                   <Box sx={{ height: 400, mt: 4 }}>
                     <BarChart
@@ -628,11 +635,13 @@ const Dashboard = () => {
                         {
                           id: "barCategories",
                           data: [
-                            "Professors",
-                            "Filières",
                             "Modules",
-                            "Announcements",
-                            "Resources",
+                            "Cours",
+                            "TD",
+                            "TP",
+                            "Examens",
+                            "Fichiers",
+                            "Vidéos",
                           ],
                           scaleType: "band",
                         },
@@ -640,14 +649,16 @@ const Dashboard = () => {
                       series={[
                         {
                           data: [
-                            dashboardData.nbrProfesseur,
-                            dashboardData.nbrFiliere,
-                            dashboardData.nbrModule,
-                            dashboardData.nbrAnnonce,
-                            dashboardData.nbrResources,
+                            stats.nbrModule,
+                            stats.nbrCours,
+                            stats.nbrTd,
+                            stats.nbrTp,
+                            stats.nbrExam,
+                            stats.nbrFichier,
+                            stats.nbrVideo,
                           ],
                           color: "#003366",
-                          label: "Count",
+                          label: "Nombre",
                           borderRadius: 8,
                         },
                       ]}
@@ -673,6 +684,4 @@ const Dashboard = () => {
       </Box>
     </ThemeProvider>
   );
-};
-
-export default Dashboard;
+}

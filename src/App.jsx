@@ -13,7 +13,6 @@ import { NotFound } from "./Pages/notFound";
 import NavbarComponent from "./Components/NavbarComponent";
 import Prof from "./Pages/Prof";
 import Admin from "./Pages/Admin";
-import Profile from "./Pages/Profile";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Loading from "./Components/Loading";
@@ -92,7 +91,7 @@ function App() {
   }
 
   return (
-    <div className="userProfile" >
+    <div className="userProfile">
       <ToastContainer
         autoClose={2500}
         hideProgressBar={false}
@@ -158,7 +157,6 @@ function App() {
                   />
                 </Route>
 
-                <Route path="/profile" element={<Profile />} />
                 <Route path="/*" element={<NotFound />} />
                 <Route path="/announcements" element={<AnnouncementsPage />} />
                 <Route path="/hamout" element={<Hamout />} />

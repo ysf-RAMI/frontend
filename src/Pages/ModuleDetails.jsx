@@ -140,6 +140,13 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
     AOS.init({ duration: 1000 });
   }, []);
 
+  useEffect(() => {
+    if (selectedContent?.dataType === "FICHIER") {
+      console.log(selectedContent?.lien);
+    }
+  }, [selectedContent]);
+
+
   return (
     <Box
       sx={{
@@ -209,6 +216,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
       {/* Main Content Area */}
       <Box
         sx={{
+          mt: 4,
           flexGrow: 1,
           p: 3,
           display: "flex",
@@ -237,7 +245,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             >
               <TextField
                 label="Search"
-                variant="outlined"
+                variant="filled"
                 value={searchQuery}
                 onChange={handleSearchChange}
                 sx={{ width: "300px" }}
@@ -336,11 +344,10 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
               ) : (
                 <iframe
                   title={selectedContent.nom}
-                  src={`http://localhost:8080${selectedContent.lien}`}
+                  src={`http://localhost:8080${selectedContent.lien}&embedded=true`}
                   width="100%"
-                  height="500px"
+                  height="400px"
                   style={{ border: "none" }}
-                  onError={handlePdfError}
                 />
               )}
               <Box sx={{ mt: 2, textAlign: "center" }}>

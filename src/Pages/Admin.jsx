@@ -294,7 +294,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
               ? "100%"
               : `calc(100% - ${isDrawerOpen ? 250 : 0}px)`,
             marginTop: "64px",
-            backgroundColor: darkMode ? "#121212" : "#fff", // Dark mode background
+            backgroundColor: darkMode ? "#121212" : "transparent", // Dark mode background
             color: darkMode ? "#fff" : "#000", // Dark mode text color
           }}
         >
