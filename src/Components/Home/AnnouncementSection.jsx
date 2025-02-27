@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Typography,
@@ -15,66 +15,41 @@ import { Row, Col } from "react-bootstrap";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useNavigate } from "react-router-dom";
-import img from "../../assets/54c27441-ad21-4af6-bd47-43568a499f29.png";
+import axios from "axios";
 
 const AnnouncementSection = () => {
   const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
 
-  // Sample announcements data
-  const announcements = [
-    {
-      id: 1,
-      title: "Genie informatique",
-      description: "description",
-      professor: {
-        name: "hamza hamout",
-        avatar: "/api/placeholder/50/50",
-        department: "traitment d'image",
-      },
-      date: "2024-03-01",
-      category: "ma3reftch",
-      priority: "high",
-    },
-    {
-      id: 2,
-      title: "Genie informatique",
-      description: "description",
-      professor: {
-        name: "hamza hamout",
-        avatar: "/api/placeholder/50/50",
-        department: "traitment d'image",
-      },
-      date: "2024-03-01",
-      category: "ma3reftch",
-      priority: "high",
-    },
-    {
-      id: 3,
-      title: "Genie informatique",
-      description: "description",
-      professor: {
-        name: "hamza hamout",
-        avatar: "/api/placeholder/50/50",
-        department: "traitment d'image",
-      },
-      date: "2024-03-01",
-      category: "ma3reftch",
-      priority: "high",
-    },
-  ];
+  // Fetch announcements
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/api/student/getAllAnnoces")
+      .then((res) => {
+        setAnnouncements(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching announcements:", err);
+      });
+  }, []);
 
-  const handleAnnouncementClick = (id) => {
-    navigate(`/announcement/${id}`);
-  };
-
+  // Format date
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
     });
   };
+
+  // Handle "Read More" button clic
+
+  // Display only the first 3 announcements
+  const displayedAnnouncements = announcements.slice(0, 3);
 
   return (
     <Box
@@ -111,7 +86,6 @@ const AnnouncementSection = () => {
                 mb: 2,
               }}
             >
-            
               <Typography
                 variant="h2"
                 align="center"
@@ -121,7 +95,7 @@ const AnnouncementSection = () => {
                   fontWeight: "bold",
                 }}
               >
-               Les announcements
+                Les announcements
               </Typography>
             </Box>
             <Typography
@@ -132,14 +106,14 @@ const AnnouncementSection = () => {
               data-aos-delay="100"
               sx={{ maxWidth: 600, mx: "auto" }}
             >
-             les derniere announcements de Doctor H1 ..!
+              Les dernières annonces de Doctor H1 ..!
             </Typography>
           </Col>
         </Row>
 
         <Grid container spacing={4}>
-          {announcements.map((announcement, index) => (
-            <Grid item xs={12} md={4} key={announcement.id}>
+          {displayedAnnouncements.map((announcement, index) => (
+            <Grid item xs={12} sm={6} md={4} key={announcement.id}>
               <Card
                 data-aos="fade-up"
                 data-aos-delay={index * 100}
@@ -165,8 +139,8 @@ const AnnouncementSection = () => {
                 <CardMedia
                   component="img"
                   height="220"
-                  image={img}
-                  alt={announcement.title}
+                  image={`http://localhost:8080${announcement.imageUrl}`}
+                  alt={announcement.titre}
                   sx={{
                     transition: "transform 0.3s ease",
                     ...(hoveredCard === announcement.id && {
@@ -201,10 +175,8 @@ const AnnouncementSection = () => {
                     }}
                   >
                     <Chip
-                      label={announcement.category}
-                      color={
-                        announcement.priority === "high" ? "error" : "primary"
-                      }
+                      label="Announcement"
+                      color="primary"
                       size="small"
                       sx={{
                         borderRadius: "8px",
@@ -241,7 +213,7 @@ const AnnouncementSection = () => {
                       mb: 2,
                     }}
                   >
-                    {announcement.title}
+                    {announcement.titre}
                   </Typography>
 
                   <Typography
@@ -260,49 +232,34 @@ const AnnouncementSection = () => {
 
                   <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
                     <Avatar
-                      src={announcement.professor.avatar}
-                      alt={announcement.professor.name}
                       sx={{
                         mr: 2,
                         border: "2px solid #fff",
                         boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                       }}
-                    />
+                    >
+                      {announcement.nomProfesseur.charAt(0)}
+                      {announcement.prenomProfesseur.charAt(0)}
+                    </Avatar>
                     <Box>
                       <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        {announcement.professor.name}
+                        {announcement.nomProfesseur}{" "}
+                        {announcement.prenomProfesseur}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {announcement.professor.department}
+                        Professor
                       </Typography>
                     </Box>
                   </Box>
 
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={() => handleAnnouncementClick(announcement.id)}
-                    endIcon={<ArrowForwardIcon />}
-                    sx={{
-                      mt: "auto",
-                      textTransform: "none",
-                      borderRadius: 2,
-                      py: 1.5,
-                      fontWeight: 500,
-                      boxShadow: "none",
-                      "&:hover": {
-                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                      },
-                    }}
-                  >
-                    Read More
-                  </Button>
+                
                 </CardContent>
               </Card>
             </Grid>
           ))}
         </Grid>
 
+        {/* "View All Announcements" Button */}
         <Box
           sx={{
             display: "flex",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Typography,
@@ -7,89 +7,188 @@ import {
   Card,
   CardContent,
   CardMedia,
-  Avatar,
   Grid,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   TextField,
   DialogActions,
+  Pagination,
 } from "@mui/material";
 import { Row, Col } from "react-bootstrap";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import img from "../../assets/54c27441-ad21-4af6-bd47-43568a499f29.png";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import AOS from "aos";
+import "aos/dist/aos.css";
+
+const baseUrl = "http://localhost:8080/api/professeur";
+const token = JSON.parse(localStorage.getItem("auth"))?.token;
+const profId = localStorage.getItem("profId");
 
 export default function Annonce() {
   const [hoveredCard, setHoveredCard] = useState(null);
-  const [announcements, setAnnouncements] = useState([
-    {
-      id: 1,
-      title: "Genie informatique",
-      description: "description",
-      professor: {
-        name: "hamza hamout",
-      },
-      date: "2024-03-01",
-    },
-    // Add more sample data if needed
-  ]);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [page, setPage] = useState(1); // Pagination state
+  const itemsPerPage = 6; // Number of announcements per page
 
-  const handleOpenDialog = (announcement = null) => {
+  // Initialize AOS animations
+  useEffect(() => {
+    AOS.init({ duration: 1000, once: true });
+  }, []);
+
+  // Fetch announcements on component mount
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  const fetchAnnouncements = () => {
+    axios
+      .get(`${baseUrl}/getAllAnnonceByIdProfesseru/${profId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setAnnouncements(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching announcements:", error);
+        toast.error("Failed to fetch announcements.");
+      });
+  };
+
+  // Handlers for opening dialogs
+  const handleOpenAddDialog = () => setOpenAddDialog(true);
+  const handleOpenEditDialog = (announcement) => {
     setCurrentAnnouncement(announcement);
-    setIsEditing(!!announcement);
-    setOpenDialog(true);
+    setOpenEditDialog(true);
+  };
+  const handleOpenDeleteDialog = (announcement) => {
+    setCurrentAnnouncement(announcement);
+    setOpenDeleteDialog(true);
   };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
+  // Handlers for closing dialogs
+  const handleCloseAddDialog = () => setOpenAddDialog(false);
+  const handleCloseEditDialog = () => {
+    setOpenEditDialog(false);
     setCurrentAnnouncement(null);
-    setIsEditing(false);
+  };
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+    setCurrentAnnouncement(null);
   };
 
-  const handleSaveAnnouncement = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const newAnnouncement = {
-      id: isEditing ? currentAnnouncement.id : Date.now(),
-      title: formData.get("title"),
-      description: formData.get("description"),
-      professor: {
-        name: formData.get("professorName"),
-      },
-      date: new Date().toISOString().split("T")[0],
-    };
+  // Add announcement
+  const handleAddAnnouncement = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    formData.append("idProfesseur", profId);
 
-    if (isEditing) {
-      setAnnouncements((prev) =>
-        prev.map((a) => (a.id === newAnnouncement.id ? newAnnouncement : a))
-      );
-    } else {
-      setAnnouncements((prev) => [...prev, newAnnouncement]);
-    }
-    handleCloseDialog();
+    axios
+      .post(`${baseUrl}/addAnnonce`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        setAnnouncements([...announcements, response.data]);
+        handleCloseAddDialog();
+        toast.success("Announcement added successfully!");
+      })
+      .catch((error) => {
+        console.error("Error adding announcement:", error);
+        toast.error("Failed to add announcement.");
+      });
   };
 
-  const handleDeleteAnnouncement = (id) => {
-    setAnnouncements((prev) => prev.filter((a) => a.id !== id));
+  // Edit announcement
+  const handleEditAnnouncement = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    formData.append("id", currentAnnouncement.id);
+    formData.append("idProfesseur", profId);
+
+    axios
+      .put(`${baseUrl}/updateAnnonce`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        setAnnouncements((prev) =>
+          prev.map((announcement) =>
+            announcement.id === currentAnnouncement.id
+              ? response.data
+              : announcement
+          )
+        );
+        handleCloseEditDialog();
+        toast.success("Announcement updated successfully!");
+      })
+      .catch((error) => {
+        console.error("Error updating announcement:", error);
+        toast.error("Failed to update announcement.");
+      });
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  // Delete announcement
+  const handleDeleteAnnouncement = () => {
+    axios
+      .delete(`${baseUrl}/deleteAnnonce/${currentAnnouncement.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        handleCloseDeleteDialog();
+        setAnnouncements((prev) =>
+          prev.filter(
+            (announcement) => announcement.id !== currentAnnouncement.id
+          )
+        );
+        toast.success("Announcement deleted successfully!");
+      })
+      .catch((error) => {
+        console.error("Error deleting announcement:", error);
+        toast.error("Failed to delete announcement.");
+      });
   };
+
+  // Pagination logic
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
+  // Calculate the announcements to display for the current page
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const displayedAnnouncements = announcements.slice(startIndex, endIndex);
 
   return (
     <Box sx={{ py: 8, bgcolor: "background.default" }}>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <Container maxWidth="xl">
         <Row className="mb-5">
           <Col>
@@ -113,7 +212,7 @@ export default function Annonce() {
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
-                onClick={() => handleOpenDialog()}
+                onClick={handleOpenAddDialog}
               >
                 Add Announcement
               </Button>
@@ -122,8 +221,8 @@ export default function Annonce() {
         </Row>
 
         <Grid container spacing={4}>
-          {announcements.map((announcement, index) => (
-            <Grid item xs={12} md={4} key={announcement.id}>
+          {displayedAnnouncements.map((announcement) => (
+            <Grid item xs={12} sm={6} md={4} key={announcement.id}>
               <Card
                 onMouseEnter={() => setHoveredCard(announcement.id)}
                 onMouseLeave={() => setHoveredCard(null)}
@@ -140,12 +239,13 @@ export default function Annonce() {
                     boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
                   },
                 }}
+                data-aos="fade-up"
               >
                 <CardMedia
                   component="img"
                   height="220"
-                  image={img}
-                  alt={announcement.title}
+                  image={`http://localhost:8080${announcement.imageUrl}`}
+                  alt={announcement.titre}
                   sx={{
                     transition: "transform 0.3s ease",
                     ...(hoveredCard === announcement.id && {
@@ -175,7 +275,7 @@ export default function Annonce() {
                         }}
                       />
                       <Typography variant="caption" color="text.secondary">
-                        {formatDate(announcement.date)}
+                        {announcement.date}
                       </Typography>
                     </Box>
                   </Box>
@@ -185,56 +285,104 @@ export default function Annonce() {
                     gutterBottom
                     sx={{ fontWeight: 600, fontSize: "1.25rem", mb: 2 }}
                   >
-                    {announcement.title}
+                    {announcement.titre}
                   </Typography>
 
-                  <Typography color="text.secondary" sx={{ mb: 3 }}>
+                  <Typography
+                    color="text.secondary"
+                    sx={{ fontSize: "10px", color: "grey" }}
+                  >
+                    description
+                  </Typography>
+                  <Typography
+                    color="text.secondary"
+                    sx={{
+                      mb: 3,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 4,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
                     {announcement.description}
                   </Typography>
 
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                    <Avatar
-                      alt={announcement.professor.name}
-                      sx={{
-                        mr: 2,
-                        border: "2px solid #fff",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                      }}
-                    />
-                    <Box>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        {announcement.professor.name}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <IconButton onClick={() => handleOpenDialog(announcement)}>
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => handleDeleteAnnouncement(announcement.id)}
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => handleOpenEditDialog(announcement)}
                     >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
+                      Edit
+                    </Button>
+
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => handleOpenDeleteDialog(announcement)}
+                      style={{ marginLeft: "10px" }}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </Grid>
           ))}
         </Grid>
 
-        {/* Add/Edit Announcement Dialog */}
-        <Dialog open={openDialog} onClose={handleCloseDialog}>
-          <DialogTitle>
-            {isEditing ? "Edit Announcement" : "Add Announcement"}
-          </DialogTitle>
+        {/* Pagination */}
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+          <Pagination
+            count={Math.ceil(announcements.length / itemsPerPage)}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+          />
+        </Box>
+
+        {/* Add Announcement Dialog */}
+        <Dialog open={openAddDialog} onClose={handleCloseAddDialog} fullWidth>
+          <DialogTitle>Add Announcement</DialogTitle>
           <DialogContent>
-            <form id="announcement-form" onSubmit={handleSaveAnnouncement}>
+            <form id="add-announcement-form" onSubmit={handleAddAnnouncement}>
               <TextField
-                name="title"
+                name="titre"
                 label="Title"
-                defaultValue={currentAnnouncement?.title || ""}
+                fullWidth
+                margin="normal"
+                required
+              />
+              <TextField
+                name="description"
+                label="Description"
+                fullWidth
+                margin="normal"
+                multiline
+                rows={4}
+                required
+              />
+              <input type="file" name="image" accept="image/*" required />
+            </form>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseAddDialog}>Cancel</Button>
+            <Button type="submit" form="add-announcement-form">
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Edit Announcement Dialog */}
+        <Dialog open={openEditDialog} onClose={handleCloseEditDialog} fullWidth>
+          <DialogTitle>Edit Announcement</DialogTitle>
+          <DialogContent>
+            <form id="edit-announcement-form" onSubmit={handleEditAnnouncement}>
+              <TextField
+                name="titre"
+                label="Title"
+                defaultValue={currentAnnouncement?.titre || ""}
                 fullWidth
                 margin="normal"
                 required
@@ -245,22 +393,32 @@ export default function Annonce() {
                 defaultValue={currentAnnouncement?.description || ""}
                 fullWidth
                 margin="normal"
+                multiline
+                rows={4}
                 required
               />
-              <TextField
-                name="professorName"
-                label="Professor Name"
-                defaultValue={currentAnnouncement?.professor.name || ""}
-                fullWidth
-                margin="normal"
-                required
-              />
+              <input type="file" name="image" accept="image/*" />
             </form>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button type="submit" form="announcement-form">
+            <Button onClick={handleCloseEditDialog}>Cancel</Button>
+            <Button type="submit" form="edit-announcement-form">
               Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Delete Announcement Dialog */}
+        <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
+          <DialogTitle>Delete Announcement</DialogTitle>
+          <DialogContent>
+            Are you sure you want to delete the announcement "
+            {currentAnnouncement?.titre}"?
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
+            <Button onClick={handleDeleteAnnouncement} color="error">
+              Delete
             </Button>
           </DialogActions>
         </Dialog>

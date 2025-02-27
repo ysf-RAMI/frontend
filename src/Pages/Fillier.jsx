@@ -1,84 +1,60 @@
-import { useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import {
   Typography,
-  Card,
-  CardContent,
   Dialog,
   DialogTitle,
   DialogContent,
   TextField,
   Autocomplete,
-  Button,
-  Chip,
   IconButton,
   Box,
+  Card,
+  CardContent,
+  CardActionArea,
+  CardMedia,
 } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import moduleContext from "../Context/ModuleContext";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 
 // Filiere Card Component
-const FiliereCard = ({ filiere }) => (
-  <Card
-    className="filiere-card shadow-sm"
-    data-aos="fade-up"
-    sx={{
-      transition: "transform 0.3s ease-in-out",
-      "&:hover": {
-        transform: "translateY(-5px)",
-        boxShadow: 3,
-      },
-    }}
-  >
-    <CardContent>
-      <Typography variant="h5" gutterBottom component="div" className="mb-3">
-        {filiere.nomFiliere}
-      </Typography>
-      <Typography variant="body1" color="textSecondary" gutterBottom>
-        Modules disponibles
-      </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 1,
-          mt: 2,
-          justifyContent: "center",
-        }}
-      >
-        {filiere.modules.map((module) => (
-          <Chip
-            key={module.moduleId}
-            label={module.name}
-            size="small"
-            color="primary"
-            variant="outlined"
-          />
-        ))}
-      </Box>
-      <Button
-        component={Link}
-        to={`/filiere/${filiere.filiereId}`}
-        variant="contained"
-        color="primary"
-        fullWidth
-        sx={{ mt: 3 }}
-      >
-        Explorer
-      </Button>
-    </CardContent>
-  </Card>
-);
+const FiliereCard = ({ filiere }) => {
+  const [imageError, setImageError] = useState(false);
+
+  return (
+    <Card className="filiere-card" sx={{ height: "100%" }}>
+      <CardActionArea component={Link} to={`/filiere/${filiere.id}`}>
+        <CardMedia
+          component="img"
+          height="140"
+          // eslint-disable-next-line no-undef
+          image={`https://dummyimage.com/600x600/000/fff&text=${filiere.nom}`}
+          onError={() => setImageError(true)} // Handle image loading errors
+          alt={filiere.nom}
+        />
+        <CardContent>
+          <Typography gutterBottom variant="h5" component="div">
+            {filiere.nom}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Explorez les détails de la filière {filiere.nom}
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+};
 
 // Search Dialog Component
 const SearchDialog = ({ open, handleClose, filiere }) => {
   const [searchQuery, setSearchQuery] = useState("");
+
   const filteredFilieres = filiere.filter((f) =>
-    f.nomFiliere.toLowerCase().includes(searchQuery.toLowerCase())
+    f.nom.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -91,7 +67,7 @@ const SearchDialog = ({ open, handleClose, filiere }) => {
       <DialogContent>
         <Autocomplete
           freeSolo
-          options={filiere.map((f) => f.nomFiliere)}
+          options={filiere.map((f) => f.nom)}
           onInputChange={(_, value) => setSearchQuery(value)}
           renderInput={(params) => (
             <TextField
@@ -106,29 +82,21 @@ const SearchDialog = ({ open, handleClose, filiere }) => {
         <Box sx={{ mt: 3 }}>
           {filteredFilieres.map((f) => (
             <Link
-              key={f.filiereId}
-              to={`/filiere/${f.filiereId}`}
+              key={f.id}
+              to={`/filiere/${f.id}`}
               style={{ textDecoration: "none" }}
               onClick={handleClose}
             >
-              <Card
+              <Box
                 sx={{
-                  mb: 2,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "rgba(0, 0, 0, 0.04)",
-                  },
+                  p: 2,
+                  mb: 1,
+                  borderRadius: 1,
+                  "&:hover": { backgroundColor: "action.hover" },
                 }}
               >
-                <CardContent>
-                  <Typography variant="subtitle1" fontWeight="medium">
-                    {f.nomFiliere}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {f.modules.length} modules disponibles
-                  </Typography>
-                </CardContent>
-              </Card>
+                <Typography variant="body1">{f.nom}</Typography>
+              </Box>
             </Link>
           ))}
         </Box>
@@ -139,8 +107,8 @@ const SearchDialog = ({ open, handleClose, filiere }) => {
 
 // Main Component
 export default function Filiere() {
-  const { filiere } = useContext(moduleContext);
   const [openSearch, setOpenSearch] = useState(false);
+  const [filiere, setFiliere] = useState([]);
 
   // Initialize AOS
   useEffect(() => {
@@ -149,6 +117,12 @@ export default function Filiere() {
       once: true,
       mirror: false,
     });
+
+    axios
+      .get("http://localhost:8080/api/student/getAllFiliere")
+      .then((response) => {
+        setFiliere(response.data);
+      });
   }, []);
 
   return (
@@ -228,7 +202,7 @@ export default function Filiere() {
         <Row>
           {filiere.map((f, index) => (
             <Col
-              key={f.filiereId}
+              key={f.id}
               lg={4}
               md={6}
               className="mb-4"

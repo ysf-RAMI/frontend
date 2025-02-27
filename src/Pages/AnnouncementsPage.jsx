@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Typography,
@@ -10,85 +10,29 @@ import {
   Avatar,
   Button,
   InputAdornment,
+  CardMedia,
 } from "@mui/material";
 import { Row, Col } from "react-bootstrap";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const AnnouncementsPage = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [announcements, setAnnouncements] = useState([]);
 
-  // Sample data
-  const announcements = [
-    {
-      id: 1,
-      title: "cors de soire",
-      description: "descrption annonce",
-      professor: {
-        name: "Dr. hemza hamout",
-        avatar: "/api/placeholder/50/50",
-        department: "genie informatique",
-      },
-      date: "2024-02-20",
-    },
-    {
-      id: 2,
-      title: "cors de soire",
-      description: "descrption annonce",
-      professor: {
-        name: "Dr. hemza hamout",
-        avatar: "/api/placeholder/50/50",
-        department: "genie informatique",
-      },
-      date: "2024-02-20",
-    },
-    {
-      id: 3,
-      title: "cors de soire",
-      description: "descrption annonce",
-      professor: {
-        name: "Dr. hemza hamout",
-        avatar: "/api/placeholder/50/50",
-        department: "genie informatique",
-      },
-      date: "2024-02-20",
-    },
-    {
-      id: 4,
-      title: "cors de soire",
-      description: "descrption annonce",
-      professor: {
-        name: "Dr. hemza hamout",
-        avatar: "/api/placeholder/50/50",
-        department: "genie informatique",
-      },
-      date: "2024-02-20",
-    },
-    {
-      id: 5,
-      title: "cors de soire",
-      description: "descrption annonce",
-      professor: {
-        name: "Dr. hemza hamout",
-        avatar: "/api/placeholder/50/50",
-        department: "genie informatique",
-      },
-      date: "2024-02-20",
-    },
-    {
-      id: 6,
-      title: "cors de soire",
-      description: "descrption annonce",
-      professor: {
-        name: "Dr. hemza hamout",
-        avatar: "/api/placeholder/50/50",
-        department: "genie informatique",
-      },
-      date: "2024-02-20",
-    },
-  ];
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/api/student/getAllAnnoces")
+      .then((res) => {
+        setAnnouncements(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
@@ -101,11 +45,8 @@ const AnnouncementsPage = () => {
   const filterAnnouncements = () => {
     return announcements.filter((announcement) => {
       const matchesSearch =
-        announcement.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        announcement.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
         announcement.description
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        announcement.professor.department
           .toLowerCase()
           .includes(searchTerm.toLowerCase());
       return matchesSearch;
@@ -113,7 +54,7 @@ const AnnouncementsPage = () => {
   };
 
   return (
-    <Box sx={{ py: 8, bgcolor: "background.default",mt:3 }}>
+    <Box sx={{ py: 8, bgcolor: "background.default", mt: 3 }}>
       <Container maxWidth="xl">
         <Row className="mb-5">
           <Col>
@@ -190,6 +131,16 @@ const AnnouncementsPage = () => {
                   },
                 }}
               >
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={`http://localhost:8080${announcement.imageUrl}`}
+                  alt={announcement.titre}
+                  sx={{
+                    objectFit: "cover", // Ensures the image covers the area without distortion
+                    width: "100%",
+                  }}
+                />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                     <Box
@@ -215,7 +166,7 @@ const AnnouncementsPage = () => {
                       mb: 2,
                     }}
                   >
-                    {announcement.title}
+                    {announcement.titre}
                   </Typography>
 
                   <Typography
@@ -234,8 +185,8 @@ const AnnouncementsPage = () => {
 
                   <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
                     <Avatar
-                      src={announcement.professor.avatar}
-                      alt={announcement.professor.name}
+                        
+                      alt={`${announcement.nomProfesseur} ${announcement.prenomProfesseur}`}
                       sx={{
                         mr: 2,
                         border: "2px solid #fff",
@@ -247,27 +198,15 @@ const AnnouncementsPage = () => {
                         variant="subtitle2"
                         sx={{ fontWeight: "bold" }}
                       >
-                        {announcement.professor.name}
+                        {`${announcement.nomProfesseur} ${announcement.prenomProfesseur}`}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {announcement.professor.department}
+                        Professeur
                       </Typography>
                     </Box>
                   </Box>
 
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={() => navigate(`/announcement/${announcement.id}`)}
-                    sx={{
-                      mt: "auto",
-                      textTransform: "none",
-                      borderRadius: 2,
-                      py: 1.5,
-                    }}
-                  >
-                    Voir plus
-                  </Button>
+                
                 </CardContent>
               </Card>
             </Grid>

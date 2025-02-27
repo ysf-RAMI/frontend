@@ -1,6 +1,5 @@
-import React, { useState, useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import moduleContext from "../Context/ModuleContext";
 import {
   Box,
   Drawer,
@@ -40,6 +39,7 @@ import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap CSS
 import "../styles/Module.css";
 import AOS from "aos";
 import "aos/dist/aos.css"; // AOS CSS
+import axios from "axios";
 
 // Helper function to convert YouTube URL to embed format
 const getEmbedUrl = (youtubeUrl) => {
@@ -49,84 +49,96 @@ const getEmbedUrl = (youtubeUrl) => {
 };
 
 const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
-  const { filiereId, moduleId } = useParams();
-  const { filiere } = useContext(moduleContext);
+  const { moduleId } = useParams(); // Get moduleId from URL
 
-  const [selectedSection, setSelectedSection] = useState("courses");
-  const [selectedContent, setSelectedContent] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedModule, setSelectedModule] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState("all");
-  const [page, setPage] = useState(1);
-  const itemsPerPage = 5;
+  const [selectedSection, setSelectedSection] = useState("COURS"); // Default section
+  const [selectedContent, setSelectedContent] = useState(null); // Selected resource for dialog
+  const [openDialog, setOpenDialog] = useState(false); // Dialog open state
+  const [searchQuery, setSearchQuery] = useState(""); // Search query
+  const [filterType, setFilterType] = useState("all"); // Filter by type (PDF/Video)
+  const [page, setPage] = useState(1); // Pagination
+  const [resources, setResources] = useState([]); // All resources
+  const [filteredResources, setFilteredResources] = useState([]); // Filtered resources
+  const [pdfError, setPdfError] = useState(false); // State to track PDF loading errors
 
+  const itemsPerPage = 5; // Items per page for pagination
+
+  // Fetch resources by moduleId
+  useEffect(() => {
+    axios
+      .get(
+        `http://localhost:8080/api/student/getAllResourcesByModuleId/${moduleId}`
+      )
+      .then((response) => {
+        setResources(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching resources:", error);
+      });
+  }, [moduleId]);
+
+  // Filter resources by section, search query, and type
+  useEffect(() => {
+    const filtered = resources
+      .filter((resource) => resource.type === selectedSection) // Filter by section
+      .filter((resource) => {
+        const matchesSearch = resource.nom
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()); // Filter by search query
+        const matchesFilter =
+          filterType === "all" ||
+          resource.dataType === filterType.toUpperCase(); // Filter by type
+        return matchesSearch && matchesFilter;
+      });
+    setFilteredResources(filtered);
+  }, [resources, selectedSection, searchQuery, filterType]);
+
+  // Handle section change
   const handleSectionClick = (section) => {
     setSelectedSection(section);
-    setSelectedContent(null);
-    setPage(1); // Reset to first page when section changes
-    if (isSmallScreen && isDrawerOpen) {
-      toggleDrawer(false);
-    }
+    setPage(1); // Reset to first page
   };
 
+  // Open content dialog
   const openContent = (item) => {
     setSelectedContent(item);
     setOpenDialog(true);
+    setPdfError(false); // Reset error state when opening a new dialog
   };
 
+  // Close content dialog
   const handleCloseDialog = () => {
     setSelectedContent(null);
     setOpenDialog(false);
   };
 
+  // Handle search input change
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
-    setPage(1); // Reset to first page when search query changes
+    setPage(1); // Reset to first page
   };
 
+  // Handle filter change
   const handleFilterChange = (event) => {
     setFilterType(event.target.value);
-    setPage(1); // Reset to first page when filter changes
+    setPage(1); // Reset to first page
   };
 
+  // Handle pagination change
   const handlePageChange = (event, value) => {
     setPage(value);
   };
 
+  // Handle PDF load error
+  const handlePdfError = () => {
+    console.error("Failed to load PDF:", selectedContent?.lien);
+    setPdfError(true); // Set error state on failure
+  };
+
+  // Initialize AOS animations
   useEffect(() => {
-    AOS.init({ duration: 1000 }); // Initialize AOS
+    AOS.init({ duration: 1000 });
   }, []);
-
-  useEffect(() => {
-    const foundFiliere = filiere.find(
-      (f) => f.filiereId === parseInt(filiereId)
-    );
-    if (foundFiliere) {
-      const foundModule = foundFiliere.modules.find(
-        (m) => m.moduleId === parseInt(moduleId)
-      );
-      setSelectedModule(foundModule);
-    }
-  }, [filiere, filiereId, moduleId]);
-
-  if (!selectedModule) {
-    return (
-      <Typography variant="h5" sx={{ mt: 5 }}>
-        Module not found
-      </Typography>
-    );
-  }
-
-  const filteredContent = selectedModule[selectedSection]
-    ?.filter((item) => {
-      const matchesSearch = item.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const matchesFilter = filterType === "all" || item.type === filterType;
-      return matchesSearch && matchesFilter;
-    })
-    .slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
     <Box
@@ -157,16 +169,11 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
       >
         <Box sx={{ width: 260, padding: 2 }}>
           <Typography variant="h6" sx={{ textAlign: "center", mb: 2 }}>
-            {selectedModule.name}
+            Module Resources
           </Typography>
           <Divider />
           <List style={{ cursor: "pointer" }}>
-            {[
-              { name: "Courses", icon: faBook, section: "courses" },
-              { name: "TD", icon: faListUl, section: "TD" },
-              { name: "TP", icon: faChartBar, section: "TP" },
-              { name: "Exams", icon: faFilePdf, section: "EXAMS" },
-            ].map(({ name, icon, section }) => (
+            {["COURS", "TD", "TP", "EXAM"].map((section) => (
               <ListItem
                 key={section}
                 button
@@ -180,9 +187,19 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                 }}
               >
                 <ListItemIcon sx={{ color: "#fff" }}>
-                  <FontAwesomeIcon icon={icon} />
+                  <FontAwesomeIcon
+                    icon={
+                      section === "COURS"
+                        ? faBook
+                        : section === "TD"
+                          ? faListUl
+                          : section === "TP"
+                            ? faChartBar
+                            : faFilePdf
+                    }
+                  />
                 </ListItemIcon>
-                <ListItemText primary={name} />
+                <ListItemText primary={section} />
               </ListItem>
             ))}
           </List>
@@ -206,8 +223,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         >
           <Grid item xs={12}>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
-              {selectedSection.charAt(0).toUpperCase() +
-                selectedSection.slice(1)}
+              {selectedSection}
             </Typography>
           </Grid>
           <Grid item xs={12}>
@@ -248,40 +264,40 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
               }}
             >
               <List>
-                {filteredContent?.map((item) => (
-                  <ListItem
-                    key={item.name}
-                    button
-                    onClick={() => openContent(item)}
-                    sx={{
-                      "&:hover": { backgroundColor: "#eaeaea" },
-                      borderRadius: 1,
-                      mb: 1,
-                    }}
-                    data-aos="fade-up" // Add AOS animation
-                  >
-                    <ListItemIcon>
-                      {item.type === "pdf" ? (
-                        <FontAwesomeIcon
-                          icon={faFilePdf}
-                          style={{ color: "red" }}
-                        />
-                      ) : (
-                        <FontAwesomeIcon
-                          icon={faPlayCircle}
-                          style={{ color: "blue" }}
-                        />
-                      )}
-                    </ListItemIcon>
-                    <ListItemText primary={item.name} />
-                  </ListItem>
-                ))}
+                {filteredResources
+                  .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+                  .map((resource) => (
+                    <ListItem
+                      key={resource.id}
+                      button
+                      onClick={() => openContent(resource)}
+                      sx={{
+                        "&:hover": { backgroundColor: "#eaeaea" },
+                        borderRadius: 1,
+                        mb: 1,
+                      }}
+                      data-aos="fade-up"
+                    >
+                      <ListItemIcon>
+                        {resource.dataType === "FICHIER" ? (
+                          <FontAwesomeIcon
+                            icon={faFilePdf}
+                            style={{ color: "red" }}
+                          />
+                        ) : (
+                          <FontAwesomeIcon
+                            icon={faPlayCircle}
+                            style={{ color: "blue" }}
+                          />
+                        )}
+                      </ListItemIcon>
+                      <ListItemText primary={resource.nom} />
+                    </ListItem>
+                  ))}
               </List>
               <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
                 <Pagination
-                  count={Math.ceil(
-                    selectedModule[selectedSection]?.length / itemsPerPage
-                  )}
+                  count={Math.ceil(filteredResources.length / itemsPerPage)}
                   page={page}
                   onChange={handlePageChange}
                   color="primary"
@@ -298,11 +314,10 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         onClose={handleCloseDialog}
         fullWidth
         maxWidth="md"
-        TransitionComponent={Fade} // Add fade animation
-        aria-labelledby="content-dialog-title"
+        TransitionComponent={Fade}
       >
         <DialogTitle id="content-dialog-title">
-          {selectedContent?.name}
+          {selectedContent?.nom}
           <IconButton
             onClick={handleCloseDialog}
             sx={{ position: "absolute", right: 8, top: 8 }}
@@ -312,31 +327,38 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           </IconButton>
         </DialogTitle>
         <DialogContent dividers>
-          {selectedContent?.type === "pdf" && selectedContent?.url ? (
+          {selectedContent?.dataType === "FICHIER" ? (
             <>
-              <iframe
-                title={selectedContent.name}
-                src={selectedContent.url}
-                width="100%"
-                height="500px"
-                style={{ border: "none" }}
-              />
+              {pdfError ? (
+                <Typography variant="body1" align="center" color="error">
+                  Failed to load PDF. Please download the file instead.
+                </Typography>
+              ) : (
+                <iframe
+                  title={selectedContent.nom}
+                  src={`http://localhost:8080${selectedContent.lien}`}
+                  width="100%"
+                  height="500px"
+                  style={{ border: "none" }}
+                  onError={handlePdfError}
+                />
+              )}
               <Box sx={{ mt: 2, textAlign: "center" }}>
                 <Button
                   variant="contained"
                   color="primary"
                   startIcon={<FontAwesomeIcon icon={faDownload} />}
-                  href={selectedContent.url}
+                  href={`http://localhost:8080${selectedContent.lien}`}
                   download
                 >
                   Download PDF
                 </Button>
               </Box>
             </>
-          ) : selectedContent?.type === "video" && selectedContent?.url ? (
+          ) : selectedContent?.dataType === "VIDEO" ? (
             <iframe
-              title={selectedContent.name}
-              src={getEmbedUrl(selectedContent.url)} // Use the embed URL
+              title={selectedContent.nom}
+              src={getEmbedUrl(selectedContent.lien)}
               width="100%"
               height="500px"
               allow="autoplay"
