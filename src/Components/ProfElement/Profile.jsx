@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import {
   Box,
-  Container,
   Typography,
   Avatar,
   Button,
@@ -17,12 +16,8 @@ import {
   Paper,
   Divider,
   Tooltip,
-  Fade,
-  Alert,
-  Snackbar,
 } from "@mui/material";
 import {
-  Person,
   Lock,
   Visibility,
   VisibilityOff,
@@ -35,7 +30,6 @@ import {
   AccountCircle,
 } from "@mui/icons-material";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import AOS from "aos";
@@ -306,12 +300,7 @@ const Profile = () => {
     });
   };
 
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnackbar({ ...snackbar, open: false });
-  };
+
 
   const togglePasswordVisibility = (field) => {
     switch (field) {
@@ -350,7 +339,6 @@ const Profile = () => {
   return (
     <Box
       sx={{
-        background: `linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.secondary} 100%)`,
         minHeight: "100vh",
         display: "flex",
         alignItems: "center",
@@ -359,31 +347,10 @@ const Profile = () => {
         padding: "0",
         margin: "0",
         overflow: "hidden",
+        marginTop: "-50px",
       }}
     >
-      <ToastContainer
-        autoClose={2500}
-        position="top-center"
-        closeOnClick
-        newestOnTop
-      />
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        TransitionComponent={Fade}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-          variant="filled"
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+     
 
       <Paper
         elevation={10}
@@ -444,7 +411,7 @@ const Profile = () => {
           </Avatar>
 
           <Typography variant="h4" sx={{ fontWeight: 600, mb: 1, zIndex: 1 }}>
-            Dr. {profileValues.prenom} {profileValues.nom}
+            Dr. Hemza hamout
           </Typography>
 
           <Typography
@@ -457,7 +424,7 @@ const Profile = () => {
               zIndex: 1,
             }}
           >
-            <Email sx={{ mr: 1, fontSize: 20 }} /> {profileValues.email}
+            <Email sx={{ mr: 1, fontSize: 20 }} /> hamout@gmail.com
           </Typography>
 
           <Divider
@@ -472,12 +439,7 @@ const Profile = () => {
             <Typography variant="subtitle1" sx={{ mb: 1, opacity: 0.7 }}>
               Professor ID: {profId}
             </Typography>
-            <Typography variant="subtitle1" sx={{ mb: 1, opacity: 0.7 }}>
-              Department: Computer Science
-            </Typography>
-            <Typography variant="subtitle1" sx={{ mb: 1, opacity: 0.7 }}>
-              Status: Active
-            </Typography>
+           
           </Box>
         </Box>
 
@@ -565,21 +527,7 @@ const Profile = () => {
                 </Typography>
               </Grid>
 
-              <Grid item xs={12} md={6}>
-                <Typography
-                  variant="subtitle1"
-                  color="text.secondary"
-                  gutterBottom
-                >
-                  Join Date
-                </Typography>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 500, color: themeColors.secondary }}
-                >
-                  September 1, 2022
-                </Typography>
-              </Grid>
+             
             </Grid>
           </Box>
 
