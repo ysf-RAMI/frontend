@@ -64,10 +64,7 @@ export const Home = () => {
       <HomeSectionProf />
       <AnnouncementSection />
       <TeamSection />
-      <Features />
-      <Testimonial />
       <Call />
-      <About />
       <WhyUs />
       <Footer />
     </div>

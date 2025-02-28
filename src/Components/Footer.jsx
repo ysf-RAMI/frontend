@@ -20,10 +20,10 @@ const Footer = () => {
             {/* About Section */}
             <Grid item xs={12} sm={6} md={4}>
               <Typography variant="h6" gutterBottom>
-                À Propos de Tadrissia
+                À Propos de Doctor h1
               </Typography>
               <Typography variant="body2" sx={{ mb: 2 }}>
-                Tadrissia est une plateforme éducative dédiée à l'apprentissage
+                Doctor h1 est une plateforme éducative dédiée à l'apprentissage
                 de l'informatique et des technologies de l'information. Nous
                 offrons des cours modernes et interactifs pour vous aider à
                 exceller.
@@ -117,7 +117,7 @@ const Footer = () => {
               borderTop: "1px solid rgba(255, 255, 255, 0.1)",
             }}
           >
-            © {new Date().getFullYear()} Tadrissia. Tous droits réservés.
+            © {new Date().getFullYear()} Doctor h1. Tous droits réservés.
           </Typography>
         </Container>
       </div>

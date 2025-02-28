@@ -40,6 +40,7 @@ import "../styles/Module.css";
 import AOS from "aos";
 import "aos/dist/aos.css"; // AOS CSS
 import axios from "axios";
+import PdfViewer from "../Components/PDFViewer";
 
 // Helper function to convert YouTube URL to embed format
 const getEmbedUrl = (youtubeUrl) => {
@@ -342,13 +343,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                   Failed to load PDF. Please download the file instead.
                 </Typography>
               ) : (
-                <iframe
-                  title={selectedContent.nom}
-                  src={`http://localhost:8080${selectedContent.lien}&embedded=true`}
-                  width="100%"
-                  height="400px"
-                  style={{ border: "none" }}
-                />
+                <PdfViewer lien={selectedContent.lien} />
               )}
               <Box sx={{ mt: 2, textAlign: "center" }}>
                 <Button
