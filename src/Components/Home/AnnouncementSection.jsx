@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { useEffect, useState } from "react";
 import {
   Container,
@@ -49,7 +50,7 @@ const AnnouncementSection = () => {
   // Handle "Read More" button clic
 
   // Display only the first 3 announcements
-  const displayedAnnouncements = announcements.slice(0, 3);
+  const displayedAnnouncements = announcements.slice(0, 4);
 
   return (
     <Box
@@ -60,7 +61,19 @@ const AnnouncementSection = () => {
         overflow: "hidden",
       }}
     >
-      {/* Background decoration */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: -100,
+          left: -100,
+          width: 300,
+          height: 300,
+          borderRadius: "50%",
+          background: "linear-gradient(45deg, #f3f4f6 30%, #e5e7eb 90%)",
+          opacity: 0.5,
+          zIndex: 0,
+        }}
+      />{" "}
       <Box
         sx={{
           position: "absolute",
@@ -74,9 +87,13 @@ const AnnouncementSection = () => {
           zIndex: 0,
         }}
       />
-
       <Container maxWidth="xl">
-        <Row className="mb-5">
+        <Row
+          className="mb-5"
+          display="flex"
+          justifyConten="center"
+          alignItems="center"
+        >
           <Col>
             <Box
               sx={{
@@ -111,9 +128,9 @@ const AnnouncementSection = () => {
           </Col>
         </Row>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={2}>
           {displayedAnnouncements.map((announcement, index) => (
-            <Grid item xs={12} sm={6} md={4} key={announcement.id}>
+            <Grid item xs={12} sm={6} md={3} key={announcement.id}>
               <Card
                 data-aos="fade-up"
                 data-aos-delay={index * 100}
@@ -251,8 +268,6 @@ const AnnouncementSection = () => {
                       </Typography>
                     </Box>
                   </Box>
-
-                
                 </CardContent>
               </Card>
             </Grid>
@@ -260,35 +275,45 @@ const AnnouncementSection = () => {
         </Grid>
 
         {/* "View All Announcements" Button */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            mt: 6,
-          }}
-          data-aos="fade-up"
-        >
-          <Button
-            variant="outlined"
-            size="large"
-            onClick={() => navigate("/announcements")}
-            endIcon={<ArrowForwardIcon />}
+        {displayedAnnouncements.length !== 0 ? (
+          <Box
             sx={{
-              textTransform: "none",
-              borderRadius: 2,
-              px: 4,
-              py: 1.5,
-              fontSize: "1.1rem",
-              fontWeight: 500,
-              "&:hover": {
-                borderWidth: 2,
-                background: "rgba(0,0,0,0.02)",
-              },
+              display: "flex",
+              justifyContent: "center",
+              mt: 6,
             }}
+            data-aos="fade-up"
           >
-            View All Announcements
-          </Button>
-        </Box>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={() => navigate("/announcements")}
+              endIcon={<ArrowForwardIcon />}
+              sx={{
+                textTransform: "none",
+                borderRadius: 2,
+                px: 4,
+                py: 1.5,
+                fontSize: "1.1rem",
+                fontWeight: 500,
+                "&:hover": {
+                  borderWidth: 2,
+                  background: "rgba(0,0,0,0.02)",
+                },
+              }}
+            >
+              View All Announcements
+            </Button>
+          </Box>
+        ) : (
+          <>
+            <h3
+              style={{ textAlign: "center", margin: "40px", color: "#003366" }}
+            >
+              Aucun announcement jusqu'à maintenant.
+            </h3>
+          </>
+        )}
       </Container>
     </Box>
   );

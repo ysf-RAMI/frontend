@@ -161,7 +161,7 @@ export default function Filiere() {
         `}
       </style>
 
-      <Container className="py-5 mt-4">
+      <Container className="py-5 mt-4" style={{backgroundColor:"white"}}>
         {/* Hero Section */}
         <Box className="text-center mb-5" data-aos="fade-down">
           <Typography

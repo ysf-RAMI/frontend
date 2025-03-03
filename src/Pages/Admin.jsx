@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState } from "react";
 import {
   Box,
   List,
@@ -8,13 +8,10 @@ import {
   Typography,
   Drawer,
   useTheme,
-  Menu,
-  MenuItem,
   IconButton,
   Toolbar,
   AppBar,
   Badge,
-  MenuList,
 } from "@mui/material";
 import {
   Assignment,
@@ -22,27 +19,20 @@ import {
   Logout,
   Person,
   Home,
-  AccountCircle,
-  Brightness4,
-  Brightness7,
-  MenuOpen,
   MenuOutlined,
 } from "@mui/icons-material";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Dashboardd from "../Components/Dashboard/Dashboard";
 import FiliereTable from "../Components/Admin/FillierTable";
 import ProfTable from "../Components/Admin/ProfTable";
-import axios from "axios";
 import logo from "../assets/logoSite.png";
 import { Link, useNavigate } from "react-router-dom";
-import { ThemeContext } from "../context/ThemeContext"; // Import the ThemeContext
-import { GridMenuIcon } from "@mui/x-data-grid";
+import Profil from "../Components/Admin/Profil";
 
+// eslint-disable-next-line react/prop-types
 const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const [selectedSection, setSelectedSection] = useState("dashboard");
-  const [anchorEl, setAnchorEl] = useState(null);
-  const { darkMode, toggleTheme } = useContext(ThemeContext);
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -53,20 +43,16 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
     }
   };
 
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleLogout = () => {
-    localStorage.removeItem("auth");
-    toast.success("Logged out successfully!");
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 500);
+    try {
+      localStorage.removeItem("auth");
+      toast.success("Logged out successfully!");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 500);
+    } catch (error) {
+      toast.error("Failed to logout!");
+    }
   };
 
   const drawerContent = (
@@ -74,7 +60,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
       sx={{
         width: 250,
         height: "100vh",
-        backgroundColor: darkMode ? "#121212" : "#01162e", // Dark mode background
+        backgroundColor: "#01162e", // Dark mode background
         color: "#fff",
         padding: "20px",
         borderRadius: "0 10px 10px 0",
@@ -84,6 +70,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         <Link to="/">
           <img
             src={logo}
+            alt="Site Logo"
             style={{ width: "200px" }}
             onClick={() => navigate("/")}
           />
@@ -98,16 +85,11 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
               onClick={() => handleSectionClick(section)}
               sx={{
                 cursor: "pointer",
-                "&:hover": { backgroundColor: darkMode ? "#333" : "#003366" }, // Dark mode hover
+                "&:hover": { backgroundColor: "#003366" }, // Dark mode hover
                 borderRadius: 1,
                 mb: 1,
-                ":active": { backgroundColor: darkMode ? "#444" : "#004366" }, // Dark mode active
-                backgroundColor:
-                  selectedSection === section
-                    ? darkMode
-                      ? "#333"
-                      : "#003366"
-                    : "",
+                ":active": { backgroundColor: "#004366" }, // Dark mode active
+                backgroundColor: selectedSection === section ? "#003366" : "",
                 "&:first-of-type": { mt: -1 },
               }}
             >
@@ -128,16 +110,11 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             onClick={() => handleSectionClick(section)}
             sx={{
               cursor: "pointer",
-              "&:hover": { backgroundColor: darkMode ? "#333" : "#003366" }, // Dark mode hover
+              "&:hover": { backgroundColor: "#003366" }, // Dark mode hover
               borderRadius: 1,
               mb: 1,
-              ":active": { backgroundColor: darkMode ? "#444" : "#004466" }, // Dark mode active
-              backgroundColor:
-                selectedSection === section
-                  ? darkMode
-                    ? "#333"
-                    : "#003366"
-                  : "",
+              ":active": { backgroundColor: "#004466" }, // Dark mode active
+              backgroundColor: selectedSection === section ? "#003366" : "",
               "&:first-of-type": { mt: -1 },
             }}
           >
@@ -151,9 +128,9 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
       </p>
       <ListItem
         button
-        onClick={() => navigate("/profile")}
+        onClick={() => handleSectionClick("profile")}
         sx={{
-          "&:hover": { backgroundColor: darkMode ? "#333" : "#003366" }, // Dark mode hover
+          "&:hover": { backgroundColor: "#003366" }, // Dark mode hover
           borderRadius: 1,
           mb: 1,
           backgroundColor: selectedSection === "admin" ? "#003366" : "",
@@ -170,7 +147,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         button
         onClick={handleLogout}
         sx={{
-          "&:hover": { backgroundColor: darkMode ? "#333" : "#003366" }, // Dark mode hover
+          "&:hover": { backgroundColor: "#003366" }, // Dark mode hover
           borderRadius: 1,
           mb: 1,
           backgroundColor: selectedSection === "admin" ? "#003366" : "",
@@ -192,7 +169,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         <AppBar
           style={{ boxShadow: "none", padding: "10px" }}
           sx={{
-            bgcolor: darkMode ? "#121212" : "transparent", // Dark mode background
+            bgcolor: "transparent", // Dark mode background
             zIndex: (theme) => theme.zIndex.drawer + 1,
             width: isSmallScreen
               ? "100%"
@@ -220,39 +197,12 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                 <Badge color="error">
                   <Home
                     style={{
-                      color: darkMode ? "#fff" : "#01162e", // Dark mode icon color
+                      color: "#01162e",
                     }}
                     onClick={() => navigate("/")}
                   />
                 </Badge>
               </IconButton>
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="account of current user"
-                aria-controls="primary-search-account-menu"
-                aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
-                color="inherit"
-              >
-                <AccountCircle sx={{ color: darkMode ? "#fff" : "#01162e" }} />{" "}
-                {/* Dark mode icon color */}
-              </IconButton>
-              <Menu
-                id="primary-search-account-menu"
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-              >
-                <MenuItem onClick={() => navigate("/profile")}>
-                  Profile
-                </MenuItem>
-                <MenuItem onClick={toggleTheme}>
-                  {darkMode ? <Brightness7 /> : <Brightness4 />}
-                  {darkMode ? "Light Mode" : "Dark Mode"}
-                </MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </Menu>
             </Box>
           </Toolbar>
         </AppBar>
@@ -272,7 +222,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                   easing: theme.transitions.easing.sharp,
                   duration: theme.transitions.duration.enteringScreen,
                 }),
-              backgroundColor: "#01162e !important", // Add !important
+              backgroundColor: "#01162e !important",
             },
             height: "100vh",
           }}
@@ -294,8 +244,8 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
               ? "100%"
               : `calc(100% - ${isDrawerOpen ? 250 : 0}px)`,
             marginTop: "64px",
-            backgroundColor: darkMode ? "#121212" : "transparent", // Dark mode background
-            color: darkMode ? "#fff" : "#000", // Dark mode text color
+            backgroundColor: "transparent",
+            color: "#000",
           }}
         >
           <Box sx={{ maxWidth: 1200, mx: "auto" }}>
@@ -308,6 +258,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             {selectedSection === "prof" && <ProfTable />}
 
             {selectedSection === "dashboard" && <Dashboardd />}
+            {selectedSection === "profile" && <Profil  />}
           </Box>
         </Box>
       </Box>

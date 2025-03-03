@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import {
   Box,
@@ -34,13 +34,14 @@ import {
   faChartBar,
   faTimes,
   faDownload,
+  faExpand,
+  faCompress,
 } from "@fortawesome/free-solid-svg-icons";
-import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap CSS
+import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Module.css";
 import AOS from "aos";
-import "aos/dist/aos.css"; // AOS CSS
+import "aos/dist/aos.css";
 import axios from "axios";
-import PdfViewer from "../Components/PDFViewer";
 
 // Helper function to convert YouTube URL to embed format
 const getEmbedUrl = (youtubeUrl) => {
@@ -50,17 +51,18 @@ const getEmbedUrl = (youtubeUrl) => {
 };
 
 const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
-  const { moduleId } = useParams(); // Get moduleId from URL
-
-  const [selectedSection, setSelectedSection] = useState("COURS"); // Default section
-  const [selectedContent, setSelectedContent] = useState(null); // Selected resource for dialog
-  const [openDialog, setOpenDialog] = useState(false); // Dialog open state
+  const { moduleId } = useParams();
+  const [selectedSection, setSelectedSection] = useState("COURS");
+  const [selectedContent, setSelectedContent] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [resources, setResources] = useState([]);
   const [searchQuery, setSearchQuery] = useState(""); // Search query
   const [filterType, setFilterType] = useState("all"); // Filter by type (PDF/Video)
   const [page, setPage] = useState(1); // Pagination
-  const [resources, setResources] = useState([]); // All resources
   const [filteredResources, setFilteredResources] = useState([]); // Filtered resources
-  const [pdfError, setPdfError] = useState(false); // State to track PDF loading errors
+  const [isFullScreen, setIsFullScreen] = useState(false); // Full-screen state for PDF
+
+  const iframeRef = useRef(null); // Ref for the iframe
 
   const itemsPerPage = 5; // Items per page for pagination
 
@@ -88,7 +90,8 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           .includes(searchQuery.toLowerCase()); // Filter by search query
         const matchesFilter =
           filterType === "all" ||
-          resource.dataType === filterType.toUpperCase(); // Filter by type
+          (filterType === "pdf" && resource.dataType === "FICHIER") ||
+          (filterType === "video" && resource.dataType === "VIDEO");
         return matchesSearch && matchesFilter;
       });
     setFilteredResources(filtered);
@@ -104,13 +107,24 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const openContent = (item) => {
     setSelectedContent(item);
     setOpenDialog(true);
-    setPdfError(false); // Reset error state when opening a new dialog
+    setIsFullScreen(false); // Reset full-screen state when opening a new dialog
   };
 
   // Close content dialog
   const handleCloseDialog = () => {
     setSelectedContent(null);
     setOpenDialog(false);
+  };
+
+  // Toggle full-screen mode for the PDF iframe
+  const toggleFullScreen = () => {
+    if (iframeRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        iframeRef.current.requestFullscreen();
+      }
+    }
   };
 
   // Handle search input change
@@ -130,23 +144,10 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
     setPage(value);
   };
 
-  // Handle PDF load error
-  const handlePdfError = () => {
-    console.error("Failed to load PDF:", selectedContent?.lien);
-    setPdfError(true); // Set error state on failure
-  };
-
   // Initialize AOS animations
   useEffect(() => {
     AOS.init({ duration: 1000 });
   }, []);
-
-  useEffect(() => {
-    if (selectedContent?.dataType === "FICHIER") {
-      console.log(selectedContent?.lien);
-    }
-  }, [selectedContent]);
-
 
   return (
     <Box
@@ -317,7 +318,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         </Grid>
       </Box>
 
-      {/* Modal Dialog for Content Preview */}
+      {/* Dialog for PDF/Video Preview */}
       <Dialog
         open={openDialog && selectedContent !== null}
         onClose={handleCloseDialog}
@@ -325,38 +326,40 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         maxWidth="md"
         TransitionComponent={Fade}
       >
-        <DialogTitle id="content-dialog-title">
-          {selectedContent?.nom}
-          <IconButton
-            onClick={handleCloseDialog}
-            sx={{ position: "absolute", right: 8, top: 8 }}
-            aria-label="close-dialog"
+        <DialogTitle>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
           >
-            <FontAwesomeIcon icon={faTimes} style={{ color: "black" }} />
-          </IconButton>
+            <Typography variant="h6">{selectedContent?.nom}</Typography>
+            <Box>
+              {selectedContent?.dataType === "FICHIER" && (
+                <IconButton onClick={toggleFullScreen}>
+                  <FontAwesomeIcon
+                    icon={isFullScreen ? faCompress : faExpand}
+                    style={{ color: "black" }}
+                  />
+                </IconButton>
+              )}
+              <IconButton onClick={handleCloseDialog}>
+                <FontAwesomeIcon icon={faTimes} style={{ color: "black" }} />
+              </IconButton>
+            </Box>
+          </Box>
         </DialogTitle>
         <DialogContent dividers>
           {selectedContent?.dataType === "FICHIER" ? (
-            <>
-              {pdfError ? (
-                <Typography variant="body1" align="center" color="error">
-                  Failed to load PDF. Please download the file instead.
-                </Typography>
-              ) : (
-                <PdfViewer lien={selectedContent.lien} />
-              )}
-              <Box sx={{ mt: 2, textAlign: "center" }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<FontAwesomeIcon icon={faDownload} />}
-                  href={`http://localhost:8080${selectedContent.lien}`}
-                  download
-                >
-                  Download PDF
-                </Button>
-              </Box>
-            </>
+            <iframe
+              ref={iframeRef}
+              src={`http://localhost:8080/api/files/getFile/${selectedContent.lien}#toolbar=0`}
+              width="100%"
+              height="500px"
+              style={{ border: "none" }}
+              title="PDF Viewer"
+            />
           ) : selectedContent?.dataType === "VIDEO" ? (
             <iframe
               title={selectedContent.nom}

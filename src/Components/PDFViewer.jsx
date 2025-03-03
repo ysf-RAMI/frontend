@@ -1,48 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { Box, Button, CircularProgress, Typography } from "@mui/material";
-import axios from "axios";
+import React, { useRef } from "react";
+import { Box, Button, Typography, IconButton } from "@mui/material";
+import FullscreenIcon from "@mui/icons-material/Fullscreen";
+import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 
 const PdfViewer = ({ lien }) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [pdfUrl, setPdfUrl] = useState(null); // Store the PDF URL
+  const iframeRef = useRef(null);
 
-  // Fetch the PDF file from the backend
-  useEffect(() => {
-    const fetchPdf = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:8080/api/files/getFile/${lien}`,
-          {
-            responseType: "blob", // Fetch as a binary blob
-          }
-        );
-
-        // Create a Blob from the response data
-        const blob = new Blob([response.data], { type: "application/pdf" });
-
-        // Generate a URL for the Blob
-        const url = URL.createObjectURL(blob);
-        setPdfUrl(url); // Store the URL in state
-        setLoading(false); // Set loading to false
-      } catch (error) {
-        console.error("Error fetching PDF:", error);
-        setError("Failed to load PDF. Please try downloading instead.");
-        setLoading(false);
+  // Function to toggle full-screen mode
+  const toggleFullScreen = () => {
+    if (iframeRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        iframeRef.current.requestFullscreen();
       }
-    };
-
-    fetchPdf();
-  }, [lien]);
-
-  // Handle download
-  const handleDownload = () => {
-    if (pdfUrl) {
-      const link = document.createElement("a");
-      link.href = pdfUrl;
-      link.download = lien; // Use the file name as the download name
-      link.click();
-      URL.revokeObjectURL(pdfUrl); // Clean up the object URL
     }
   };
 
@@ -53,52 +24,57 @@ const PdfViewer = ({ lien }) => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        gap: 2,
       }}
     >
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
+      {/* PDF Viewer */}
+      <Box
+        sx={{
+          width: "100%",
+          height: "80vh",
+          border: "1px solid #ddd",
+          borderRadius: 2,
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        <IconButton
+          onClick={toggleFullScreen}
+          sx={{
+            position: "absolute",
+            bottom: 16,
+            right: 16,
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            "&:hover": { backgroundColor: "rgba(255, 255, 255, 1)" },
+          }}
+        >
+          {document.fullscreenElement ? (
+            <FullscreenExitIcon />
+          ) : (
+            <FullscreenIcon />
+          )}
+        </IconButton>
+        <iframe
+          ref={iframeRef}
+          src={`http://localhost:8080/api/files/getFile/${lien}#toolbar=0`} // Hide default PDF tools
+          width="100%"
+          height="100%"
+          style={{ border: "none" }}
+          title="PDF Viewer"
+        />
 
-      {error ? (
-        <Box sx={{ textAlign: "center", my: 2 }}>
-          <Typography variant="body1" color="error">
-            {error}
-          </Typography>
-        </Box>
-      ) : (
-        <>
-          <Box
-            sx={{
-              width: "100%",
-              height: "80vh",
-              border: "1px solid #ddd",
-              borderRadius: 1,
-              mb: 2,
-              overflow: "hidden",
-            }}
-          >
-            {pdfUrl && (
-              <iframe
-                src={pdfUrl}
-                width="100%"
-                height="100%"
-                style={{ border: "none" }}
-                title="PDF Viewer"
-              />
-            )}
-          </Box>
+        {/* Full-Screen Button */}
+      </Box>
 
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleDownload}
-          >
-            Download PDF
-          </Button>
-        </>
-      )}
+      <Button
+        variant="contained"
+        color="secondary"
+        href={`http://localhost:8080/api/files/getFile/${lien}`}
+        download
+        startIcon={<i className="fas fa-download" />}
+      >
+        Download PDF
+      </Button>
     </Box>
   );
 };

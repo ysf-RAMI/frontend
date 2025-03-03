@@ -10,12 +10,14 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: #fff;
 }
 
 body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  background-color: white;
 }
 
 /* Navbar */

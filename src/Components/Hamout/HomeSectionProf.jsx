@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"; // Import useEffect
+import  { useEffect } from "react"; // Import useEffect
 import { motion } from "framer-motion"; // Import `motion` from framer-motion
 import { Col, Container, Row } from "react-bootstrap"; // Import Bootstrap components
 import { useNavigate } from "react-router-dom"; // For navigation
@@ -18,7 +18,7 @@ export default function HomeSectionProf() {
   }, []);
 
   return (
-    <section className="hero-section">
+    <section className="hero-section" style={{ backgroundColor: "#f1f4f6" }}>
       <Container>
         <Row className="align-items-center">
           {/* Image Column - Animates from the left */}
@@ -38,13 +38,13 @@ export default function HomeSectionProf() {
               style={{
                 width: "400px",
                 height: "400px",
-                borderRadius: "10%", 
-                border: "2px solid white", 
-                boxShadow: "0 0 110px rgba(70, 31, 31, 0.21)", 
-                cursor: "pointer", 
+                borderRadius: "10%",
+                border: "2px solid white",
+                boxShadow: "0 0 110px rgba(70, 31, 31, 0.21)",
+                cursor: "pointer",
               }}
-              data-aos="fade-right" 
-              data-aos-delay="200" 
+              data-aos="fade-right"
+              data-aos-delay="200"
             />
           </Col>
 

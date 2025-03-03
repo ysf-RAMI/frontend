@@ -95,7 +95,7 @@ const Profile = () => {
   const profId = localStorage.getItem("profId");
   const baseUrl = "http://localhost:8080/api/professeur";
 
-  // Theme colors
+
   const themeColors = {
     primary: "#003366",
     secondary: "#01162e",
@@ -104,7 +104,7 @@ const Profile = () => {
     midBlue: "#0055a4",
   };
 
-  // State management
+  
   const [isLoading, setIsLoading] = useState(true);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
@@ -118,7 +118,7 @@ const Profile = () => {
     severity: "success",
   });
 
-  // Form validation functions
+
   const validateProfile = (values) => {
     let errors = {};
 
@@ -161,7 +161,7 @@ const Profile = () => {
     return errors;
   };
 
-  // Custom form hooks
+  
   const {
     values: profileValues,
     errors: profileErrors,
@@ -193,14 +193,14 @@ const Profile = () => {
     validatePassword
   );
 
-  // Authentication check and data fetching
+  
   useEffect(() => {
     if (!token) {
       navigate("/login");
       return;
     }
 
-    // Initialize animations
+    
     AOS.init({
       duration: 1000,
       once: true,
@@ -208,7 +208,7 @@ const Profile = () => {
       easing: "ease-in-out",
     });
 
-    // Fetch user profile data
+    
     fetchProfileData();
   }, [navigate, token]);
 
@@ -230,7 +230,7 @@ const Profile = () => {
     }
   };
 
-  // API interaction functions
+  
   const updateProfile = async () => {
     try {
       const response = await axios.put(
@@ -249,8 +249,8 @@ const Profile = () => {
       if (response.status === 200) {
         showSnackbar("Profile updated successfully!", "success");
         setIsEditProfileModalOpen(false);
-        // Optionally log out the user if required
-        // setTimeout(() => { localStorage.clear(); navigate("/login"); }, 3000);
+        localStorage.removeItem("auth");
+        localStorage.removeItem("profId");
       }
     } catch (error) {
       handleApiError("Failed to update profile", error);
@@ -300,8 +300,6 @@ const Profile = () => {
     });
   };
 
-
-
   const togglePasswordVisibility = (field) => {
     switch (field) {
       case "oldPassword":
@@ -350,8 +348,6 @@ const Profile = () => {
         marginTop: "-50px",
       }}
     >
-     
-
       <Paper
         elevation={10}
         sx={{
@@ -439,7 +435,6 @@ const Profile = () => {
             <Typography variant="subtitle1" sx={{ mb: 1, opacity: 0.7 }}>
               Professor ID: {profId}
             </Typography>
-           
           </Box>
         </Box>
 
@@ -459,7 +454,7 @@ const Profile = () => {
               variant="h4"
               sx={{ fontWeight: 700, color: themeColors.primary, mb: 4 }}
             >
-              Profile Information
+              Professeur Information
             </Typography>
 
             <Grid container spacing={4} sx={{ mb: 6 }}>
@@ -469,13 +464,13 @@ const Profile = () => {
                   color="text.secondary"
                   gutterBottom
                 >
-                  First Name
+                  Prenom
                 </Typography>
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: 500, color: themeColors.secondary }}
                 >
-                  {profileValues.prenom}
+                  {profileValues.prenom} Hemza
                 </Typography>
               </Grid>
 
@@ -485,13 +480,13 @@ const Profile = () => {
                   color="text.secondary"
                   gutterBottom
                 >
-                  Last Name
+                  Nom
                 </Typography>
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: 500, color: themeColors.secondary }}
                 >
-                  {profileValues.nom}
+                  {profileValues.nom} Hamout
                 </Typography>
               </Grid>
 
@@ -501,13 +496,13 @@ const Profile = () => {
                   color="text.secondary"
                   gutterBottom
                 >
-                  Email Address
+                  Email
                 </Typography>
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: 500, color: themeColors.secondary }}
                 >
-                  {profileValues.email}
+                  {profileValues.email} hamout@gmail.com
                 </Typography>
               </Grid>
 
@@ -517,17 +512,15 @@ const Profile = () => {
                   color="text.secondary"
                   gutterBottom
                 >
-                  Academic Title
+                  Le titre academique
                 </Typography>
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: 500, color: themeColors.secondary }}
                 >
-                  Professor
+                  Professeur
                 </Typography>
               </Grid>
-
-             
             </Grid>
           </Box>
 
@@ -556,7 +549,7 @@ const Profile = () => {
                       },
                     }}
                   >
-                    Edit Profile
+                    Modifier Profil
                   </Button>
                 </Tooltip>
               </Grid>
@@ -582,7 +575,7 @@ const Profile = () => {
                       },
                     }}
                   >
-                    Change Password
+                    Changer Mot de Passe
                   </Button>
                 </Tooltip>
               </Grid>

@@ -18,6 +18,7 @@ import {
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Add, AddBoxOutlined, AddCircleOutlineRounded, AddIcCallOutlined } from "@mui/icons-material";
 
 /**
  * FiliereTable component
@@ -235,16 +236,16 @@ const FiliereTable = () => {
                     <TableCell>{f.nom}</TableCell>
                     <TableCell align="center">
                       <Button
-                        variant="contained"
+                        variant="outlined"
                         onClick={() => handleEditClick(f.id)}
                         color="info"
                       >
                         Edit
                       </Button>
                       <Button
-                        variant="contained"
+                        variant="outlined"
                         onClick={() => handleDeleteClick(f.id)}
-                        color="error"
+                        color="secondary"
                         sx={{ ml: 2 }}
                       >
                         Delete

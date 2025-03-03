@@ -39,15 +39,14 @@ export default function Annonce() {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
-  const [page, setPage] = useState(1); // Pagination state
-  const itemsPerPage = 6; // Number of announcements per page
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 6; 
 
-  // Initialize AOS animations
+
   useEffect(() => {
     AOS.init({ duration: 1, once: true });
   }, []);
 
-  // Fetch announcements on component mount
   useEffect(() => {
     fetchAnnouncements();
   }, []);
@@ -68,7 +67,7 @@ export default function Annonce() {
       });
   };
 
-  // Handlers for opening dialogs
+  
   const handleOpenAddDialog = () => setOpenAddDialog(true);
   const handleOpenEditDialog = (announcement) => {
     setCurrentAnnouncement(announcement);
@@ -79,7 +78,7 @@ export default function Annonce() {
     setOpenDeleteDialog(true);
   };
 
-  // Handlers for closing dialogs
+  
   const handleCloseAddDialog = () => setOpenAddDialog(false);
   const handleCloseEditDialog = () => {
     setOpenEditDialog(false);
@@ -90,7 +89,7 @@ export default function Annonce() {
     setCurrentAnnouncement(null);
   };
 
-  // Add announcement
+  
   const handleAddAnnouncement = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -114,7 +113,7 @@ export default function Annonce() {
       });
   };
 
-  // Edit announcement
+  
   const handleEditAnnouncement = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);

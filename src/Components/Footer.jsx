@@ -1,6 +1,6 @@
 import React from "react";
 import { Container, Grid, Typography, Link, IconButton } from "@mui/material";
-import { Facebook, Twitter, LinkedIn, Instagram } from "@mui/icons-material";
+import { Facebook, Twitter, LinkedIn, Instagram, Email } from "@mui/icons-material";
 import { Element } from "react-scroll";
 import Box from "@mui/material/Box";
 
@@ -35,13 +35,8 @@ const Footer = () => {
               <Typography variant="h6" gutterBottom>
                 Liens Rapides
               </Typography>
-              <Link
-                href="/about"
-                color="inherit"
-                underline="hover"
-                display="block"
-              >
-                À Propos
+              <Link href="/" color="inherit" underline="hover" display="block">
+                Home
               </Link>
               <Link
                 href="/courses"
@@ -49,30 +44,23 @@ const Footer = () => {
                 underline="hover"
                 display="block"
               >
-                Cours
+                Filières
               </Link>
               <Link
-                href="/contact"
+                href="/annonce"
                 color="inherit"
                 underline="hover"
                 display="block"
               >
-                Contact
+                Annonces
               </Link>
-              <Link
-                href="/privacy"
-                color="inherit"
-                underline="hover"
-                display="block"
-              >
-                Politique de Confidentialité
-              </Link>
+              
             </Grid>
 
             {/* Social Media Section */}
             <Grid item xs={12} sm={6} md={4}>
               <Typography variant="h6" gutterBottom>
-                Suivez-Nous
+                Contact
               </Typography>
               <Box>
                 <IconButton
@@ -101,7 +89,7 @@ const Footer = () => {
                   target="_blank"
                   color="inherit"
                 >
-                  <Instagram />
+                  <Email />
                 </IconButton>
               </Box>
             </Grid>
@@ -117,7 +105,7 @@ const Footer = () => {
               borderTop: "1px solid rgba(255, 255, 255, 0.1)",
             }}
           >
-            © {new Date().getFullYear()} Doctor h1. Tous droits réservés.
+            © {new Date().getFullYear()} Doctor H1. Tous droits réservés.
           </Typography>
         </Container>
       </div>

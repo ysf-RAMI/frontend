@@ -10,6 +10,7 @@ import {
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
+import { Scale } from "@mui/icons-material";
 
 const features = [
   {
@@ -85,6 +86,15 @@ export default function WhyUs() {
                     overflow: "hidden",
                     backgroundColor: "#ffffff",
                     boxShadow: 3,
+                    userSelect: "none",
+                    cursor: "pointer",
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
+                      "& .card-overlay": {
+                        opacity: 1,
+                      },
+                    },
                   }}
                 >
                   <CardContent>

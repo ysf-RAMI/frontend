@@ -3,32 +3,25 @@ import { Menu, Close } from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
 import logo from "../assets/logoSite.png";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import "../styles/Navbar.css";
 import { Button } from "@mui/material";
-import { UserAuth } from "../Context/Auth/UserAuth";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
-import {
-  Brightness4,
-  Brightness7,
-  AccountCircle,
-  Logout,
-  Person,
-} from "@mui/icons-material"; // Import icons
+import {  Logout, Person } from "@mui/icons-material"; // Import icons
 import { Menu as MuiMenu, MenuItem } from "@mui/material"; // Import Menu components
-import { ThemeContext } from "../Context/ThemeContext"; // Import ThemeContext for theme toggle
 
 function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
   const location = useLocation();
   const [name, setName] = useState("");
-  const { auth, setAuth } = useContext(UserAuth); // Access the auth state and setAuth function from context
-  const [userType, setUserType] = useState("");
   const [chemin, setChemin] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null); // State for the dropdown menu
-  const { darkMode, toggleTheme } = useContext(ThemeContext); // Access theme context
   const navigate = useNavigate();
+
+  const auth = localStorage.getItem("auth")
+    ? JSON.parse(localStorage.getItem("auth"))
+    : null;
 
   // Update the user name based on the decoded token whenever auth changes
   useEffect(() => {
@@ -43,6 +36,7 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
         setName(decode.sub); // Set the user's name from the decoded token
       } catch (error) {
         console.error("Invalid token:", error);
+        toast.error("Failed to decode authentication token.");
       }
     }
   }, [auth]); // This hook runs whenever the auth state changes
@@ -72,18 +66,15 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
     toggleDrawer(!isDrawerOpen);
   };
 
-  // Logout function to clear localStorage and update context
+  // Logout function to clear localStorage and navigate to home
   const handleLogout = () => {
     toast.success("Logged out successfully!"); // Display toast
     localStorage.removeItem("auth"); // Clear auth from local storage
-    setAuth(null); // Update context
     navigate("/"); // Navigate to home page
   };
 
   // Handle dropdown menu open
-  const handleDropdownOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+
 
   // Handle dropdown menu close
   const handleDropdownClose = () => {
@@ -110,6 +101,7 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
             <IconButton
               onClick={handleMenuClick}
               sx={{ transition: "transform 0.3s ease" }}
+              aria-label="Toggle drawer"
             >
               {isDrawerOpen ? (
                 <Close style={{ color: "white", transform: "rotate(90deg)" }} />
@@ -121,7 +113,7 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
             <img
               src={logo}
               style={{ height: "120px", width: "160px" }}
-              alt="Logo"
+              alt="Site Logo"
               className="navbar-brand-img"
             />
           )}
@@ -142,12 +134,9 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
               </Nav.Link>
               <Nav.Link href="/filiere" className="nav-link">
                 Filiere
-              </Nav.Link>{" "}
+              </Nav.Link>
               <Nav.Link href="/announcements" className="nav-link">
                 Annonce
-              </Nav.Link>{" "}
-              <Nav.Link href="/filiere" className="nav-link">
-                A-propos
               </Nav.Link>
               {auth && (
                 <Nav.Link href={chemin} className="nav-link">
@@ -161,9 +150,8 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
                     borderRadius: "17px",
                     marginLeft: "10px",
                     color: "white",
-                    borderColor: "#0dcaf0",
-                    hover: { color: "white", backgroundColor: "#0dcaf0" },
-                    active: { color: "white", backgroundColor: "#0dcaf0" },
+                    backgroundColor: "#1dcaf0",
+                    "&:hover": { backgroundColor: "#0dcaf0" },
                   }}
                   href="/login"
                 >
@@ -173,12 +161,7 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
             </div>
             {auth && (
               <>
-                <IconButton
-                  onClick={handleDropdownOpen}
-                  sx={{ color: "white", marginLeft: "10px" }}
-                >
-                  <AccountCircle />
-                </IconButton>
+                
                 <MuiMenu
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl)}
@@ -186,14 +169,6 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
                 >
                   <MenuItem onClick={() => navigate("/profile")}>
                     <Person sx={{ marginRight: 1 }} /> Profile
-                  </MenuItem>
-                  <MenuItem onClick={toggleTheme}>
-                    {darkMode ? (
-                      <Brightness7 sx={{ marginRight: 1 }} />
-                    ) : (
-                      <Brightness4 sx={{ marginRight: 1 }} />
-                    )}
-                    {darkMode ? "Light Mode" : "Dark Mode"}
                   </MenuItem>
                   <MenuItem onClick={handleLogout}>
                     <Logout sx={{ marginRight: 1 }} /> Logout

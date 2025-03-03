@@ -18,7 +18,7 @@ import {
   SiJavascript,
   SiPhp,
   SiHtml5,
-  SiCss3,
+  SiC,
   SiLatex,
 } from "react-icons/si";
 import { GiDiploma, GiArchiveResearch, GiTeacher } from "react-icons/gi";
@@ -37,14 +37,17 @@ import {
   TimelineContent,
 } from "@mui/lab";
 import { IoGitNetworkSharp } from "react-icons/io5";
+import { PiMicrosoftExcelLogo } from "react-icons/pi";
 
 // Define the icons for technologies
 const iconComponents = {
+  C: SiC,
   "C++": SiCplusplus,
   Java: FaJava,
   MySQL: SiMysql,
   UML: FaProjectDiagram, // Correct icon for UML
   PHP: SiPhp,
+  Microsoft: PiMicrosoftExcelLogo,
   JavaScript: SiJavascript,
   "HTML/CSS": SiHtml5,
   "Visual Studio": VscVscode, // Correct icon for Visual Studio
@@ -73,12 +76,8 @@ const TechIcon = ({ name, Icon }) => {
   );
 };
 
-
-
 const Hamout = () => {
-
   useEffect(() => {
-
     window.scrollTo(0, 0);
 
     AOS.init({
