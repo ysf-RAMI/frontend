@@ -356,7 +356,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
               ref={iframeRef}
               src={`http://localhost:8080/api/files/getFile/${selectedContent.lien}#toolbar=0`}
               width="100%"
-              height="500px"
+              height="480px"
               style={{ border: "none" }}
               title="PDF Viewer"
             />
@@ -368,6 +368,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
               height="500px"
               allow="autoplay"
               style={{ border: "none" }}
+              allowFullScreen
             />
           ) : (
             <Typography variant="body1" align="center">

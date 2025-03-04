@@ -471,15 +471,18 @@ const CourseFormDialog = ({
           </Select>
         </FormControl>
         {courseData.dataType === "VIDEO" ? (
-          <TextField
-            label="Video URL"
-            fullWidth
-            value={courseData.lien}
-            onChange={(e) =>
-              setCourseData({ ...courseData, lien: e.target.value })
-            }
-            sx={{ mb: 2 }}
-          />
+          <>
+            <TextField
+              label="Video URL"
+              fullWidth
+              value={courseData.lien}
+              onChange={(e) =>
+                setCourseData({ ...courseData, lien: e.target.value })
+              }
+              sx={{ }}
+            />
+            <p style={{color:"grey" , fontSize:"12px"}}>exmple: https://www.youtube.com/watch?v=vedioId</p>
+          </>
         ) : (
           <>
             <Button
@@ -510,8 +513,12 @@ const CourseFormDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">Cancel</Button>
-        <Button onClick={handleSave} color="success" variant="outlined">Save</Button>
+        <Button onClick={onClose} variant="outlined" color="info">
+          Cancel
+        </Button>
+        <Button onClick={handleSave} color="success" variant="outlined">
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );

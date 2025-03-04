@@ -436,13 +436,21 @@ const AddDialog = ({
           </Select>
         </FormControl>
         {examData.dataType === "VIDEO" ? (
-          <TextField
-            label="Video URL"
-            fullWidth
-            value={examData.url}
-            onChange={(e) => setExamData({ ...examData, url: e.target.value })}
-            sx={{ mb: 2 }}
-          />
+          <>
+            {" "}
+            <TextField
+              label="Video URL"
+              fullWidth
+              value={examData.url}
+              onChange={(e) =>
+                setExamData({ ...examData, url: e.target.value })
+              }
+              sx={{ }}
+            />
+            <p style={{ color: "grey", fontSize: "12px" }}>
+              exmple: https://www.youtube.com/watch?v=vedioId
+            </p>
+          </>
         ) : (
           <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
             Upload PDF

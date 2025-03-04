@@ -46,6 +46,7 @@ const ProfTable = () => {
   const [profs, setProfs] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [addProfPass, setAddProfPass] = useState(false);
 
   const baseUrl = "http://localhost:8080/api/admin";
   const { token } = JSON.parse(localStorage.getItem("auth")) || {};
@@ -99,6 +100,10 @@ const ProfTable = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+  function handleAddProfPass() {
+    setAddProfPass(!addProfPass);
+  }
 
   // Close all dialogs
   const handleClose = () => {
@@ -445,9 +450,21 @@ const ProfTable = () => {
             margin="dense"
             label="Mot de passe"
             fullWidth
-            type="password"
+            type={addProfPass ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setAddProfPass(!addProfPass)}
+                    edge="end"
+                  >
+                    {addProfPass ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
         </DialogContent>
         <DialogActions>

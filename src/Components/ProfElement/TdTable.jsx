@@ -412,7 +412,7 @@ const AddDialog = ({
           fullWidth
           value={tdData.name}
           onChange={(e) => setTdData({ ...tdData, name: e.target.value })}
-          sx={{ mb: 2 , mt: 2}}
+          sx={{ mb: 2, mt: 2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Type</InputLabel>
@@ -425,13 +425,19 @@ const AddDialog = ({
           </Select>
         </FormControl>
         {tdData.dataType === "VIDEO" ? (
-          <TextField
-            label="Video URL"
-            fullWidth
-            value={tdData.url}
-            onChange={(e) => setTdData({ ...tdData, url: e.target.value })}
-            sx={{ mb: 2 }}
-          />
+          <>
+            <TextField
+              label="Video URL"
+              fullWidth
+              value={tdData.url}
+              onChange={(e) => setTdData({ ...tdData, url: e.target.value })}
+              sx={{ }}
+            />
+
+            <p style={{ color: "grey", fontSize: "12px" }}>
+              exmple: https://www.youtube.com/watch?v=vedioId
+            </p>
+          </>
         ) : (
           <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
             Upload PDF
@@ -455,8 +461,12 @@ const AddDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">Cancel</Button>
-        <Button onClick={handleSave} variant="outlined" color="success">Save</Button>
+        <Button onClick={onClose} variant="outlined" color="info">
+          Cancel
+        </Button>
+        <Button onClick={handleSave} variant="outlined" color="success">
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );

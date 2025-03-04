@@ -292,14 +292,18 @@ const TpTable = () => {
                 </TableCell>
                 <TableCell>{tp.moduleName}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenEditDialog(tp)} color="info" variant="outlined">
+                  <Button
+                    onClick={() => handleOpenEditDialog(tp)}
+                    color="info"
+                    variant="outlined"
+                  >
                     Edit
                   </Button>
                   <Button
                     onClick={() => handleOpenDeleteDialog(tp)}
                     color="secondary"
                     variant="outlined"
-                    sx={ { ml: 1 } }
+                    sx={{ ml: 1 }}
                   >
                     Delete
                   </Button>
@@ -413,7 +417,7 @@ const AddDialog = ({
           fullWidth
           value={tpData.name}
           onChange={(e) => setTpData({ ...tpData, name: e.target.value })}
-          sx={{ mb: 2 , mt: 2}}
+          sx={{ mb: 2, mt: 2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Type</InputLabel>
@@ -426,13 +430,19 @@ const AddDialog = ({
           </Select>
         </FormControl>
         {tpData.dataType === "VIDEO" ? (
-          <TextField
-            label="Video URL"
-            fullWidth
-            value={tpData.url}
-            onChange={(e) => setTpData({ ...tpData, url: e.target.value })}
-            sx={{ mb: 2 }}
-          />
+          <>
+            {" "}
+            <TextField
+              label="Video URL"
+              fullWidth
+              value={tpData.url}
+              onChange={(e) => setTpData({ ...tpData, url: e.target.value })}
+              sx={{}}
+            />
+            <p style={{ color: "grey", fontSize: "12px" }}>
+              exmple: https://www.youtube.com/watch?v=vedioId
+            </p>
+          </>
         ) : (
           <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
             Upload PDF
@@ -456,8 +466,12 @@ const AddDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">Cancel</Button>
-        <Button onClick={handleSave} color="success" variant="outlined">Save</Button>
+        <Button onClick={onClose} variant="outlined" color="info">
+          Cancel
+        </Button>
+        <Button onClick={handleSave} color="success" variant="outlined">
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );
@@ -532,7 +546,7 @@ const EditDialog = ({
           fullWidth
           value={tpData.name}
           onChange={(e) => setTpData({ ...tpData, name: e.target.value })}
-          sx={{ mb: 2,mt:2 }}
+          sx={{ mb: 2, mt: 2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Type</InputLabel>
@@ -550,7 +564,7 @@ const EditDialog = ({
             fullWidth
             value={tpData.url}
             onChange={(e) => setTpData({ ...tpData, url: e.target.value })}
-            sx={{ mb: 2, }}
+            sx={{ mb: 2 }}
           />
         ) : (
           <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
@@ -575,8 +589,12 @@ const EditDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">Cancel</Button>
-        <Button onClick={handleSave} variant="outlined" color="success">Save</Button>
+        <Button onClick={onClose} variant="outlined" color="info">
+          Cancel
+        </Button>
+        <Button onClick={handleSave} variant="outlined" color="success">
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );
@@ -603,7 +621,9 @@ const DeleteDialog = ({ open, onClose, onDelete, tp }) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">Cancel</Button>
+        <Button onClick={onClose} variant="outlined" color="info">
+          Cancel
+        </Button>
         <Button onClick={onDelete} color="error" variant="contained">
           Delete
         </Button>
