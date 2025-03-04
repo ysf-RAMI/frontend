@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Drawer,
@@ -24,6 +24,10 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  AppBar,
+  Toolbar,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -36,37 +40,44 @@ import {
   faDownload,
   faExpand,
   faCompress,
+  faBars,
+  faHome,
+  faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Module.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import axios from "axios";
+import logo from "../assets/logoSite.png";
+import { ArrowBack, Home } from "@mui/icons-material";
 
-// Helper function to convert YouTube URL to embed format
 const getEmbedUrl = (youtubeUrl) => {
   const regex = /^https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/;
   const match = youtubeUrl.match(regex);
   return match && match[1] ? `https://www.youtube.com/embed/${match[1]}` : null;
 };
 
-const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
+const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
   const { moduleId } = useParams();
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
   const [selectedSection, setSelectedSection] = useState("COURS");
   const [selectedContent, setSelectedContent] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [resources, setResources] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // Search query
-  const [filterType, setFilterType] = useState("all"); // Filter by type (PDF/Video)
-  const [page, setPage] = useState(1); // Pagination
-  const [filteredResources, setFilteredResources] = useState([]); // Filtered resources
-  const [isFullScreen, setIsFullScreen] = useState(false); // Full-screen state for PDF
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [page, setPage] = useState(1);
+  const [filteredResources, setFilteredResources] = useState([]);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
-  const iframeRef = useRef(null); // Ref for the iframe
+  const iframeRef = useRef(null);
 
-  const itemsPerPage = 5; // Items per page for pagination
+  const itemsPerPage = 5;
 
-  // Fetch resources by moduleId
   useEffect(() => {
     axios
       .get(
@@ -80,14 +91,13 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
       });
   }, [moduleId]);
 
-  // Filter resources by section, search query, and type
   useEffect(() => {
     const filtered = resources
-      .filter((resource) => resource.type === selectedSection) // Filter by section
+      .filter((resource) => resource.type === selectedSection)
       .filter((resource) => {
         const matchesSearch = resource.nom
           .toLowerCase()
-          .includes(searchQuery.toLowerCase()); // Filter by search query
+          .includes(searchQuery.toLowerCase());
         const matchesFilter =
           filterType === "all" ||
           (filterType === "pdf" && resource.dataType === "FICHIER") ||
@@ -97,26 +107,24 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
     setFilteredResources(filtered);
   }, [resources, selectedSection, searchQuery, filterType]);
 
-  // Handle section change
   const handleSectionClick = (section) => {
     setSelectedSection(section);
-    setPage(1); // Reset to first page
+    setPage(1);
+    if (isSmallScreen) toggleDrawer(false); // Close drawer on small screens
   };
 
-  // Open content dialog
   const openContent = (item) => {
     setSelectedContent(item);
     setOpenDialog(true);
-    setIsFullScreen(false); // Reset full-screen state when opening a new dialog
+    setIsFullScreen(false);
+    if (isSmallScreen) toggleDrawer(false); // Close drawer on small screens
   };
 
-  // Close content dialog
   const handleCloseDialog = () => {
     setSelectedContent(null);
     setOpenDialog(false);
   };
 
-  // Toggle full-screen mode for the PDF iframe
   const toggleFullScreen = () => {
     if (iframeRef.current) {
       if (document.fullscreenElement) {
@@ -127,24 +135,20 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
     }
   };
 
-  // Handle search input change
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
-    setPage(1); // Reset to first page
+    setPage(1);
   };
 
-  // Handle filter change
   const handleFilterChange = (event) => {
     setFilterType(event.target.value);
-    setPage(1); // Reset to first page
+    setPage(1);
   };
 
-  // Handle pagination change
   const handlePageChange = (event, value) => {
     setPage(value);
   };
 
-  // Initialize AOS animations
   useEffect(() => {
     AOS.init({ duration: 1000 });
   }, []);
@@ -157,7 +161,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         userSelect: "none",
       }}
     >
-      {/* Persistent Drawer */}
+      {/* Drawer */}
       <Drawer
         variant={isSmallScreen ? "temporary" : "persistent"}
         open={isDrawerOpen}
@@ -171,13 +175,19 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             backgroundColor: "#01162e",
             borderRadius: "0 20px 20px 0",
             color: "#fff",
-            height: "calc(100% - 76px)",
-            marginTop: "76px",
           },
         }}
       >
         <Box sx={{ width: 260, padding: 2 }}>
-          <Typography variant="h6" sx={{ textAlign: "center", mb: 2 }}>
+          <img
+            src={logo}
+            alt="Logo"
+            style={{ width: "70%", padding: "10px", marginBottom: "40px" }}
+          />
+          <Typography
+            variant="h6"
+            sx={{ textAlign: "center", mb: 2, color: "grey" }}
+          >
             Module Resources
           </Typography>
           <Divider />
@@ -201,10 +211,10 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                       section === "COURS"
                         ? faBook
                         : section === "TD"
-                          ? faListUl
-                          : section === "TP"
-                            ? faChartBar
-                            : faFilePdf
+                        ? faListUl
+                        : section === "TP"
+                        ? faChartBar
+                        : faFilePdf
                     }
                   />
                 </ListItemIcon>
@@ -218,104 +228,159 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
       {/* Main Content Area */}
       <Box
         sx={{
-          mt: 4,
           flexGrow: 1,
-          p: 3,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
+          transition: "margin 0.3s ease",
         }}
       >
-        <Grid
-          container
-          spacing={2}
-          sx={{ maxWidth: 1200, width: "100%", mt: 2 }}
+        {/* Transparent AppBar */}
+        <AppBar
+          position="fixed"
+          sx={{
+            width: isDrawerOpen ? "calc(100% - 270px)" : "100%",
+            ml: isDrawerOpen ? "270px" : 0,
+            backgroundColor: "transparent",
+            boxShadow: "none",
+            transition: "width 0.3s ease, margin 0.3s ease",
+          }}
         >
-          <Grid item xs={12}>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
-              {selectedSection}
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
+          <Toolbar>
+            {/* Menu Control Icon (Top-Left) */}
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={() => toggleDrawer(!isDrawerOpen)}
+              sx={{ mr: 2 }}
             >
-              <TextField
-                label="Search"
-                variant="filled"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                sx={{ width: "300px" }}
-              />
-              <FormControl sx={{ width: "200px" }}>
-                <InputLabel>Filter by Type</InputLabel>
-                <Select
-                  value={filterType}
-                  onChange={handleFilterChange}
-                  label="Filter by Type"
-                >
-                  <MenuItem value="all">All</MenuItem>
-                  <MenuItem value="pdf">PDF</MenuItem>
-                  <MenuItem value="video">Video</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <Card
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                boxShadow: 5,
-                backgroundColor: "#f9f9f9",
-              }}
+              <FontAwesomeIcon color="blue" icon={faBars} />
+            </IconButton>
+
+            {/* Spacer to push icons to the right */}
+            <Box sx={{ flexGrow: 1 }} />
+
+            
+            
+
+            {/* Home and Back Arrow Icons (Top-Right) */}
+            <IconButton
+              color="inherit"
+              onClick={() => navigate("/")}
+              sx={{ mr: 2 }}
             >
-              <List>
-                {filteredResources
-                  .slice((page - 1) * itemsPerPage, page * itemsPerPage)
-                  .map((resource) => (
-                    <ListItem
-                      key={resource.id}
-                      button
-                      onClick={() => openContent(resource)}
-                      sx={{
-                        "&:hover": { backgroundColor: "#eaeaea" },
-                        borderRadius: 1,
-                        mb: 1,
-                      }}
-                      data-aos="fade-up"
-                    >
-                      <ListItemIcon>
-                        {resource.dataType === "FICHIER" ? (
-                          <FontAwesomeIcon
-                            icon={faFilePdf}
-                            style={{ color: "red" }}
-                          />
-                        ) : (
-                          <FontAwesomeIcon
-                            icon={faPlayCircle}
-                            style={{ color: "blue" }}
-                          />
-                        )}
-                      </ListItemIcon>
-                      <ListItemText primary={resource.nom} />
-                    </ListItem>
-                  ))}
-              </List>
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-                <Pagination
-                  count={Math.ceil(filteredResources.length / itemsPerPage)}
-                  page={page}
-                  onChange={handlePageChange}
-                  color="primary"
+              <Home color="primary" />
+            </IconButton>
+            <IconButton color="inherit" onClick={() => navigate(-1)}>
+              <ArrowBack color="primary" style={{
+                hover:{
+                  postMessage:"red"
+                }
+              }}/>
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+
+        {/* Main Content */}
+        <Box
+          sx={{
+            p: 3,
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Grid
+            container
+            spacing={2}
+            sx={{ maxWidth: 1200, width: "100%", mt: 2 }}
+          >
+            <Grid item xs={12}>
+              <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
+                {selectedSection}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2,
+                }}
+              >
+                <TextField
+                  label="Search"
+                  variant="filled"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  sx={{ width: "300px" }}
                 />
+                <FormControl sx={{ width: "200px" }}>
+                  <InputLabel>Filter by Type</InputLabel>
+                  <Select
+                    value={filterType}
+                    onChange={handleFilterChange}
+                    label="Filter by Type"
+                  >
+                    <MenuItem value="all">All</MenuItem>
+                    <MenuItem value="pdf">PDF</MenuItem>
+                    <MenuItem value="video">Video</MenuItem>
+                  </Select>
+                </FormControl>
               </Box>
-            </Card>
+              <Card
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  boxShadow: 5,
+                  backgroundColor: "#f9f9f9",
+                }}
+              >
+                <List>
+                  {filteredResources
+                    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+                    .map((resource) => (
+                      <ListItem
+                        key={resource.id}
+                        button
+                        onClick={() => openContent(resource)}
+                        sx={{
+                          "&:hover": { backgroundColor: "#eaeaea" },
+                          borderRadius: 1,
+                          mb: 1,
+                        }}
+                        data-aos="fade-up"
+                      >
+                        <ListItemIcon>
+                          {resource.dataType === "FICHIER" ? (
+                            <FontAwesomeIcon
+                              icon={faFilePdf}
+                              style={{ color: "red" }}
+                            />
+                          ) : (
+                            <FontAwesomeIcon
+                              icon={faPlayCircle}
+                              style={{ color: "blue" }}
+                            />
+                          )}
+                        </ListItemIcon>
+                        <ListItemText primary={resource.nom} />
+                      </ListItem>
+                    ))}
+                </List>
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                  <Pagination
+                    count={Math.ceil(filteredResources.length / itemsPerPage)}
+                    page={page}
+                    onChange={handlePageChange}
+                    color="primary"
+                  />
+                </Box>
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
+        </Box>
       </Box>
 
       {/* Dialog for PDF/Video Preview */}

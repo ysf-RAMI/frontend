@@ -1,4 +1,4 @@
-import  { useEffect } from "react"; // Import useEffect
+import { useEffect } from "react"; // Import useEffect
 import { motion } from "framer-motion"; // Import `motion` from framer-motion
 import { Col, Container, Row } from "react-bootstrap"; // Import Bootstrap components
 import { useNavigate } from "react-router-dom"; // For navigation
@@ -13,7 +13,7 @@ export default function HomeSectionProf() {
   // Initialize AOS
   useEffect(() => {
     AOS.init({
-      duration: 800, 
+      duration: 800,
     });
   }, []);
 
@@ -78,16 +78,8 @@ export default function HomeSectionProf() {
                   ainsi que sur les extensions du codage vidéo à haute
                   efficacité.
                 </p>
-                <Button
-                  variant="outlined"
-                  color="brown"
-                  style={{
-                    width: "110px",
-                    "&:hover": { color: "white", backgroundColor: "brown" },
-                  }}
-                  onClick={() => navigate("/hamout")}
-                >
-                  More
+                <Button  variant="outlined" color="info" onClick={() => navigate("/hamout")}>
+                  Voir plus 
                 </Button>
               </div>
             </motion.div>

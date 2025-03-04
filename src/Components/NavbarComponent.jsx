@@ -1,45 +1,38 @@
 import { Navbar, Nav, Container } from "react-bootstrap";
-import { Menu, Close } from "@mui/icons-material";
+import { Menu, Close, Logout, Person } from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
 import logo from "../assets/logoSite.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "../styles/Navbar.css";
-import { Button } from "@mui/material";
+import { Button, Menu as MuiMenu, MenuItem } from "@mui/material";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
-import {  Logout, Person } from "@mui/icons-material"; // Import icons
-import { Menu as MuiMenu, MenuItem } from "@mui/material"; // Import Menu components
 
 function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
   const location = useLocation();
   const [name, setName] = useState("");
   const [chemin, setChemin] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null); // State for the dropdown menu
+  const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
   const auth = localStorage.getItem("auth")
     ? JSON.parse(localStorage.getItem("auth"))
     : null;
 
-  // Update the user name based on the decoded token whenever auth changes
   useEffect(() => {
     if (auth && auth.token) {
       try {
         const decode = jwtDecode(auth.token);
-        if (decode.role[0] === "ROLE_ADMIN") {
-          setChemin("/admin");
-        } else {
-          setChemin("/prof");
-        }
-        setName(decode.sub); // Set the user's name from the decoded token
+        setChemin(decode.role[0] === "ROLE_ADMIN" ? "/admin" : "/prof");
+        setName(decode.sub);
       } catch (error) {
         console.error("Invalid token:", error);
         toast.error("Failed to decode authentication token.");
       }
     }
-  }, [auth]); // This hook runs whenever the auth state changes
+  }, [auth]);
 
   const isHomePage = location.pathname === "/" || location.pathname === "/home";
   const isProfPage =
@@ -47,16 +40,10 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
     location.pathname === "/admin" ||
     /^\/filiere\/\d+\/module\/\d+$/.test(location.pathname);
 
-  // Add scroll event listener
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 50);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -66,23 +53,17 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
     toggleDrawer(!isDrawerOpen);
   };
 
-  // Logout function to clear localStorage and navigate to home
   const handleLogout = () => {
-    toast.success("Logged out successfully!"); // Display toast
-    localStorage.removeItem("auth"); // Clear auth from local storage
-    navigate("/"); // Navigate to home page
+    toast.success("Logged out successfully!");
+    localStorage.removeItem("auth");
+    navigate("/");
   };
 
-  // Handle dropdown menu open
-
-
-  // Handle dropdown menu close
   const handleDropdownClose = () => {
     setAnchorEl(null);
   };
 
-  // Conditionally render the navbar based on the route
-  if (location.pathname === "/prof" || location.pathname === "/admin") {
+  if (isProfPage) {
     return null;
   }
 
@@ -151,7 +132,6 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
                     marginLeft: "10px",
                     color: "white",
                     backgroundColor: "#1dcaf0",
-                    "&:hover": { backgroundColor: "#0dcaf0" },
                   }}
                   href="/login"
                 >
@@ -160,21 +140,18 @@ function NavbarComponent({ isDrawerOpen, toggleDrawer, isSmallScreen }) {
               )}
             </div>
             {auth && (
-              <>
-                
-                <MuiMenu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleDropdownClose}
-                >
-                  <MenuItem onClick={() => navigate("/profile")}>
-                    <Person sx={{ marginRight: 1 }} /> Profile
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout}>
-                    <Logout sx={{ marginRight: 1 }} /> Logout
-                  </MenuItem>
-                </MuiMenu>
-              </>
+              <MuiMenu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleDropdownClose}
+              >
+                <MenuItem onClick={() => navigate("/profile")}>
+                  <Person sx={{ marginRight: 1 }} /> Profile
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>
+                  <Logout sx={{ marginRight: 1 }} /> Logout
+                </MenuItem>
+              </MuiMenu>
             )}
           </Nav>
         </Navbar.Collapse>

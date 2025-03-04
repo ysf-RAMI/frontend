@@ -1,31 +1,12 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import {
-  FaLinkedin,
-  FaResearchgate,
-  FaGoogle,
-  FaJava,
-  FaWindows,
-  FaLinux,
-  FaProjectDiagram, // Correct icon for UML
-} from "react-icons/fa";
-import {
-  SiCplusplus,
-  SiEclipseide,
-  SiMysql,
-  SiJavascript,
-  SiPhp,
-  SiHtml5,
-  SiC,
-  SiLatex,
-} from "react-icons/si";
+import { FaLinkedin, FaResearchgate, FaGoogle } from "react-icons/fa";
+
 import { GiDiploma, GiArchiveResearch, GiTeacher } from "react-icons/gi";
 import hamoutimage from "../assets/hamoutpic.jpg";
-import "../styles/hamout.css";
-
-import { VscVscode } from "react-icons/vsc"; // Correct icon for Visual Studio
+import javaJee from "../assets/icon/1_N5Ta2UFc34fwcPnikjIJ5A.ico";
 import { FcDiploma1, FcDiploma2 } from "react-icons/fc";
 import { Container, Row, Col } from "react-bootstrap";
 import {
@@ -36,29 +17,168 @@ import {
   TimelineConnector,
   TimelineContent,
 } from "@mui/lab";
-import { IoGitNetworkSharp } from "react-icons/io5";
-import { PiMicrosoftExcelLogo } from "react-icons/pi";
+import "../styles/hamout.css";
 
-// Define the icons for technologies
 const iconComponents = {
-  C: SiC,
-  "C++": SiCplusplus,
-  Java: FaJava,
-  MySQL: SiMysql,
-  UML: FaProjectDiagram, // Correct icon for UML
-  PHP: SiPhp,
-  Microsoft: PiMicrosoftExcelLogo,
-  JavaScript: SiJavascript,
-  "HTML/CSS": SiHtml5,
-  "Visual Studio": VscVscode, // Correct icon for Visual Studio
-  Eclipse: SiEclipseide,
-  Windows: FaWindows,
-  Linux: FaLinux,
-  LaTeX: SiLatex,
-  "Réseaux Informatique": IoGitNetworkSharp,
+  C: () => (
+    <img
+      src="https://img.icons8.com/color/48/c-programming.png"
+      alt="C"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  "C++": () => (
+    <img
+      src="https://img.icons8.com/color/48/c-plus-plus-logo.png"
+      alt="C++"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  Java: () => (
+    <img
+      src="https://img.icons8.com/color/48/java-coffee-cup-logo.png"
+      alt="Java"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  VB: () => (
+    <img
+      src="https://img.icons8.com/?size=100&id=3845&format=png&color=000000"
+      alt="VB"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  MySQL: () => (
+    <img
+      src="https://img.icons8.com/color/48/mysql-logo.png"
+      alt="MySQL"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  UML: () => (
+    <img
+      src="https://img.icons8.com/?size=100&id=ZCWpp3WQaB5A&format=png&color=000000"
+      alt="UML"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  MERISE: () => (
+    <img
+      src="https://img.icons8.com/?size=100&id=YUKvLGE4zROg&format=png&color=000000"
+      alt="MERISE"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  "HTML/CSS": () => (
+    <img
+      src="https://img.icons8.com/color/48/html-5.png"
+      alt="HTML/CSS"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  PHP: () => (
+    <img
+      src="https://img.icons8.com/color/48/php.png"
+      alt="PHP"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  JavaScript: () => (
+    <img
+      src="https://img.icons8.com/color/48/javascript.png"
+      alt="JavaScript"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  "Java EE": () => (
+    <img src={javaJee} alt="Java EE" style={{ width: 40, height: 40 }} />
+  ),
+  "MS Office": () => (
+    <img
+      src="https://img.icons8.com/?size=100&id=37619&format=png&color=000000"
+      alt="MS Office"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  LaTeX: () => (
+    <img
+      src="https://img.icons8.com/color/48/latex.png"
+      alt="LaTeX"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  Windows: () => (
+    <img
+      src="https://img.icons8.com/color/48/windows-10.png"
+      alt="Windows"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  Linux: () => (
+    <img
+      src="https://img.icons8.com/color/48/linux.png"
+      alt="Linux"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  Eclipse: () => (
+    <img
+      src="https://img.icons8.com/color/48/eclipse.png"
+      alt="Eclipse"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  "Visual Studio": () => (
+    <img
+      src="https://img.icons8.com/color/48/visual-studio.png"
+      alt="Visual Studio"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  "Réseaux Informatique": () => (
+    <img
+      src="https://img.icons8.com/color/48/network.png"
+      alt="Réseaux Informatique"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  "Data Mining": () => (
+    <img
+      src="https://img.icons8.com/?size=100&id=uXgMijzXD4lU&format=png&color=000000"
+      alt="Data Mining"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  "Machine Learning": () => (
+    <img
+      src="https://img.icons8.com/?size=100&id=gTN9eaZkKLFI&format=png&color=000000"
+      alt="Machine Learning"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  Arabe: () => (
+    <img
+      src="https://img.icons8.com/color/48/saudi-arabia.png"
+      alt="Arabic"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  Français: () => (
+    <img
+      src="https://img.icons8.com/color/48/france.png"
+      alt="French"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
+  Anglais: () => (
+    <img
+      src="https://img.icons8.com/color/48/usa.png"
+      alt="English"
+      style={{ width: 40, height: 40 }}
+    />
+  ),
 };
 
-// Component to display a technology icon
 const TechIcon = ({ name, Icon }) => {
   return (
     <motion.div
@@ -68,9 +188,9 @@ const TechIcon = ({ name, Icon }) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="tech-icon">
-        <Icon size={30} />
-        <span className="tech-name">{name}</span>
+      <div className="tech-icon m-2">
+        {typeof Icon === "function" ? <Icon /> : <Icon size={30} />}
+        <span className="tech-name" style={{marginBottom: "14px"}}>{name}</span>
       </div>
     </motion.div>
   );
@@ -78,8 +198,6 @@ const TechIcon = ({ name, Icon }) => {
 
 const Hamout = () => {
   useEffect(() => {
-    window.scrollTo(0, 0);
-
     AOS.init({
       duration: 1000,
       once: true,
@@ -207,7 +325,6 @@ const Hamout = () => {
           }
         `}
       </style>
-
       {/* Hero Section */}
       <section className="hero-section">
         <Container>
@@ -278,7 +395,6 @@ const Hamout = () => {
           </Row>
         </Container>
       </section>
-
       {/* Educational Timeline */}
       <section className="section">
         <Container>
@@ -413,14 +529,36 @@ const Hamout = () => {
         </Container>
       </section>
 
-      {/* Technologies */}
       <section className="section">
         <Container>
-          <h2 className="section-title">Compétences & Langues : </h2>
+          <h6 className="section-title">Compétences & Langues</h6>
           <div className="text-center">
-            {Object.entries(iconComponents).map(([name, Icon]) => (
-              <TechIcon key={name} name={name} Icon={Icon} />
-            ))}
+            <div className="d-flex flex-wrap justify-content-center">
+              {[
+                "C",
+                "C++",
+                "Java",
+                "VB",
+                "MySQL",
+                "UML",
+                "MERISE",
+                "HTML/CSS",
+                "PHP",
+                "JavaScript",
+                "Java EE",
+                "MS Office",
+                "LaTeX",
+                "Data Mining",
+                "Machine Learning",
+                "Réseaux Informatique",
+                "Eclipse",
+                "Visual Studio",
+                "Windows",
+                "Linux",
+              ].map((tech) => (
+                <TechIcon key={tech} name={tech} Icon={iconComponents[tech]} />
+              ))}
+            </div>
           </div>
         </Container>
       </section>
@@ -482,7 +620,6 @@ const Hamout = () => {
           </ul>
         </Container>
       </section>
-
       {/* Teaching Experience */}
       <section className="section">
         <Container>
@@ -497,7 +634,7 @@ const Hamout = () => {
             <div className="timeline-line"></div>
             <div className="timeline-items">
               {/* 2021-2022 */}
-              <div className="timeline-item">
+              <div className="timeline-item" data-aos="fade-up">
                 <div className="timeline-dot"></div>
                 <div className="timeline-content">
                   <h4>2021-2022</h4>
@@ -509,7 +646,11 @@ const Hamout = () => {
               </div>
 
               {/* 2022-2023 */}
-              <div className="timeline-item">
+              <div
+                className="timeline-item"
+                data-aos="fade-up"
+                data-aos-delay="100"
+              >
                 <div className="timeline-dot"></div>
                 <div className="timeline-content">
                   <h4>2022-2023</h4>
@@ -523,7 +664,11 @@ const Hamout = () => {
               </div>
 
               {/* 2023-2024 */}
-              <div className="timeline-item">
+              <div
+                className="timeline-item"
+                data-aos="fade-up"
+                data-aos-delay="200"
+              >
                 <div className="timeline-dot"></div>
                 <div className="timeline-content">
                   <h4>2023-2024</h4>
@@ -537,7 +682,11 @@ const Hamout = () => {
               </div>
 
               {/* 2024-2025 */}
-              <div className="timeline-item">
+              <div
+                className="timeline-item"
+                data-aos="fade-up"
+                data-aos-delay="300"
+              >
                 <div className="timeline-dot"></div>
                 <div className="timeline-content">
                   <h4>2024-2025</h4>
@@ -552,7 +701,6 @@ const Hamout = () => {
           </div>
         </Container>
       </section>
-
       {/* Administrative Responsibilities */}
       <section className="section">
         <Container>
