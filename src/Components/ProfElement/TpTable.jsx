@@ -292,12 +292,14 @@ const TpTable = () => {
                 </TableCell>
                 <TableCell>{tp.moduleName}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenEditDialog(tp)} color="info">
+                  <Button onClick={() => handleOpenEditDialog(tp)} color="info" variant="outlined">
                     Edit
                   </Button>
                   <Button
                     onClick={() => handleOpenDeleteDialog(tp)}
                     color="secondary"
+                    variant="outlined"
+                    sx={ { ml: 1 } }
                   >
                     Delete
                   </Button>
@@ -394,14 +396,24 @@ const AddDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
-      <DialogTitle>Add TP</DialogTitle>
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+      >
+        Add TP
+      </DialogTitle>
       <DialogContent>
         <TextField
           label="TP Name"
           fullWidth
           value={tpData.name}
           onChange={(e) => setTpData({ ...tpData, name: e.target.value })}
-          sx={{ mb: 2 }}
+          sx={{ mb: 2 , mt: 2}}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Type</InputLabel>
@@ -444,8 +456,8 @@ const AddDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={onClose} variant="outlined" color="info">Cancel</Button>
+        <Button onClick={handleSave} color="success" variant="outlined">Save</Button>
       </DialogActions>
     </Dialog>
   );
@@ -503,14 +515,24 @@ const EditDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
-      <DialogTitle>Edit TP</DialogTitle>
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+      >
+        Edit TP
+      </DialogTitle>
       <DialogContent>
         <TextField
           label="TP Name"
           fullWidth
           value={tpData.name}
           onChange={(e) => setTpData({ ...tpData, name: e.target.value })}
-          sx={{ mb: 2 }}
+          sx={{ mb: 2,mt:2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Type</InputLabel>
@@ -528,7 +550,7 @@ const EditDialog = ({
             fullWidth
             value={tpData.url}
             onChange={(e) => setTpData({ ...tpData, url: e.target.value })}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2, }}
           />
         ) : (
           <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
@@ -553,8 +575,8 @@ const EditDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={onClose} variant="outlined" color="info">Cancel</Button>
+        <Button onClick={handleSave} variant="outlined" color="success">Save</Button>
       </DialogActions>
     </Dialog>
   );
@@ -564,15 +586,25 @@ const EditDialog = ({
 const DeleteDialog = ({ open, onClose, onDelete, tp }) => {
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
-      <DialogTitle>Delete TP</DialogTitle>
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(to right,rgb(171, 0, 0), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+      >
+        Delete TP
+      </DialogTitle>
       <DialogContent>
-        <DialogContentText>
+        <DialogContentText color="error" sx={{ mt: 2 }}>
           Are you sure you want to delete this TP: <strong>{tp?.nom}</strong>?
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={onDelete} color="secondary">
+        <Button onClick={onClose} variant="outlined" color="info">Cancel</Button>
+        <Button onClick={onDelete} color="error" variant="contained">
           Delete
         </Button>
       </DialogActions>

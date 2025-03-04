@@ -1,7 +1,7 @@
 import { Element } from "react-scroll";
 import { Container, Typography, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
@@ -28,6 +28,16 @@ export default function Call() {
           color: "#ffffff",
         }}
       >
+        <ToastContainer
+          autoClose={2500}
+          hideProgressBar={false}
+          closeOnClick={true}
+          newestOnTop={true}
+          closeButton={false}
+          enableMultiContainer={true}
+          position="top-center"
+          zIndex={9999}
+        />
         <Container className="pt-5 pb-3 text-center">
           <Typography
             variant="h6"

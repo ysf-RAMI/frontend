@@ -458,7 +458,7 @@ const Profil = () => {
               variant="h4"
               sx={{ fontWeight: 700, color: themeColors.primary, mb: 4 }}
             >
-              Professeur Information
+              Admin Information
             </Typography>
 
             <Grid container spacing={1} sx={{ mb: 1 }}>

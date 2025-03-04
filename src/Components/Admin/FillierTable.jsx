@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { Add, AddBoxOutlined, AddCircleOutlineRounded, AddIcCallOutlined } from "@mui/icons-material";
 
 /**
@@ -195,6 +195,16 @@ const FiliereTable = () => {
 
   return (
     <>
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
       <Button
         variant="contained"
         color="primary"

@@ -299,12 +299,15 @@ const ExamTable = () => {
                   <Button
                     onClick={() => handleOpenEditDialog(exam)}
                     color="info"
+                    variant="outlined"
+                    sx={{ mr: 1 }}
                   >
                     Edit
                   </Button>
                   <Button
                     onClick={() => handleOpenDeleteDialog(exam)}
                     color="secondary"
+                    variant="outlined"
                   >
                     Delete
                   </Button>
@@ -401,14 +404,24 @@ const AddDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
-      <DialogTitle>Add Exam</DialogTitle>
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+      >
+        Add Exam
+      </DialogTitle>
       <DialogContent>
         <TextField
           label="Exam Name"
           fullWidth
           value={examData.name}
           onChange={(e) => setExamData({ ...examData, name: e.target.value })}
-          sx={{ mb: 2 }}
+          sx={{ mt: 2, mb: 2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Type</InputLabel>
@@ -453,8 +466,16 @@ const AddDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={onClose} variant="outlined" color="primary">
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSave}
+          variant="outlined"
+          sx={{ color: "white", backgroundColor: "#01162e" }}
+        >
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );
@@ -512,14 +533,24 @@ const EditDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
-      <DialogTitle>Edit Exam</DialogTitle>
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+      >
+        Edit Exam
+      </DialogTitle>
       <DialogContent>
         <TextField
           label="Exam Name"
           fullWidth
           value={examData.name}
           onChange={(e) => setExamData({ ...examData, name: e.target.value })}
-          sx={{ mb: 2 }}
+          sx={{ mt: 2, mb: 2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Type</InputLabel>
@@ -575,16 +606,29 @@ const EditDialog = ({
 const DeleteDialog = ({ open, onClose, onDelete, exam }) => {
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
-      <DialogTitle>Delete Exam</DialogTitle>
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(to right,rgb(171, 0, 0), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+    
+      >
+        Delete Exam
+      </DialogTitle>
       <DialogContent>
-        <DialogContentText>
+        <DialogContentText color="error">
           Are you sure you want to delete this exam:{" "}
           <strong>{exam?.nom}</strong>?
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={onDelete} color="secondary">
+        <Button onClick={onClose} variant="outlined">
+          Cancel
+        </Button>
+        <Button onClick={onDelete} variant="contained" color="error">
           Delete
         </Button>
       </DialogActions>

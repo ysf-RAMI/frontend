@@ -13,21 +13,31 @@ const TeamSection = () => {
       nom: "Youssef RAMI",
       role: "Frontend Developer",
       image: picimg,
+      email: "yousseframi012@gmail.com",
+      instagram: " https://www.instagram.com/rammi_yssf",
+      linkedin: "https://www.linkedin.com/in/youssef-rami/",
     },
     {
       nom: "Yassine BOUGROUOU",
       role: "Backend Developer",
       image: picimg,
+      email: "yssinebougrou@gmail.com",
+      instagram: " https://www.instagram.com/rammi_yssf",
+      linkedin: "linkedin.com/in/youssef-rami",
     },
     {
       nom: "Souhail BABILE",
       role: "Backend Developer",
       image: picimg,
+      email: "souhailbabile@gmail.com",
+      linkedin: "linkedin.com/in/souhail-babile-54736324b",
     },
     {
       nom: "Dr. Hemza HAMOUT",
       role: "Chef de projet",
       image: picimg,
+      email: "h.hamout@uiz.ac.ma",
+      researchGate: "https://www.researchgate.net/profile/Hamza-Hamout",
     },
   ];
 

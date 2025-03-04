@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 import { useEffect, useState } from "react";
 import {
   Container,
@@ -47,10 +46,8 @@ const AnnouncementSection = () => {
     });
   };
 
-  // Handle "Read More" button clic
-
   // Display only the first 3 announcements
-  const displayedAnnouncements = announcements.slice(0, 4);
+  const displayedAnnouncements = announcements.slice(0, 3);
 
   return (
     <Box
@@ -73,7 +70,7 @@ const AnnouncementSection = () => {
           opacity: 0.5,
           zIndex: 0,
         }}
-      />{" "}
+      />
       <Box
         sx={{
           position: "absolute",
@@ -91,7 +88,7 @@ const AnnouncementSection = () => {
         <Row
           className="mb-5"
           display="flex"
-          justifyConten="center"
+          justifyContent="center"
           alignItems="center"
         >
           <Col>
@@ -128,12 +125,28 @@ const AnnouncementSection = () => {
           </Col>
         </Row>
 
-        <Grid container spacing={2}>
+        {/* Grid Container */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2,
+            flexWrap: "wrap",
+          }}
+        >
           {displayedAnnouncements.map((announcement, index) => (
-            <Grid item xs={12} sm={6} md={3} key={announcement.id}>
+            <Box
+              key={announcement.id}
+              data-aos="fade-up"
+              data-aos-delay={index * 100}
+              sx={{
+                width: { xs: "100%", sm: "45%", md: "30%" },
+                maxWidth: "400px",
+                flex: "1 1 auto",
+              }}
+            >
               <Card
-                data-aos="fade-up"
-                data-aos-delay={index * 100}
                 onMouseEnter={() => setHoveredCard(announcement.id)}
                 onMouseLeave={() => setHoveredCard(null)}
                 sx={{
@@ -270,9 +283,9 @@ const AnnouncementSection = () => {
                   </Box>
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
 
         {/* "View All Announcements" Button */}
         {displayedAnnouncements.length !== 0 ? (

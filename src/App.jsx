@@ -18,7 +18,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import AnnouncementsPage from "./Pages/AnnouncementsPage";
 import Hamout from "./Pages/Hamout";
-import { AboutPage } from "./Pages/AboutPage";
 
 function App() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -107,7 +106,6 @@ function App() {
           <Route path="/*" element={<NotFound />} />
           <Route path="/announcements" element={<AnnouncementsPage />} />
           <Route path="/hamout" element={<Hamout />} />
-          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </BrowserRouter>
     </div>

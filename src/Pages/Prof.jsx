@@ -231,28 +231,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                   />
                 </Badge>
               </IconButton>
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="account of current user"
-                aria-controls="primary-search-account-menu"
-                aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
-                color="inherit"
-              >
-                <AccountCircle sx={{ color: "#01162e" }} />
-              </IconButton>
-              <Menu
-                id="primary-search-account-menu"
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-              >
-                <MenuItem onClick={() => navigate("/profile")}>
-                  Profile
-                </MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </Menu>
+              
             </Box>
           </Toolbar>
         </AppBar>

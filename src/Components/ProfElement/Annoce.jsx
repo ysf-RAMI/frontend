@@ -28,7 +28,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { CloudUploadOutlined } from "@mui/icons-material";
 
-const baseUrl = "http://localhost:8080/api/professeur";
+const baseUrl = "http://localhost:8080";
 const token = JSON.parse(localStorage.getItem("auth"))?.token;
 const profId = localStorage.getItem("profId");
 
@@ -53,7 +53,7 @@ export default function Annonce() {
 
   const fetchAnnouncements = () => {
     axios
-      .get(`${baseUrl}/getAllAnnonceByIdProfesseru/${profId}`, {
+      .get(`${baseUrl}/api/professeur/getAllAnnonceByIdProfesseru/${profId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -96,7 +96,7 @@ export default function Annonce() {
     formData.append("idProfesseur", profId);
 
     axios
-      .post(`${baseUrl}/addAnnonce`, formData, {
+      .post(`${baseUrl}/api/professeur/addAnnonce`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -121,7 +121,7 @@ export default function Annonce() {
     formData.append("idProfesseur", profId);
 
     axios
-      .put(`${baseUrl}/updateAnnonce`, formData, {
+      .put(`${baseUrl}/api/professeur/updateAnnonce`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -147,11 +147,14 @@ export default function Annonce() {
   // Delete announcement
   const handleDeleteAnnouncement = () => {
     axios
-      .delete(`${baseUrl}/deleteAnnonce/${currentAnnouncement.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      .delete(
+        `${baseUrl}/api/professeur/deleteAnnonce/${currentAnnouncement.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       .then(() => {
         handleCloseDeleteDialog();
         setAnnouncements((prev) =>
@@ -192,15 +195,14 @@ export default function Annonce() {
   return (
     <Box sx={{ py: 8, bgcolor: "background.default" }}>
       <ToastContainer
-        position="top-center"
-        autoClose={3000}
+        autoClose={2500}
         hideProgressBar={false}
+        closeOnClick={true}
         newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
       />
       <Container maxWidth="xl">
         <Row className="mb-5">
@@ -360,7 +362,17 @@ export default function Annonce() {
 
         {/* Add Announcement Dialog */}
         <Dialog open={openAddDialog} onClose={handleCloseAddDialog} fullWidth>
-          <DialogTitle>Add Announcement</DialogTitle>
+          <DialogTitle
+            sx={{
+              background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+              color: "white",
+              fontWeight: "bold",
+              mb: 1,
+              textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+            }}
+          >
+            Add Announcement
+          </DialogTitle>
           <DialogContent>
             <form id="add-announcement-form" onSubmit={handleAddAnnouncement}>
               <TextField
@@ -420,7 +432,18 @@ export default function Annonce() {
 
         {/* Edit Announcement Dialog */}
         <Dialog open={openEditDialog} onClose={handleCloseEditDialog} fullWidth>
-          <DialogTitle>Edit Announcement</DialogTitle>
+          <DialogTitle
+            sx={{
+              background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+              color: "white",
+              fontWeight: "bold",
+              mb: 1,
+              textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+            }}
+          >
+            {" "}
+            Edit Announcement
+          </DialogTitle>
           <DialogContent>
             <form id="edit-announcement-form" onSubmit={handleEditAnnouncement}>
               <TextField
@@ -482,7 +505,17 @@ export default function Annonce() {
 
         {/* Delete Announcement Dialog */}
         <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-          <DialogTitle>Delete Announcement</DialogTitle>
+          <DialogTitle
+            sx={{
+              background: "linear-gradient(to right,rgb(171, 0, 0), #01162e)",
+              color: "white",
+              fontWeight: "bold",
+              mb: 3,
+              textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+            }}
+          >
+            Delete Announcement
+          </DialogTitle>
           <DialogContent style={{ color: "red" }}>
             Are you sure you want to delete the announcement "
             {currentAnnouncement?.titre}"?

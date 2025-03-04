@@ -23,7 +23,13 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import AOS from "aos";
 import "aos/dist/aos.css"; // Import AOS styles
-import { Add, AddCircleRounded, AddIcCallOutlined, DeleteForever, Edit } from "@mui/icons-material";
+import {
+  Add,
+  AddCircleRounded,
+  AddIcCallOutlined,
+  DeleteForever,
+  Edit,
+} from "@mui/icons-material";
 
 const ModuleTable = () => {
   const [modules, setModules] = useState([]);
@@ -282,7 +288,7 @@ const ModuleTable = () => {
       />
 
       <TableContainer component={Paper} sx={{ m: 1 }} data-aos="fade-up">
-        <Table stickyHeader   >
+        <Table stickyHeader>
           <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -339,9 +345,19 @@ const ModuleTable = () => {
         data-aos="zomm-in"
         data-aos-duration="300"
       >
-        <DialogTitle>Delete Module</DialogTitle>
+        <DialogTitle
+          sx={{
+            background: "linear-gradient(to right,rgb(171, 0, 0), #01162e)",
+            color: "white",
+            fontWeight: "bold",
+            mb: 1,
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          Delete Module
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText color="error"  sx={{ mt: 2 }}>
             Are you sure you want to delete this module? This action cannot be
             undone.
           </DialogContentText>
@@ -350,7 +366,7 @@ const ModuleTable = () => {
           <Button variant="outlined" color="primary" onClick={handleClose}>
             Cancel
           </Button>
-          <Button variant="outlined" color="error" onClick={handleDeleteAgree}>
+          <Button variant="contained" color="error" onClick={handleDeleteAgree}>
             Delete
           </Button>
         </DialogActions>
@@ -362,7 +378,17 @@ const ModuleTable = () => {
         data-aos="fade-down"
         data-aos-duration="300"
       >
-        <DialogTitle>Edit Module</DialogTitle>
+        <DialogTitle
+          sx={{
+            background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+            color: "white",
+            fontWeight: "bold",
+            mb: 1,
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          Edit Module
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
             Enter the new details for the module:
@@ -398,9 +424,14 @@ const ModuleTable = () => {
             type="number"
             fullWidth
             variant="standard"
-            inputProps={{ min: 1, max: 12 }}
+            onChange={(e) => {
+              setSemestreSelected(e.target.value);
+              let value = parseInt(e.target.value, 10);
+              if (isNaN(value) || value < 1) value = 1;
+              if (value > 12) value = 12;
+              setSemestreSelected(value);
+            }}
             value={semestreSelected || ""}
-            onChange={(e) => setSemestreSelected(e.target.value)}
             label="Semestre"
           />
           <TextField
@@ -445,7 +476,17 @@ const ModuleTable = () => {
         data-aos="zomm-in"
         data-aos-duration="300"
       >
-        <DialogTitle>Add Module</DialogTitle>
+        <DialogTitle
+          sx={{
+            background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+            color: "white",
+            fontWeight: "bold",
+            mb: 1,
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          Add Module
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
             Select a filière and enter the module details:
@@ -478,13 +519,18 @@ const ModuleTable = () => {
             margin="dense"
             id="semestre"
             type="number"
-            inputProps={{ min: 1, max: 12 }}
             fullWidth
             variant="standard"
             value={semestreSelected || ""}
-            onChange={(e) => setSemestreSelected(e.target.value)}
+            onChange={(e) => {
+              let value = parseInt(e.target.value, 10);
+              if (isNaN(value) || value < 1) value = 1;
+              if (value > 12) value = 12;
+              setSemestreSelected(value);
+            }}
             label="Semestre number"
           />
+
           <TextField
             autoFocus
             required
@@ -498,7 +544,7 @@ const ModuleTable = () => {
             onChange={(e) => setAddModuleName(e.target.value)}
           />
           <TextField
-            autoFocus
+            focused
             margin="dense"
             id="description"
             label="Description"
@@ -512,8 +558,12 @@ const ModuleTable = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleAddAgree}>Add</Button>
+          <Button onClick={handleClose} variant="outlined" color="info">
+            Cancel
+          </Button>
+          <Button onClick={handleAddAgree} variant="outlined" color="success">
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
     </div>

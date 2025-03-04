@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -14,13 +15,17 @@ import {
   DialogTitle,
   TextField,
   TablePagination,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
+import { Visibility, VisibilityOff, Key } from "@mui/icons-material";
 import axios from "axios";
-import { useState, useEffect } from "react";
-import { Key } from "@mui/icons-material";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const ProfTable = () => {
+  // State variables
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
@@ -39,28 +44,35 @@ const ProfTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [profs, setProfs] = useState([]);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const baseUrl = "http://localhost:8080/api/admin";
   const { token } = JSON.parse(localStorage.getItem("auth")) || {};
- 
 
+  // Initialize AOS
   useEffect(() => {
-     console.log(token);
-    axios
-      .get(`${baseUrl}/ListProfesseurs`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
-        console.log("response: proftable" + response.data);
-        setProfs(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    AOS.init({ duration: 300 });
   }, []);
 
+  // Fetch professors on component mount
+  useEffect(() => {
+    fetchProfs();
+  }, []);
+
+  const fetchProfs = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/ListProfesseurs`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProfs(response.data);
+    } catch (error) {
+      console.error("Error fetching professors:", error);
+      toast.error("Erreur lors de la récupération des professeurs");
+    }
+  };
+
+  // Handle search
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
     setPage(0);
@@ -73,6 +85,12 @@ const ProfTable = () => {
       p.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Pagination
+  const paginatedProfs = filteredProfs.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -82,11 +100,7 @@ const ProfTable = () => {
     setPage(0);
   };
 
-  const paginatedProfs = filteredProfs.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
+  // Close all dialogs
   const handleClose = () => {
     setOpenDelete(false);
     setOpenEdit(false);
@@ -104,6 +118,18 @@ const ProfTable = () => {
     setConfirmPassword("");
   };
 
+  // Edit professor
+  const handleEditClick = (id) => {
+    const selectedProf = profs.find((p) => p.id === id);
+    if (selectedProf) {
+      setSelectedProfId(id);
+      setNewNom(selectedProf.nom);
+      setNewPrenom(selectedProf.prenom);
+      setNewEmail(selectedProf.email);
+      setOpenEdit(true);
+    }
+  };
+
   const handleEditAgree = async () => {
     if (!selectedProfId || !newNom || !newPrenom || !newEmail) {
       toast.error("Veuillez remplir tous les champs");
@@ -113,17 +139,8 @@ const ProfTable = () => {
     try {
       await axios.put(
         `${baseUrl}/UpdateProfesseur`,
-        {
-          id: selectedProfId,
-          nom: newNom,
-          prenom: newPrenom,
-          email: newEmail,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { id: selectedProfId, nom: newNom, prenom: newPrenom, email: newEmail },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setProfs((prevProfs) =>
         prevProfs.map((p) =>
@@ -140,17 +157,7 @@ const ProfTable = () => {
     }
   };
 
-  const handleEditClick = (id) => {
-    const selectedProf = profs.find((p) => p.id === id);
-    if (selectedProf) {
-      setSelectedProfId(id);
-      setNewNom(selectedProf.nom);
-      setNewPrenom(selectedProf.prenom);
-      setNewEmail(selectedProf.email);
-      setOpenEdit(true);
-    }
-  };
-
+  // Delete professor
   const handleDeleteClick = (id) => {
     setSelectedProfId(id);
     setOpenDelete(true);
@@ -159,9 +166,7 @@ const ProfTable = () => {
   const handleDeleteAgree = async () => {
     try {
       await axios.delete(`${baseUrl}/DeleteProfesseur/${selectedProfId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setProfs((prevProfs) => prevProfs.filter((p) => p.id !== selectedProfId));
       toast.success("Professeur supprimé avec succès");
@@ -172,6 +177,7 @@ const ProfTable = () => {
     }
   };
 
+  // Add professor
   const handleAddAgree = async () => {
     if (!name || !prenom || !email || !password) {
       toast.error("Veuillez remplir tous les champs");
@@ -181,27 +187,19 @@ const ProfTable = () => {
     try {
       const response = await axios.post(
         `${baseUrl}/AddNewProfesseur`,
-        {
-          nom: name,
-          prenom: prenom,
-          email: email,
-          password: password,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { nom: name, prenom: prenom, email: email, password: password },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setProfs((prevProfs) => [...prevProfs, response.data]);
       toast.success("Professeur ajouté avec succès");
       handleClose();
-    } catch (err) {
-      console.error("Error adding professor:", err);
+    } catch (error) {
+      console.error("Error adding professor:", error);
       toast.error("Erreur lors de l'ajout du professeur");
     }
   };
 
+  // Change password
   const handleChangePasswordClick = (id) => {
     setSelectedProfId(id);
     setOpenChangePassword(true);
@@ -218,30 +216,21 @@ const ProfTable = () => {
       return;
     }
 
-    console.log(selectedProfId +" and  "+ newPassword)
-
-    await axios
-      .put(
+    try {
+      await axios.put(
         `${baseUrl}/UpdateProfPassword`,
-        {
-          id: selectedProfId,
-          password: newPassword,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then(() => {
-        toast.success("password updated");
-      })
-      .catch(() => {
-        toast.error("error for update password");
-      });
-      setOpenChangePassword(false)
+        { id: selectedProfId, password: newPassword },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Mot de passe mis à jour");
+      setOpenChangePassword(false);
+    } catch (error) {
+      console.error("Error updating password:", error);
+      toast.error("Erreur lors de la mise à jour du mot de passe");
+    }
   };
 
+  // Password strength and visibility
   const getPasswordStrength = (password) => {
     if (password.length === 0) return "";
     if (password.length < 6) return "Très faible";
@@ -258,26 +247,47 @@ const ProfTable = () => {
     return "success";
   };
 
+  const togglePasswordVisibility = (field) => {
+    if (field === "newPassword") setShowPassword(!showPassword);
+    else if (field === "confirmPassword")
+      setShowConfirmPassword(!showConfirmPassword);
+  };
+
   return (
     <>
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
+      {/* Add Professor Button */}
       <Button
         variant="contained"
         color="primary"
         onClick={() => setOpenAdd(true)}
         sx={{ m: 2 }}
+        data-aos="fade-down"
       >
         Ajouter un Professeur
       </Button>
 
+      {/* Search Bar */}
       <TextField
         label="Rechercher un Professeur"
         variant="outlined"
         value={searchTerm}
         onChange={handleSearchChange}
         sx={{ m: 2, width: "300px" }}
+        data-aos="fade-down"
       />
 
-      <TableContainer component={Paper} sx={{ m: 2 }}>
+      {/* Professors Table */}
+      <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
         <Table>
           <TableHead style={{ backgroundColor: "#f4f4f9" }}>
             <TableRow>
@@ -295,6 +305,7 @@ const ProfTable = () => {
                 style={{
                   backgroundColor: index % 2 === 0 ? "#ffffff" : "#f4f4f9",
                 }}
+                data-aos="fade-up"
               >
                 <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
                 <TableCell>{p.nom}</TableCell>
@@ -304,27 +315,27 @@ const ProfTable = () => {
                   <Button
                     onClick={() => handleEditClick(p.id)}
                     color="info"
-                    variant="contained"
+                    variant="outlined"
                     sx={{ m: 0.5 }}
                   >
-                    Modifier
+                    Edit
                   </Button>
                   <Button
                     onClick={() => handleDeleteClick(p.id)}
-                    color="error"
-                    variant="contained"
+                    color="secondary"
+                    variant="outlined"
                     sx={{ m: 0.5 }}
                   >
-                    Supprimer
+                    Delete
                   </Button>
                   <Button
                     onClick={() => handleChangePasswordClick(p.id)}
                     color="warning"
-                    variant="contained"
+                    variant="outlined"
                     sx={{ m: 0.5 }}
                     startIcon={<Key />}
                   >
-                    Mot de passe
+                    Password
                   </Button>
                 </TableCell>
               </TableRow>
@@ -333,6 +344,7 @@ const ProfTable = () => {
         </Table>
       </TableContainer>
 
+      {/* Pagination */}
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
@@ -341,9 +353,12 @@ const ProfTable = () => {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        data-aos="fade-up"
       />
 
-      <Dialog open={openDelete} onClose={handleClose}>
+      {/* Dialogs for Delete, Edit, Add, and Change Password */}
+      {/* Delete Dialog */}
+      <Dialog open={openDelete} onClose={handleClose} data-aos="zoom-in">
         <DialogTitle>Supprimer Professeur</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -358,7 +373,8 @@ const ProfTable = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openEdit} onClose={handleClose}>
+      {/* Edit Dialog */}
+      <Dialog open={openEdit} onClose={handleClose} data-aos="zoom-in">
         <DialogTitle>Modifier Professeur</DialogTitle>
         <DialogContent>
           <TextField
@@ -395,7 +411,8 @@ const ProfTable = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openAdd} onClose={handleClose}>
+      {/* Add Dialog */}
+      <Dialog open={openAdd} onClose={handleClose} data-aos="zoom-in">
         <DialogTitle>Ajouter un Professeur</DialogTitle>
         <DialogContent>
           <TextField
@@ -441,23 +458,40 @@ const ProfTable = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openChangePassword} onClose={handleClose}>
+      {/* Change Password Dialog */}
+      <Dialog
+        open={openChangePassword}
+        onClose={handleClose}
+        data-aos="zoom-in"
+      >
         <DialogTitle>Changer le mot de passe</DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
             label="Nouveau mot de passe"
-            type="password"
+            type={showPassword ? "text" : "password"}
             fullWidth
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             color={getPasswordStrengthColor(newPassword)}
             helperText={getPasswordStrength(newPassword)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => togglePasswordVisibility("newPassword")}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             margin="dense"
             label="Confirmer le mot de passe"
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             fullWidth
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
@@ -467,6 +501,18 @@ const ProfTable = () => {
                 ? "Les mots de passe ne correspondent pas"
                 : ""
             }
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => togglePasswordVisibility("confirmPassword")}
+                    edge="end"
+                  >
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
         </DialogContent>
         <DialogActions>

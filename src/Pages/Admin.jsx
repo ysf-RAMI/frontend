@@ -21,7 +21,7 @@ import {
   Home,
   MenuOutlined,
 } from "@mui/icons-material";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Dashboardd from "../Components/Dashboard/Dashboard";
 import FiliereTable from "../Components/Admin/FillierTable";
@@ -165,6 +165,16 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
 
   return (
     <>
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
       <Box sx={{ flexGrow: 1 }}>
         <AppBar
           style={{ boxShadow: "none", padding: "10px" }}
@@ -258,7 +268,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             {selectedSection === "prof" && <ProfTable />}
 
             {selectedSection === "dashboard" && <Dashboardd />}
-            {selectedSection === "profile" && <Profil  />}
+            {selectedSection === "profile" && <Profil />}
           </Box>
         </Box>
       </Box>

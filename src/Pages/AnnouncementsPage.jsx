@@ -16,14 +16,17 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
 import Footer from "../Components/Footer";
+import defaultImage from "../assets/annonceDefaultImage.jpg";
 
 const AnnouncementsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [announcements, setAnnouncements] = useState([]);
+  const baseUrl = "http://localhost:8080";
 
+  // Fetch announcements
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/student/getAllAnnoces")
+      .get(`${baseUrl}/api/student/getAllAnnoces`)
       .then((res) => {
         setAnnouncements(res.data);
       })
@@ -32,6 +35,7 @@ const AnnouncementsPage = () => {
       });
   }, []);
 
+  // Format date
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
       year: "numeric",
@@ -40,7 +44,9 @@ const AnnouncementsPage = () => {
     });
   };
 
+  // Filter announcements based on search term
   const filterAnnouncements = () => {
+    if (!searchTerm) return announcements; // Return all announcements if search term is empty
     return announcements.filter((announcement) => {
       const matchesSearch =
         announcement.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -53,7 +59,6 @@ const AnnouncementsPage = () => {
 
   return (
     <>
-      {" "}
       <Box sx={{ py: 8, bgcolor: "background.default", mt: 3 }}>
         <Container maxWidth="xl">
           <Row className="mb-5">
@@ -61,7 +66,6 @@ const AnnouncementsPage = () => {
               <Typography
                 variant="h2"
                 align="center"
-                data-aos="fade-up"
                 sx={{
                   fontSize: { xs: "2rem", md: "2.5rem" },
                   fontWeight: "bold",
@@ -74,52 +78,48 @@ const AnnouncementsPage = () => {
                 variant="subtitle1"
                 align="center"
                 color="text.secondary"
-                data-aos="fade-up"
-                data-aos-delay="100"
                 sx={{ mb: 6 }}
               >
                 Consultez toutes nos annonces
               </Typography>
             </Col>
           </Row>
-          {filterAnnouncements().length !== 0 && (
-            <Box
-              sx={{
-                mb: 4,
-                p: 3,
-                bgcolor: "background.paper",
-                borderRadius: 2,
-                boxShadow: 1,
-              }}
-              data-aos="fade-up"
-            >
-              <Grid container spacing={3} alignItems="center">
-                <Grid item xs={12}>
-                  <TextField
-                    width="50%"
-                    variant="outlined"
-                    placeholder="Rechercher des annonces..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-              </Grid>
-            </Box>
-          )}
 
+          {/* Search Bar */}
+          <Box
+            sx={{
+              mb: 4,
+              p: 3,
+              bgcolor: "background.paper",
+              borderRadius: 2,
+              boxShadow: 1,
+            }}
+          >
+            <Grid container spacing={3} alignItems="center">
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  placeholder="Rechercher des annonces..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+
+          {/* Announcements Grid */}
           <Grid container spacing={4}>
             {filterAnnouncements().map((announcement, index) => (
-              <Grid item xs={12} md={6} lg={4} key={announcement.id}>
+              <Grid item xs={12} sm={6} md={4} key={announcement.id}>
                 <Card
-                  data-aos="fade-up"
-                  data-aos-delay={index * 100}
                   sx={{
                     height: "100%",
                     display: "flex",
@@ -135,10 +135,14 @@ const AnnouncementsPage = () => {
                   <CardMedia
                     component="img"
                     height="200"
-                    image={`http://localhost:8080${announcement.imageUrl}`}
+                    image={
+                      announcement.imageUrl
+                        ? `${baseUrl}${announcement.imageUrl}`
+                        : defaultImage
+                    }
                     alt={announcement.titre}
                     sx={{
-                      objectFit: "cover", // Ensures the image covers the area without distortion
+                      objectFit: "cover",
                       width: "100%",
                     }}
                   />
@@ -211,13 +215,13 @@ const AnnouncementsPage = () => {
             ))}
           </Grid>
 
+          {/* No Announcements Found */}
           {filterAnnouncements().length === 0 && (
             <Box
               sx={{
                 textAlign: "center",
                 py: 8,
               }}
-              data-aos="fade-up"
             >
               <Typography variant="h6" color="text.secondary">
                 Aucune annonce trouvée

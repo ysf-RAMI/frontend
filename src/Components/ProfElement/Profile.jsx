@@ -35,6 +35,9 @@ import { useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import logo from "../../assets/image-Photoroom.jpg";
+import {jwtDecode} from "jwt-decode";
+import { toast, ToastContainer } from "react-toastify";
+import { Toast } from "react-bootstrap";
 
 // Custom hook for form validation
 const useFormValidation = (initialState, validate) => {
@@ -213,15 +216,20 @@ const Profile = () => {
   }, [navigate, token]);
 
   const fetchProfileData = async () => {
+
+    const decode = jwtDecode(token);
+    const email = decode.sub;
+
     setIsLoading(true);
     try {
-      const response = await axios.get(`${baseUrl}/profile/${profId}`, {
+      const response = await axios.get(`${baseUrl}/getProfil/${email}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.status === 200) {
         const { nom, prenom, email } = response.data;
         setProfileValues({ nom, prenom, email });
+        console.log(response.data);
       }
     } catch (error) {
       handleApiError("Failed to load profile data", error);
@@ -272,7 +280,7 @@ const Profile = () => {
       );
 
       if (response.status === 200) {
-        showSnackbar("Password updated successfully!", "success");
+        toast.success("Password updated successfully!");
         setIsChangePasswordModalOpen(false);
       }
     } catch (error) {
@@ -348,6 +356,16 @@ const Profile = () => {
         marginTop: "-50px",
       }}
     >
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
       <Paper
         elevation={10}
         sx={{
@@ -407,7 +425,7 @@ const Profile = () => {
           </Avatar>
 
           <Typography variant="h4" sx={{ fontWeight: 600, mb: 1, zIndex: 1 }}>
-            Dr. Hemza hamout
+            Dr.{profileValues.nom.toUpperCase()} {profileValues.prenom}
           </Typography>
 
           <Typography
@@ -420,7 +438,7 @@ const Profile = () => {
               zIndex: 1,
             }}
           >
-            <Email sx={{ mr: 1, fontSize: 20 }} /> hamout@gmail.com
+            <Email sx={{ mr: 1, fontSize: 20 }} /> {profileValues.email}
           </Typography>
 
           <Divider
@@ -470,7 +488,7 @@ const Profile = () => {
                   variant="h6"
                   sx={{ fontWeight: 500, color: themeColors.secondary }}
                 >
-                  {profileValues.prenom} Hemza
+                  {profileValues.prenom}
                 </Typography>
               </Grid>
 
@@ -486,7 +504,7 @@ const Profile = () => {
                   variant="h6"
                   sx={{ fontWeight: 500, color: themeColors.secondary }}
                 >
-                  {profileValues.nom} Hamout
+                  {profileValues.nom}
                 </Typography>
               </Grid>
 
@@ -502,7 +520,7 @@ const Profile = () => {
                   variant="h6"
                   sx={{ fontWeight: 500, color: themeColors.secondary }}
                 >
-                  {profileValues.email} hamout@gmail.com
+                  {profileValues.email}
                 </Typography>
               </Grid>
 

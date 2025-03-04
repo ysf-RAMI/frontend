@@ -117,7 +117,16 @@ const LoginPage = () => {
 
   return (
     <div className="login-page-wrapper">
-      <ToastContainer />
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
 
       <div className="animated-background">
         <div className="shape shape1"></div>
@@ -144,15 +153,20 @@ const LoginPage = () => {
                       />
                       <h2 className="school-name">Doctor H1</h2>
                       <p className="school-slogan">
-                       Votre plateforme d'apprentissage en ligne
+                        Votre plateforme d'apprentissage en ligne
                       </p>
                     </div>
-                    <div className="features-list" style={{userSelect:"none",cursor:"pointer"}}>
+                    <div
+                      className="features-list"
+                      style={{ userSelect: "none", cursor: "pointer" }}
+                    >
                       <div
                         className="feature-item"
                         data-aos="fade-up"
                         data-aos-delay="400"
-                        onClick={()=>{navigate("/filiere")}}
+                        onClick={() => {
+                          navigate("/filiere");
+                        }}
                       >
                         <div className="feature-icon">📚</div>
                         <div className="feature-text">Voir Notre Filières</div>
@@ -165,9 +179,10 @@ const LoginPage = () => {
                         <div className="feature-icon">
                           <AnnouncementTwoTone />
                         </div>
-                        <div className="feature-text">Suiver Notre Annonces</div>
+                        <div className="feature-text">
+                          Suiver Notre Annonces
+                        </div>
                       </div>
-                     
                     </div>
                   </div>
                 </Col>
@@ -186,9 +201,7 @@ const LoginPage = () => {
                         <School className="me-2" />
                         Login
                       </h3>
-                      <p className="text-muted">
-                        Sign in to your dashboard
-                      </p>
+                      <p className="text-muted">Sign in to your dashboard</p>
                     </div>
 
                     {errors.auth && (
@@ -262,8 +275,6 @@ const LoginPage = () => {
                         />
                       </div>
 
-                   
-
                       <MuiButton
                         variant="contained"
                         color="primary"
@@ -288,8 +299,6 @@ const LoginPage = () => {
                           "Sign In"
                         )}
                       </MuiButton>
-
-                      
                     </form>
                   </CardBody>
                 </Col>

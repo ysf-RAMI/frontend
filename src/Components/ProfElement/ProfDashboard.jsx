@@ -141,10 +141,10 @@ export default function ProfDashboard() {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
-          bgcolor: "#003366",
+
         }}
       >
-        <CircularProgress sx={{ color: "white" }} />
+        <CircularProgress sx={{ color: "#003366" }} />
       </Box>
     );
   }
@@ -158,8 +158,7 @@ export default function ProfDashboard() {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
-          bgcolor: "#003366",
-          color: "white",
+          
           p: 3,
           textAlign: "center",
         }}

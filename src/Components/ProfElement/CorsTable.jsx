@@ -247,12 +247,15 @@ const CorsTable = () => {
                   <Button
                     onClick={() => handleOpenEditDialog(course)}
                     color="info"
+                    variant="outlined"
                   >
                     Edit
                   </Button>
                   <Button
                     onClick={() => handleOpenDeleteDialog(course)}
                     color="secondary"
+                    sx={{ ml: 1 }}
+                    variant="outlined"
                   >
                     Delete
                   </Button>
@@ -310,7 +313,6 @@ const CorsTable = () => {
         mode="edit"
       />
 
-      {/* Delete Dialog */}
       <DeleteDialog
         open={openDeleteDialog}
         onClose={handleCloseDialogs}
@@ -435,7 +437,17 @@ const CourseFormDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
-      <DialogTitle>{mode === "add" ? "Add Course" : "Edit Course"}</DialogTitle>
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+      >
+        {mode === "add" ? "Add Course" : "Edit Course"}
+      </DialogTitle>
       <DialogContent>
         <TextField
           label="Course Name"
@@ -444,7 +456,7 @@ const CourseFormDialog = ({
           onChange={(e) =>
             setCourseData({ ...courseData, name: e.target.value })
           }
-          sx={{ mb: 2 }}
+          sx={{ mb: 2, mt: 2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Type</InputLabel>
@@ -498,8 +510,8 @@ const CourseFormDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={onClose} variant="outlined" color="info">Cancel</Button>
+        <Button onClick={handleSave} color="success" variant="outlined">Save</Button>
       </DialogActions>
     </Dialog>
   );
@@ -530,16 +542,28 @@ const DeleteDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
-      <DialogTitle>Delete Course</DialogTitle>
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(to right,rgb(171, 0, 0), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+      >
+        Delete Course
+      </DialogTitle>
       <DialogContent>
-        <DialogContentText>
+        <DialogContentText color="error" sx={{ mt: 2 }}>
           Are you sure you want to delete this course:{" "}
           <strong>{course?.nom}</strong>?
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleDelete} color="secondary">
+        <Button onClick={onClose} variant="outlined" color="info">
+          Cancel
+        </Button>
+        <Button onClick={handleDelete} color="error" variant="contained">
           Delete
         </Button>
       </DialogActions>

@@ -16,7 +16,16 @@ AOS.init();
 export const Home = () => {
   return (
     <div className="home-container" style={{ userSelect: "none" }}>
-      <ToastContainer />
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
       <Hero />
       <HomeSectionProf />
       <AnnouncementSection />
