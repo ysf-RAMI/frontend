@@ -1,12 +1,12 @@
-import React, { useRef } from "react";
-import { Box, Button, Typography, IconButton } from "@mui/material";
+import  { useRef } from "react";
+import { Box, Button,  IconButton } from "@mui/material";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 
+// eslint-disable-next-line react/prop-types
 const PdfViewer = ({ lien }) => {
   const iframeRef = useRef(null);
 
-  // Function to toggle full-screen mode
   const toggleFullScreen = () => {
     if (iframeRef.current) {
       if (document.fullscreenElement) {
@@ -27,7 +27,6 @@ const PdfViewer = ({ lien }) => {
         gap: 2,
       }}
     >
-      {/* PDF Viewer */}
       <Box
         sx={{
           width: "100%",
@@ -56,7 +55,7 @@ const PdfViewer = ({ lien }) => {
         </IconButton>
         <iframe
           ref={iframeRef}
-          src={`http://localhost:8080/api/files/getFile/${lien}#toolbar=0`} // Hide default PDF tools
+          src={`http://localhost:8080/api/files/getFile/${lien}#toolbar=0`} 
           width="100%"
           height="100%"
           style={{ border: "none" }}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -37,12 +37,9 @@ import {
   faListUl,
   faChartBar,
   faTimes,
-  faDownload,
   faExpand,
   faCompress,
   faBars,
-  faHome,
-  faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Module.css";
@@ -58,6 +55,7 @@ const getEmbedUrl = (youtubeUrl) => {
   return match && match[1] ? `https://www.youtube.com/embed/${match[1]}` : null;
 };
 
+// eslint-disable-next-line react/prop-types
 const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
   const { moduleId } = useParams();
   const navigate = useNavigate();
@@ -110,14 +108,14 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
   const handleSectionClick = (section) => {
     setSelectedSection(section);
     setPage(1);
-    if (isSmallScreen) toggleDrawer(false); // Close drawer on small screens
+    if (isSmallScreen) toggleDrawer(false);
   };
 
   const openContent = (item) => {
     setSelectedContent(item);
     setOpenDialog(true);
     setIsFullScreen(false);
-    if (isSmallScreen) toggleDrawer(false); // Close drawer on small screens
+    if (isSmallScreen) toggleDrawer(false);
   };
 
   const handleCloseDialog = () => {
@@ -256,13 +254,9 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
               <FontAwesomeIcon color="blue" icon={faBars} />
             </IconButton>
 
-            {/* Spacer to push icons to the right */}
             <Box sx={{ flexGrow: 1 }} />
 
-            
-            
-
-            {/* Home and Back Arrow Icons (Top-Right) */}
+          
             <IconButton
               color="inherit"
               onClick={() => navigate("/")}
@@ -271,16 +265,11 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
               <Home color="primary" />
             </IconButton>
             <IconButton color="inherit" onClick={() => navigate(-1)}>
-              <ArrowBack color="primary" style={{
-                hover:{
-                  postMessage:"red"
-                }
-              }}/>
+              <ArrowBack color="primary" />
             </IconButton>
           </Toolbar>
         </AppBar>
 
-        {/* Main Content */}
         <Box
           sx={{
             p: 3,
