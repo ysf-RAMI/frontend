@@ -3,22 +3,19 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/", // Ensure this is correct for your deployment path
-  optimizeDeps: {
-    include: [
-      "react",
-      "react-dom",
-      "@mui/material",
-      "@mui/icons-material",
-      "framer-motion",
-      "react-bootstrap",
-    ],
-    exclude: ["react/jsx-runtime"],
-  },
-  define: {
-    "process.env.NODE_ENV": '"development"',
-  },
+  base: "/", // Set this to "/" if your app is deployed at the root of the domain
   build: {
-    outDir: "./dist",
+    outDir: "dist", // Output directory for the build
+    assetsDir: "assets", // Directory for assets (CSS, images, etc.)
+    emptyOutDir: true, // Ensure the output directory is emptied before building
+    rollupOptions: {
+      output: {
+        assetFileNames: "assets/[name].[hash].[ext]", // Naming convention for assets
+        entryFileNames: "assets/[name].[hash].js", // Naming convention for JS files
+      },
+    },
+  },
+  server: {
+    open: true, // Automatically open the app in the browser
   },
 });
