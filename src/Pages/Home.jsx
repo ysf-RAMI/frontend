@@ -13,6 +13,8 @@ import ProfSection from "../Components/Hamout/ProfSection";
 
 AOS.init();
 
+  
+
 export const Home = () => {
   return (
     <div className="home-container" style={{ userSelect: "none" }}>
