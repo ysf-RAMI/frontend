@@ -9,7 +9,7 @@ import Hero from "../Components/Home/Hero";
 import Footer from "../Components/Footer";
 import AnnouncementSection from "../Components/Home/AnnouncementSection";
 import TeamSection from "../Components/TeamSection";
-import ProfSection from "../Components/Hamout/homeSectionProf";
+import ProfSection from "../Components/Hamout/ProfSection";
 
 AOS.init();
 
