@@ -8,8 +8,8 @@ import Call from "../Components/Home/Call";
 import Hero from "../Components/Home/Hero";
 import Footer from "../Components/Footer";
 import AnnouncementSection from "../Components/Home/AnnouncementSection";
-import HomeSectionProf from "../Components/Hamout/homeSectionProf";
 import TeamSection from "../Components/TeamSection";
+import HomeSectionProf from "../Components/Hamout/homeSectionProf";
 
 AOS.init();
 

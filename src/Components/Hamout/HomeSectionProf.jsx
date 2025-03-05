@@ -1,16 +1,16 @@
-import { useEffect } from "react"; // Import useEffect
-import { motion } from "framer-motion"; // Import `motion` from framer-motion
-import { Col, Container, Row } from "react-bootstrap"; // Import Bootstrap components
-import { useNavigate } from "react-router-dom"; // For navigation
-import hamoutimage from "../../assets/hamoutpic.jpg"; // Adjust the path to your image
-import { Button } from "@mui/material"; // Import MUI Button
-import AOS from "aos"; // Import AOS
-import "aos/dist/aos.css"; // Import AOS CSS
+import { useEffect } from "react"; 
+import { motion } from "framer-motion";
+import { Col, Container, Row } from "react-bootstrap"; 
+import { useNavigate } from "react-router-dom"; 
+import hamoutimage from "../../assets/hamoutpic.jpg"; 
+import { Button } from "@mui/material";
+import AOS from "aos";
+import "aos/dist/aos.css"; 
 
-export default function HomeSectionProf() {
+const HomeSectionProf = () => {
   const navigate = useNavigate();
 
-  // Initialize AOS
+
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -21,7 +21,7 @@ export default function HomeSectionProf() {
     <section className="hero-section" style={{ backgroundColor: "#f1f4f6" }}>
       <Container>
         <Row className="align-items-center">
-          {/* Image Column - Animates from the left */}
+          
           <Col
             md={6}
             className="text-center"
@@ -48,11 +48,11 @@ export default function HomeSectionProf() {
             />
           </Col>
 
-          {/* Text Column - Animates from the right */}
+
           <Col md={6}>
             <motion.div
-              data-aos="fade-left" // AOS animation for the text
-              data-aos-delay="400" // Delay for the animation
+              data-aos="fade-left" 
+              data-aos-delay="400"
             >
               <div
                 className="social-icons"
@@ -89,3 +89,6 @@ export default function HomeSectionProf() {
     </section>
   );
 }
+
+
+export default HomeSectionProf;
