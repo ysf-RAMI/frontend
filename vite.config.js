@@ -4,6 +4,20 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   base: "/", // Set this to "/" if your app is deployed at the root of the domain
+  optimizeDeps: {
+    include: [
+      "react",
+      "react-dom",
+      "@mui/material",
+      "@mui/icons-material",
+      "framer-motion",
+      "react-bootstrap",
+    ],
+    exclude: ["react/jsx-runtime"],
+  },
+  define: {
+    "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV), // Use this instead of hardcoding "development"
+  },
   build: {
     outDir: "dist", // Output directory for the build
     assetsDir: "assets", // Directory for assets (CSS, images, etc.)
