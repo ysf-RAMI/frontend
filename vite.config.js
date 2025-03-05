@@ -20,6 +20,6 @@ export default defineConfig({
     "process.env.NODE_ENV": '"development"',
   },
   build: {
-    outDir: "/netlify.toml",
+    outDir: "/dist",
   },
 });
