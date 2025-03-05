@@ -7,9 +7,8 @@ import { Button } from "@mui/material";
 import AOS from "aos";
 import "aos/dist/aos.css"; 
 
-const HomeSectionProf = () => {
+const ProfSection = () => {
   const navigate = useNavigate();
-
 
   useEffect(() => {
     AOS.init({
@@ -21,7 +20,6 @@ const HomeSectionProf = () => {
     <section className="hero-section" style={{ backgroundColor: "#f1f4f6" }}>
       <Container>
         <Row className="align-items-center">
-          
           <Col
             md={6}
             className="text-center"
@@ -48,12 +46,8 @@ const HomeSectionProf = () => {
             />
           </Col>
 
-
           <Col md={6}>
-            <motion.div
-              data-aos="fade-left" 
-              data-aos-delay="400"
-            >
+            <motion.div data-aos="fade-left" data-aos-delay="400">
               <div
                 className="social-icons"
                 style={{
@@ -78,8 +72,12 @@ const HomeSectionProf = () => {
                   ainsi que sur les extensions du codage vidéo à haute
                   efficacité.
                 </p>
-                <Button  variant="outlined" color="info" onClick={() => navigate("/hamout")}>
-                  Voir plus 
+                <Button
+                  variant="outlined"
+                  color="info"
+                  onClick={() => navigate("/hamout")}
+                >
+                  Voir plus
                 </Button>
               </div>
             </motion.div>
@@ -88,7 +86,7 @@ const HomeSectionProf = () => {
       </Container>
     </section>
   );
-}
+};
 
 
-export default HomeSectionProf;
+export default ProfSection;
