@@ -21,6 +21,8 @@ import "aos/dist/aos.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 
+const baseUrl = "http://localhost:8080";
+
 // Filiere Card Component
 const FiliereCard = ({ filiere }) => {
   const [imageError, setImageError] = useState(false);
@@ -118,11 +120,9 @@ export default function Filiere() {
       mirror: false,
     });
 
-    axios
-      .get("http://localhost:8080/api/student/getAllFiliere")
-      .then((response) => {
-        setFiliere(response.data);
-      });
+    axios.get(`${baseUrl}/api/student/getAllFiliere`).then((response) => {
+      setFiliere(response.data);
+    });
   }, []);
 
   return (
@@ -161,7 +161,7 @@ export default function Filiere() {
         `}
       </style>
 
-      <Container className="py-5 mt-4" style={{backgroundColor:"white"}}>
+      <Container className="py-5 mt-4" style={{ backgroundColor: "white" }}>
         {/* Hero Section */}
         <Box className="text-center mb-5" data-aos="fade-down">
           <Typography

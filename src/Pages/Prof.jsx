@@ -48,7 +48,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const [selectedSection, setSelectedSection] = useState("dashboard");
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  const baseUrl = "http://localhost:8080/api/professeur";
+  const baseUrl = "http://localhost:8080";
 
   const token = JSON.parse(localStorage.getItem("auth")).token;
 
@@ -57,18 +57,17 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
 
   useEffect(() => {
     axios
-      .get(`${baseUrl}/GetProfesseur/${email}`, {
+      .get(`${baseUrl}/api/professeur/GetProfesseur/${email}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((response) => {
-        console.log(response)
         const { id } = response.data;
         localStorage.setItem("profId", id);
       })
       .catch((error) => {
-        console.error("Error fetching professeur:", error);
+        toast.error("Error fetching professeur:", error);
       });
   }, [token]);
 
@@ -231,7 +230,6 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                   />
                 </Badge>
               </IconButton>
-              
             </Box>
           </Toolbar>
         </AppBar>
@@ -263,9 +261,9 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
           component="main"
           sx={{
             flexGrow: 1,
-            pb:2,
-            pr:2,
-            pl:2,
+            pb: 2,
+            pr: 2,
+            pl: 2,
             backgroundColor: "#f2f2f2",
             transition: (theme) =>
               theme.transitions.create("margin", {

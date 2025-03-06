@@ -35,6 +35,7 @@ import schoolLogo from "../assets/logoSite.png";
 
 // Import custom CSS
 import "../styles/Login.css";
+const baseUrl = "http://localhost:8080";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -67,7 +68,7 @@ const LoginPage = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/authenticate",
+        `${baseUrl}/api/authenticate`,
         { email, password },
         { withCredentials: true }
       );
@@ -93,13 +94,9 @@ const LoginPage = () => {
         }, 1500);
       }
     } catch (error) {
-      console.error("Login failed:", error);
+      toast.error("Login failed:", error);
       setErrors({
-        auth: "Invalid credentials or server error",
-      });
-      toast.error("Login failed. Please check your credentials.", {
-        position: "top-center",
-        autoClose: 4000,
+        auth: "Email or password incorrect",
       });
     } finally {
       setLoading(false);

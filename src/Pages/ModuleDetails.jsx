@@ -48,6 +48,7 @@ import "aos/dist/aos.css";
 import axios from "axios";
 import logo from "../assets/logoSite.png";
 import { ArrowBack, Home } from "@mui/icons-material";
+import { toast, ToastContainer } from "react-toastify";
 
 const getEmbedUrl = (youtubeUrl) => {
   const regex = /^https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/;
@@ -61,6 +62,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const baseUrl = "http://localhost:8080";
 
   const [selectedSection, setSelectedSection] = useState("COURS");
   const [selectedContent, setSelectedContent] = useState(null);
@@ -78,14 +80,12 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
 
   useEffect(() => {
     axios
-      .get(
-        `http://localhost:8080/api/student/getAllResourcesByModuleId/${moduleId}`
-      )
+      .get(`${baseUrl}/api/student/getAllResourcesByModuleId/${moduleId}`)
       .then((response) => {
         setResources(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching resources:", error);
+        toast.error("Error fetching resources:");
       });
   }, [moduleId]);
 
@@ -159,6 +159,16 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
         userSelect: "none",
       }}
     >
+      <ToastContainer
+              autoClose={2500}
+              hideProgressBar={false}
+              closeOnClick={true}
+              newestOnTop={true}
+              closeButton={false}
+              enableMultiContainer={true}
+              position="top-center"
+              zIndex={9999}
+            />
       {/* Drawer */}
       <Drawer
         variant={isSmallScreen ? "temporary" : "persistent"}
@@ -256,7 +266,6 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
 
             <Box sx={{ flexGrow: 1 }} />
 
-          
             <IconButton
               color="inherit"
               onClick={() => navigate("/")}

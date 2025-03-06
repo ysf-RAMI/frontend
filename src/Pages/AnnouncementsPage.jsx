@@ -17,7 +17,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
 import Footer from "../Components/Footer";
 import defaultImage from "../assets/annonceDefaultImage.jpg";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 const AnnouncementsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,6 +60,16 @@ const AnnouncementsPage = () => {
 
   return (
     <>
+    <ToastContainer
+            autoClose={2500}
+            hideProgressBar={false}
+            closeOnClick={true}
+            newestOnTop={true}
+            closeButton={false}
+            enableMultiContainer={true}
+            position="top-center"
+            zIndex={9999}
+          />
       <Box sx={{ py: 8, bgcolor: "background.default", mt: 3 }}>
         <Container maxWidth="xl">
           <Row className="mb-5">

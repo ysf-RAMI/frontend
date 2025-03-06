@@ -22,6 +22,7 @@ import "aos/dist/aos.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/FiliereDetails.css";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 // Initialize AOS animations
 AOS.init({
@@ -36,17 +37,16 @@ export default function FiliereDetails() {
   const [searchQuery, setSearchQuery] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [selectedSemester, setSelectedSemester] = useState("all");
+  const baseUrl = "http://localhost:8080";
 
   useEffect(() => {
     axios
-      .get(
-        `http://localhost:8080/api/student/getAllModuleByFiliereId/${filiereId}`
-      )
+      .get(`${baseUrl}/api/student/getAllModuleByFiliereId/${filiereId}`)
       .then((response) => {
         setModules(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching modules:", error);
+        toast.error("Error fetching modules:", error);
       });
   }, [filiereId]);
 
@@ -67,7 +67,20 @@ export default function FiliereDetails() {
   const semesters = [...new Set(modules.map((module) => module.semestre))];
 
   return (
-    <Container className="main-content" style={{ marginTop: "100px", marginBottom: "30px" }}>
+    <Container
+      className="main-content"
+      style={{ marginTop: "100px", marginBottom: "30px" }}
+    >
+      <ToastContainer
+              autoClose={2500}
+              hideProgressBar={false}
+              closeOnClick={true}
+              newestOnTop={true}
+              closeButton={false}
+              enableMultiContainer={true}
+              position="top-center"
+              zIndex={9999}
+            />
       {/* Filière Title */}
       <Typography
         variant="h4"
@@ -120,7 +133,11 @@ export default function FiliereDetails() {
                     <img
                       src={`https://dummyimage.com/400x170/000/fff&text=${module.name}`}
                       alt={module.name}
-                      style={{width:"100%",height: "200px", borderRadius: "8px" }}
+                      style={{
+                        width: "100%",
+                        height: "200px",
+                        borderRadius: "8px",
+                      }}
                     />
                     <Typography
                       variant="h5"
