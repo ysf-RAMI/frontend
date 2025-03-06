@@ -44,7 +44,7 @@ const TpTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const baseUrl = "http://localhost:8080/api/professeur";
+  const baseUrl = "http://localhost:8080";
   const token = JSON.parse(localStorage.getItem("auth")).token;
   const profId = localStorage.getItem("profId");
 
@@ -63,30 +63,28 @@ const TpTable = () => {
 
   const fetchResources = () => {
     axios
-      .get(`${baseUrl}/getAllResources/${profId}`, {
+      .get(`${baseUrl}/api/professeur/getAllResources/${profId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        console.log("Fetched Resources:", response.data);
         setResource(response.data);
         setTps(response.data.filter((r) => r.type === "TP")); // Filter for TPs
       })
       .catch((error) => {
-        console.error("Error fetching resources:", error);
+        toast.error("Error fetching resources:");
       });
   };
 
   const fetchModules = () => {
     axios
-      .get(`${baseUrl}/getAllModuleByProfId/${profId}`, {
+      .get(`${baseUrl}/api/professeur/getAllModuleByProfId/${profId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        console.log("Fetched Modules:", response.data);
         setModules(response.data);
       })
-      .catch((error) => {
-        console.error("Error fetching modules:", error);
+      .catch(() => {
+        toast.error("Error fetching modules:");
       });
   };
 
@@ -172,12 +170,9 @@ const TpTable = () => {
       formData.append("id", tpData.id);
     }
 
-    // Debugging: Log FormData contents
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
-    const url = isEdit ? `${baseUrl}/updateResource` : `${baseUrl}/addResource`;
+    const url = isEdit
+      ? `${baseUrl}/api/professeur/updateResource`
+      : `${baseUrl}/api/professeur/addResource`;
 
     const method = isEdit ? "put" : "post";
 
@@ -194,30 +189,27 @@ const TpTable = () => {
       },
     })
       .then((response) => {
-        console.log("Resource saved/updated:", response.data);
         toast.success(`TP ${isEdit ? "updated" : "added"} successfully!`);
         fetchResources(); // Refresh the resource list
         handleCloseDialogs();
       })
       .catch((error) => {
-        console.error("Error saving/updating resource:", error);
+        toast.error("Error saving/updating resource:");
         toast.error("Failed to save/update TP.");
       });
   };
 
   const handleDelete = () => {
     axios
-      .delete(`${baseUrl}/deleteResource/${selectedTp.id}`, {
+      .delete(`${baseUrl}/api/professeur/deleteResource/${selectedTp.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {
-        console.log("Resource deleted:", selectedTp.id);
         toast.success("TP deleted successfully!");
         fetchResources(); // Refresh the resource list
         handleCloseDialogs();
       })
       .catch((error) => {
-        console.error("Error deleting resource:", error);
         toast.error("Failed to delete TP.");
       });
   };
@@ -384,7 +376,7 @@ const AddDialog = ({
   });
 
   const handleSave = () => {
-    console.log("Saving new TP:", tpData);
+    toast.success("New TP saved");
     onSave(tpData);
   };
 
@@ -513,7 +505,7 @@ const EditDialog = ({
   }, [tp]);
 
   const handleSave = () => {
-    console.log("Updating TP:", tpData);
+    toast.succes("TP updated");
     onSave(tpData, true);
   };
 

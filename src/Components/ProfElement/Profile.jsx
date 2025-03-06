@@ -96,7 +96,7 @@ const Profile = () => {
   const auth = JSON.parse(localStorage.getItem("auth")) || {};
   const token = auth.token;
   const profId = localStorage.getItem("profId");
-  const baseUrl = "http://localhost:8080/api/professeur";
+  const baseUrl = "http://localhost:8080";
 
 
   const themeColors = {
@@ -115,11 +115,7 @@ const Profile = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+
 
 
   const validateProfile = (values) => {
@@ -222,17 +218,19 @@ const Profile = () => {
 
     setIsLoading(true);
     try {
-      const response = await axios.get(`${baseUrl}/getProfil/${email}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${baseUrl}/api/professeur/getProfil/${email}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response.status === 200) {
         const { nom, prenom, email } = response.data;
         setProfileValues({ nom, prenom, email });
-        console.log(response.data);
       }
     } catch (error) {
-      handleApiError("Failed to load profile data", error);
+      toast.error("Failed to load profile data");
     } finally {
       setIsLoading(false);
     }
@@ -242,7 +240,7 @@ const Profile = () => {
   const updateProfile = async () => {
     try {
       const response = await axios.put(
-        `${baseUrl}/ModifierProfil`,
+        `${baseUrl}/api/professeur/ModifierProfil`,
         {
           id: profId,
           nom: profileValues.nom,
@@ -255,20 +253,19 @@ const Profile = () => {
       );
 
       if (response.status === 200) {
-        showSnackbar("Profile updated successfully!", "success");
         setIsEditProfileModalOpen(false);
         localStorage.removeItem("auth");
         localStorage.removeItem("profId");
       }
     } catch (error) {
-      handleApiError("Failed to update profile", error);
+      toast.error("Failed to update profile", error);
     }
   };
 
   const updatePassword = async () => {
     try {
       const response = await axios.put(
-        `${baseUrl}/updatePassword`,
+        `${baseUrl}/api/professeur/updatePassword`,
         {
           id: profId,
           oldPassword: passwordValues.oldPassword,
@@ -283,30 +280,13 @@ const Profile = () => {
         toast.success("Password updated successfully!");
         setIsChangePasswordModalOpen(false);
       }
-    } catch (error) {
-      handleApiError("Failed to update password", error);
+    } catch (err) {
+      toast.error("Failed to update password");
     }
   };
 
-  // Helper functions
-  const handleApiError = (message, error) => {
-    console.error(`${message}:`, error);
-    let errorMsg = message;
 
-    if (error.response) {
-      errorMsg = error.response.data.message || errorMsg;
-    }
 
-    showSnackbar(errorMsg, "error");
-  };
-
-  const showSnackbar = (message, severity) => {
-    setSnackbar({
-      open: true,
-      message,
-      severity,
-    });
-  };
 
   const togglePasswordVisibility = (field) => {
     switch (field) {

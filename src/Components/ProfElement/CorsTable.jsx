@@ -47,7 +47,7 @@ const CorsTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const baseUrl = "http://localhost:8080/api/professeur";
+  const baseUrl = "http://localhost:8080";
   const token = JSON.parse(localStorage.getItem("auth")).token;
   const profId = localStorage.getItem("profId");
 
@@ -68,7 +68,6 @@ const CorsTable = () => {
     try {
       await Promise.all([fetchResources(), fetchFilieres(), fetchModules()]);
     } catch (error) {
-      console.error("Error fetching data:", error);
       toast.error("Failed to fetch data.");
     } finally {
       setLoading(false);
@@ -77,25 +76,29 @@ const CorsTable = () => {
 
   const fetchResources = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/getAllResources/${profId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${baseUrl}/api/professeur/getAllResources/${profId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setResource(response.data);
       setCors(response.data.filter((r) => r.type === "COURS"));
     } catch (error) {
-      console.error("Error fetching resources:", error);
       toast.error("Failed to fetch resources.");
     }
   };
 
   const fetchFilieres = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/getAllFiliere`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${baseUrl}/api/professeur/getAllFiliere`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setFilieres(response.data);
     } catch (error) {
-      console.error("Error fetching filieres:", error);
       toast.error("Failed to fetch filieres.");
     }
   };
@@ -103,14 +106,13 @@ const CorsTable = () => {
   const fetchModules = async () => {
     try {
       const response = await axios.get(
-        `${baseUrl}/getAllModuleByProfId/${profId}`,
+        `${baseUrl}/api/professeur/getAllModuleByProfId/${profId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
       setModules(response.data);
     } catch (error) {
-      console.error("Error fetching modules:", error);
       toast.error("Failed to fetch modules.");
     }
   };
@@ -417,10 +419,7 @@ const CourseFormDialog = ({
       fetchResources();
       onClose();
     } catch (error) {
-      console.error(
-        `Error ${mode === "add" ? "adding" : "updating"} resource:`,
-        error
-      );
+      
       toast.error(`Failed to ${mode === "add" ? "add" : "update"} course.`);
     }
   };
@@ -479,9 +478,11 @@ const CourseFormDialog = ({
               onChange={(e) =>
                 setCourseData({ ...courseData, lien: e.target.value })
               }
-              sx={{ }}
+              sx={{}}
             />
-            <p style={{color:"grey" , fontSize:"12px"}}>exmple: https://www.youtube.com/watch?v=vedioId</p>
+            <p style={{ color: "grey", fontSize: "12px" }}>
+              exmple: https://www.youtube.com/watch?v=vedioId
+            </p>
           </>
         ) : (
           <>
@@ -542,7 +543,6 @@ const DeleteDialog = ({
       fetchResources();
       onClose();
     } catch (error) {
-      console.error("Error deleting resource:", error);
       toast.error("Failed to delete course.");
     }
   };

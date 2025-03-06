@@ -26,6 +26,7 @@ import {
   LocalLibrary,
   School,
 } from "@mui/icons-material";
+import { toast, ToastContainer } from "react-toastify";
 
 // Thème personnalisé avec les couleurs spécifiées
 const theme = createTheme({
@@ -75,7 +76,7 @@ const theme = createTheme({
 });
 
 export default function ProfDashboard() {
-  const baseUrl = "http://localhost:8080/api/professeur";
+  const baseUrl = "http://localhost:8080";
   const token = JSON.parse(localStorage.getItem("auth"))?.token;
   const profId = localStorage.getItem("profId");
 
@@ -110,15 +111,17 @@ export default function ProfDashboard() {
     // Récupérer les données de l'API
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${baseUrl}/getDashboard/${profId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          `${baseUrl}/api/professeur/getDashboard/${profId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-        console.log(response.data);
         setStats(response.data);
         setLoading(false);
       } catch (err) {
-        console.error(
+        toast.er(
           "Erreur lors de la récupération des données du tableau de bord:",
           err
         );
@@ -141,7 +144,6 @@ export default function ProfDashboard() {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
-
         }}
       >
         <CircularProgress sx={{ color: "#003366" }} />
@@ -152,19 +154,32 @@ export default function ProfDashboard() {
   // Si une erreur s'est produite, afficher un message d'erreur
   if (error) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          
-          p: 3,
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="h6">{error}</Typography>
-      </Box>
+      <>
+      <ToastContainer
+              autoClose={2500}
+              hideProgressBar={false}
+              closeOnClick={true}
+              newestOnTop={true}
+              closeButton={false}
+              enableMultiContainer={true}
+              position="top-center"
+              zIndex={9999}
+            />
+        {" "}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+
+            p: 3,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h6">{error}</Typography>
+        </Box>
+      </>
     );
   }
 
@@ -215,6 +230,16 @@ export default function ProfDashboard() {
 
   return (
     <ThemeProvider theme={theme}>
+      <ToastContainer
+              autoClose={2500}
+              hideProgressBar={false}
+              closeOnClick={true}
+              newestOnTop={true}
+              closeButton={false}
+              enableMultiContainer={true}
+              position="top-center"
+              zIndex={9999}
+            />
       <Box sx={{ bgcolor: "#f5f9fc", minHeight: "100vh", pt: 3, pb: 6 }}>
         <Container fluid>
           {/* En-tête avec profil du professeur */}

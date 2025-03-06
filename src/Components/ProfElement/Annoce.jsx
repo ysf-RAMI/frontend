@@ -62,7 +62,6 @@ export default function Annonce() {
         setAnnouncements(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching announcements:", error);
         toast.error("Failed to fetch announcements.");
       });
   };
@@ -108,7 +107,6 @@ export default function Annonce() {
         toast.success("Announcement added successfully!");
       })
       .catch((error) => {
-        console.error("Error adding announcement:", error);
         toast.error("Failed to add announcement.");
       });
   };
@@ -139,7 +137,6 @@ export default function Annonce() {
         toast.success("Announcement updated successfully!");
       })
       .catch((error) => {
-        console.error("Error updating announcement:", error);
         toast.error("Failed to update announcement.");
       });
   };
@@ -165,7 +162,6 @@ export default function Annonce() {
         toast.success("Announcement deleted successfully!");
       })
       .catch((error) => {
-        console.error("Error deleting announcement:", error);
         toast.error("Failed to delete announcement.");
       });
   };

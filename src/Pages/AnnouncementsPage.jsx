@@ -17,6 +17,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
 import Footer from "../Components/Footer";
 import defaultImage from "../assets/annonceDefaultImage.jpg";
+import { toast } from "react-toastify";
 
 const AnnouncementsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,7 +32,7 @@ const AnnouncementsPage = () => {
         setAnnouncements(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        toast.error("Error in fetching annonces");
       });
   }, []);
 

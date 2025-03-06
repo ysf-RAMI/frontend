@@ -44,7 +44,7 @@ const TDTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const baseUrl = "http://localhost:8080/api/professeur";
+  const baseUrl = "http://localhost:8080";
   const token = JSON.parse(localStorage.getItem("auth")).token;
   const profId = localStorage.getItem("profId");
 
@@ -63,30 +63,28 @@ const TDTable = () => {
 
   const fetchResources = () => {
     axios
-      .get(`${baseUrl}/getAllResources/${profId}`, {
+      .get(`${baseUrl}/api/professeur/getAllResources/${profId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        console.log("Fetched Resources:", response.data);
         setResource(response.data);
         setTds(response.data.filter((r) => r.type === "TD")); // Filter for TDs
       })
       .catch((error) => {
-        console.error("Error fetching resources:", error);
+        toast.error("Error fetching resources:", error);
       });
   };
 
   const fetchModules = () => {
     axios
-      .get(`${baseUrl}/getAllModuleByProfId/${profId}`, {
+      .get(`${baseUrl}/api/professeur/getAllModuleByProfId/${profId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        console.log("Fetched Modules:", response.data);
         setModules(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching modules:", error);
+        toast.error("Error fetching modules:", error);
       });
   };
 
@@ -172,12 +170,11 @@ const TDTable = () => {
       formData.append("id", tdData.id);
     }
 
-    // Debugging: Log FormData contents
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
+    
 
-    const url = isEdit ? `${baseUrl}/updateResource` : `${baseUrl}/addResource`;
+    const url = isEdit
+      ? `${baseUrl}/api/professeur/updateResource`
+      : `${baseUrl}/api/professeur/addResource`;
 
     const method = isEdit ? "put" : "post";
 
@@ -194,30 +191,26 @@ const TDTable = () => {
       },
     })
       .then((response) => {
-        console.log("Resource saved/updated:", response.data);
         toast.success(`TD ${isEdit ? "updated" : "added"} successfully!`);
         fetchResources(); // Refresh the resource list
         handleCloseDialogs();
       })
       .catch((error) => {
-        console.error("Error saving/updating resource:", error);
         toast.error("Failed to save/update TD.");
       });
   };
 
   const handleDelete = () => {
     axios
-      .delete(`${baseUrl}/deleteResource/${selectedTd.id}`, {
+      .delete(`${baseUrl}/api/professeur/deleteResource/${selectedTd.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {
-        console.log("Resource deleted:", selectedTd.id);
         toast.success("TD deleted successfully!");
         fetchResources(); // Refresh the resource list
         handleCloseDialogs();
       })
       .catch((error) => {
-        console.error("Error deleting resource:", error);
         toast.error("Failed to delete TD.");
       });
   };
@@ -292,12 +285,17 @@ const TDTable = () => {
                 </TableCell>
                 <TableCell>{td.moduleName}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenEditDialog(td)} color="info" variant="outlined">
+                  <Button
+                    onClick={() => handleOpenEditDialog(td)}
+                    color="info"
+                    variant="outlined"
+                  >
                     Edit
                   </Button>
                   <Button
                     onClick={() => handleOpenDeleteDialog(td)}
-                    color="secondary" variant="outlined"
+                    color="secondary"
+                    variant="outlined"
                     sx={{ ml: 1 }}
                   >
                     Delete
@@ -379,7 +377,7 @@ const AddDialog = ({
   });
 
   const handleSave = () => {
-    console.log("Saving new TD:", tdData);
+    toast.success("TD updated");
     onSave(tdData);
   };
 
@@ -431,7 +429,7 @@ const AddDialog = ({
               fullWidth
               value={tdData.url}
               onChange={(e) => setTdData({ ...tdData, url: e.target.value })}
-              sx={{ }}
+              sx={{}}
             />
 
             <p style={{ color: "grey", fontSize: "12px" }}>
@@ -508,7 +506,7 @@ const EditDialog = ({
   }, [td]);
 
   const handleSave = () => {
-    console.log("Updating TD:", tdData);
+    toast.success("TD Updated ");
     onSave(tdData, true);
   };
 
@@ -541,7 +539,7 @@ const EditDialog = ({
           fullWidth
           value={tdData.name}
           onChange={(e) => setTdData({ ...tdData, name: e.target.value })}
-          sx={{ mb: 2 ,mt:2 }}
+          sx={{ mb: 2, mt: 2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Type</InputLabel>
@@ -584,8 +582,12 @@ const EditDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">Cancel</Button>
-        <Button onClick={handleSave}  variant="outlined" color="success"  >Save</Button>
+        <Button onClick={onClose} variant="outlined" color="info">
+          Cancel
+        </Button>
+        <Button onClick={handleSave} variant="outlined" color="success">
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );
@@ -612,7 +614,9 @@ const DeleteDialog = ({ open, onClose, onDelete, td }) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">Cancel</Button>
+        <Button onClick={onClose} variant="outlined" color="info">
+          Cancel
+        </Button>
         <Button onClick={onDelete} color="error" variant="contained">
           Delete
         </Button>

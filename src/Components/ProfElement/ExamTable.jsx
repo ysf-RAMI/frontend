@@ -44,14 +44,13 @@ const ExamTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const baseUrl = "http://localhost:8080/api/professeur";
+  const baseUrl = "http://localhost:8080";
   const token = JSON.parse(localStorage.getItem("auth")).token;
   const profId = localStorage.getItem("profId");
 
-  // Initialize AOS
   useEffect(() => {
     AOS.init({
-      duration: 220, 
+      duration: 220,
       once: true,
     });
   }, []);
@@ -63,30 +62,25 @@ const ExamTable = () => {
 
   const fetchResources = () => {
     axios
-      .get(`${baseUrl}/getAllResources/${profId}`, {
+      .get(`${baseUrl}/api/professeur/getAllResources/${profId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        console.log("Fetched Resources:", response.data);
         setResource(response.data);
-        setExams(response.data.filter((r) => r.type === "EXAM")); // Filter for exams
+        setExams(response.data.filter((r) => r.type === "EXAM"));
       })
       .catch((error) => {
-        console.error("Error fetching resources:", error);
+        toast.error("Error while downloading Exams");
       });
   };
 
   const fetchModules = () => {
     axios
-      .get(`${baseUrl}/getAllModuleByProfId/${profId}`, {
+      .get(`${baseUrl}/api/professeur/getAllModuleByProfId/${profId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        console.log("Fetched Modules:", response.data);
         setModules(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching modules:", error);
       });
   };
 
@@ -145,39 +139,32 @@ const ExamTable = () => {
   const handleSave = (examData, isEdit = false) => {
     const formData = new FormData();
 
-    // Append fields in the required order and with the correct names
-    formData.append("nom", examData.name); // Exam name
-    formData.append("type", "EXAM"); // Hardcoded as "EXAM"
+    formData.append("nom", examData.name);
+    formData.append("type", "EXAM");
 
-    // Set dataType based on the resource type
     if (examData.dataType === "VIDEO") {
-      formData.append("dataType", "VIDEO"); // Video resource
-      formData.append("lien", examData.url); // Video URL
+      formData.append("dataType", "VIDEO");
+      formData.append("lien", examData.url);
     } else if (examData.dataType === "FICHIER") {
-      formData.append("dataType", "FICHIER"); // PDF resource
+      formData.append("dataType", "FICHIER");
       if (examData.file) {
-        formData.append("data", examData.file); // PDF file
+        formData.append("data", examData.file);
       }
     }
 
-    // Append moduleId and professorId
     const selectedModuleObj = modules.find((m) => m.name === selectedModule);
     if (selectedModuleObj) {
-      formData.append("moduleId", selectedModuleObj.id); // Module ID
+      formData.append("moduleId", selectedModuleObj.id);
     }
-    formData.append("professorId", profId); // Professor ID
+    formData.append("professorId", profId);
 
-    // For editing, append the exam ID
     if (isEdit && examData.id) {
       formData.append("id", examData.id);
     }
 
-    // Debugging: Log FormData contents
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
-    const url = isEdit ? `${baseUrl}/updateResource` : `${baseUrl}/addResource`;
+    const url = isEdit
+      ? `${baseUrl}/api/professeur/updateResource`
+      : `${baseUrl}/api/professeur/addResource`;
 
     const method = isEdit ? "put" : "post";
 
@@ -194,13 +181,11 @@ const ExamTable = () => {
       },
     })
       .then((response) => {
-        console.log("Resource saved/updated:", response.data);
         toast.success(`Exam ${isEdit ? "updated" : "added"} successfully!`);
         fetchResources(); // Refresh the resource list
         handleCloseDialogs();
       })
       .catch((error) => {
-        console.error("Error saving/updating resource:", error);
         toast.error("Failed to save/update exam.");
       });
   };
@@ -211,13 +196,11 @@ const ExamTable = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {
-        console.log("Resource deleted:", selectedExam.id);
         toast.success("Exam deleted successfully!");
         fetchResources(); // Refresh the resource list
         handleCloseDialogs();
       })
       .catch((error) => {
-        console.error("Error deleting resource:", error);
         toast.error("Failed to delete exam.");
       });
   };
@@ -388,7 +371,7 @@ const AddDialog = ({
   });
 
   const handleSave = () => {
-    console.log("Saving new exam:", examData);
+    toast.success("Saving new exam:");
     onSave(examData);
   };
 
@@ -445,7 +428,7 @@ const AddDialog = ({
               onChange={(e) =>
                 setExamData({ ...examData, url: e.target.value })
               }
-              sx={{ }}
+              sx={{}}
             />
             <p style={{ color: "grey", fontSize: "12px" }}>
               exmple: https://www.youtube.com/watch?v=vedioId
@@ -525,7 +508,7 @@ const EditDialog = ({
   }, [exam]);
 
   const handleSave = () => {
-    console.log("Updating exam:", examData);
+    toast.success("Updating exam:");
     onSave(examData, true);
   };
 
@@ -610,7 +593,7 @@ const EditDialog = ({
   );
 };
 
-// Delete Dialog Component
+// eslint-disable-next-line react/prop-types
 const DeleteDialog = ({ open, onClose, onDelete, exam }) => {
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
@@ -622,7 +605,6 @@ const DeleteDialog = ({ open, onClose, onDelete, exam }) => {
           mb: 1,
           textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
         }}
-    
       >
         Delete Exam
       </DialogTitle>

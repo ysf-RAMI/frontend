@@ -46,11 +46,10 @@ const ModuleTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [semestreSelected, setSemestreSelected] = useState(null);
   const [filiers, setFiliers] = useState([]);
-  const baseUrl = "http://localhost:8080/api/professeur";
+  const baseUrl = "http://localhost:8080";
 
   const token = JSON.parse(localStorage.getItem("auth")).token;
   const profId = localStorage.getItem("profId");
-  console.log(token);
 
   // Initialize AOS
   useEffect(() => {
@@ -67,7 +66,7 @@ const ModuleTable = () => {
 
   const fetchFiliers = () => {
     axios
-      .get(`${baseUrl}/getAllFiliere`, {
+      .get(`${baseUrl}/api/professeur/getAllFiliere`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -76,23 +75,22 @@ const ModuleTable = () => {
         setFiliers(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching filières:", error);
+        toast.error("Error fetching filières:");
       });
   };
 
   const fetchModules = () => {
     axios
-      .get(`${baseUrl}/getAllModuleByProfId/${profId}`, {
+      .get(`${baseUrl}/api/professeur/getAllModuleByProfId/${profId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((response) => {
         setModules(response.data);
-        console.log(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching modules:", error);
+        toast.error("Error fetching modules:", error);
       });
   };
 
@@ -151,7 +149,7 @@ const ModuleTable = () => {
       };
 
       axios
-        .put(`${baseUrl}/ModifyModule`, payload, {
+        .put(`${baseUrl}/api/professeur/ModifyModule`, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -162,7 +160,6 @@ const ModuleTable = () => {
           handleClose();
         })
         .catch((error) => {
-          console.error("Error updating module:", error);
           toast.error(`Error updating module: ${error.message}`);
         });
     } else {
@@ -177,7 +174,7 @@ const ModuleTable = () => {
 
   const handleDeleteAgree = () => {
     axios
-      .delete(`${baseUrl}/DeleteModule/${selectedModuleId}`, {
+      .delete(`${baseUrl}/api/professeur/DeleteModule/${selectedModuleId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -215,11 +212,8 @@ const ModuleTable = () => {
         description: description,
       };
 
-      // Log payload for debugging
-      console.log("Payload:", payload);
-
       axios
-        .post(`${baseUrl}/AddNewModule`, payload, {
+        .post(`${baseUrl}/api/professeur/AddNewModule`, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -230,12 +224,10 @@ const ModuleTable = () => {
           handleClose();
         })
         .catch((error) => {
-          console.error(
-            "Error adding module:",
-            error.response?.data || error.message
-          );
           toast.error(
-            `Error adding module: ${error.response?.data?.message || error.message}`
+            `Error adding module: ${
+              error.response?.data?.message || error.message
+            }`
           );
         });
     } else {
@@ -357,7 +349,7 @@ const ModuleTable = () => {
           Delete Module
         </DialogTitle>
         <DialogContent>
-          <DialogContentText color="error"  sx={{ mt: 2 }}>
+          <DialogContentText color="error" sx={{ mt: 2 }}>
             Are you sure you want to delete this module? This action cannot be
             undone.
           </DialogContentText>

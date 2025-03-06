@@ -1,17 +1,20 @@
 * {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif; 
 }
 
 html {
   scroll-behavior: smooth;
   background-color: #fff;
 }
+#root{
+  background-color: white;
+  scroll-behavior: smooth ;
+}
 
 body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background-color: white;
 }
 
 /* Navbar */

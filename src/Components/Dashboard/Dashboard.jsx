@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
   Card,
   CardContent,
-  Button,
   Avatar,
-  Chip,
   Paper,
   Grid,
   CircularProgress,
-  useTheme,
   ThemeProvider,
   createTheme,
 } from "@mui/material";
@@ -24,16 +21,14 @@ import {
   School,
   MenuBook,
   Announcement,
-  FileCopy,
   Category,
-  VideoLibrary,
   Book,
   People,
   Assignment,
   LocalLibrary,
 } from "@mui/icons-material";
+import { toast, ToastContainer } from "react-toastify";
 
-// Custom theme with specified colors
 const theme = createTheme({
   palette: {
     primary: {
@@ -84,21 +79,20 @@ const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const baseUrl = "http://localhost:8080";
 
   useEffect(() => {
-    // Initialize AOS animation library
     AOS.init({
       duration: 800,
       once: true,
       easing: "ease-in-out",
     });
 
-    // Fetch data from the API
     const fetchData = async () => {
       try {
         const token = JSON.parse(localStorage.getItem("auth"))?.token;
         const response = await axios.get(
-          "http://localhost:8080/api/admin/dashboardAdmin",
+          `${baseUrl}/api/admin/dashboardAdmin`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -106,22 +100,21 @@ const Dashboard = () => {
         setDashboardData(response.data);
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching dashboard data:", err);
         setError("Failed to load dashboard data. Please try again later.");
+        toast.error("Failed to load dashboard data. Please try again later.");
         setLoading(false);
 
-        // For development purposes - use example data if API fails
         setDashboardData({
-          nbrProfesseur: 1,
-          nbrFiliere: 4,
-          nbrModule: 3,
-          nbrAnnonce: 7,
-          nbrResources: 2,
+          nbrProfesseur: 0,
+          nbrFiliere: 0,
+          nbrModule: 0,
+          nbrAnnonce: 0,
+          nbrResources: 0,
           nbrTd: 0,
           nbrTp: 0,
-          nbrCours: 2,
+          nbrCours: 0,
           nbrExam: 0,
-          nbrFichier: 2,
+          nbrFichier: 0,
           nbrVideo: 0,
         });
       }
@@ -130,7 +123,6 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  // If still loading, show loading spinner
   if (loading) {
     return (
       <Box
@@ -147,7 +139,6 @@ const Dashboard = () => {
     );
   }
 
-  // If error occurred, show error message
   if (error && !dashboardData) {
     return (
       <Box
@@ -167,7 +158,6 @@ const Dashboard = () => {
     );
   }
 
-  // Prepare data for charts
   const resourcesPieData = [
     {
       id: 0,
@@ -190,7 +180,6 @@ const Dashboard = () => {
     { id: 1, value: dashboardData.nbrVideo, label: "Videos", color: "#009688" },
   ].filter((item) => item.value > 0);
 
-  // Stats cards data
   const statsCards = [
     {
       title: "Professors",
@@ -224,9 +213,18 @@ const Dashboard = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <ToastContainer
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
       <Box sx={{ bgcolor: "#f5f9fc", minHeight: "100vh", pt: 3, pb: 6 }}>
         <Container fluid>
-          {/* Header */}
           <Box
             sx={{
               mb: 4,
@@ -246,7 +244,6 @@ const Dashboard = () => {
             </Typography>
           </Box>
 
-          {/* Stats Cards */}
           <Row className="mb-4">
             {statsCards.map((stat, index) => (
               <Col key={index} xs={12} sm={6} lg={3} className="mb-4">
@@ -284,7 +281,6 @@ const Dashboard = () => {
             ))}
           </Row>
 
-          {/* Resources Overview */}
           <Row className="mb-4">
             <Col xs={12}>
               <Card data-aos="fade-up">
@@ -466,9 +462,7 @@ const Dashboard = () => {
             </Col>
           </Row>
 
-          {/* Charts */}
           <Row className="mb-4">
-            {/* Resource Distribution Pie Chart */}
             <Col xs={12} md={6} className="mb-4">
               <Card
                 sx={{ height: "100%" }}
@@ -481,7 +475,7 @@ const Dashboard = () => {
                     gutterBottom
                     sx={{ color: "#003366", fontWeight: "bold" }}
                   >
-                    Educational Content Distribution
+                    Educational Content
                   </Typography>
                   <Box
                     sx={{
@@ -491,54 +485,45 @@ const Dashboard = () => {
                       alignItems: "center",
                     }}
                   >
-                    {resourcesPieData.length > 0 ? (
-                      <PieChart
-                        series={[
-                          {
-                            data: resourcesPieData,
-                            innerRadius: 50,
-                            outerRadius: 120,
-                            paddingAngle: 2,
-                            cornerRadius: 8,
-                            startAngle: -90,
-                            endAngle: 270,
-                            highlightScope: {
-                              faded: "global",
-                              highlighted: "item",
-                            },
-                            faded: {
-                              innerRadius: 30,
-                              additionalRadius: -30,
-                              color: "gray",
-                            },
+                    <PieChart
+                      series={[
+                        {
+                          data: resourcesPieData,
+                          innerRadius: 50,
+                          outerRadius: 120,
+                          paddingAngle: 2,
+                          cornerRadius: 8,
+                          startAngle: -90,
+                          endAngle: 270,
+                          highlightScope: {
+                            faded: "global",
+                            highlighted: "item",
                           },
-                        ]}
-                        width={350}
-                        height={300}
-                        slotProps={{
-                          legend: {
-                            direction: "column",
-                            position: {
-                              vertical: "middle",
-                              horizontal: "right",
-                            },
-                            padding: 0,
+                          faded: {
+                            innerRadius: 30,
+                            additionalRadius: -30,
+                            color: "gray",
                           },
-                        }}
-                      />
-                    ) : (
-                      <Box sx={{ textAlign: "center", p: 4 }}>
-                        <Typography variant="body1" color="text.secondary">
-                          No educational content data available
-                        </Typography>
-                      </Box>
-                    )}
+                        },
+                      ]}
+                      width={350}
+                      height={300}
+                      slotProps={{
+                        legend: {
+                          direction: "column",
+                          position: {
+                            vertical: "middle",
+                            horizontal: "right",
+                          },
+                          padding: 0,
+                        },
+                      }}
+                    />
                   </Box>
                 </CardContent>
               </Card>
             </Col>
 
-            {/* File Types Pie Chart */}
             <Col xs={12} md={6} className="mb-4">
               <Card
                 sx={{ height: "100%" }}
@@ -551,7 +536,7 @@ const Dashboard = () => {
                     gutterBottom
                     sx={{ color: "#003366", fontWeight: "bold" }}
                   >
-                    File Type Distribution
+                    File Type
                   </Typography>
                   <Box
                     sx={{
@@ -561,56 +546,47 @@ const Dashboard = () => {
                       alignItems: "center",
                     }}
                   >
-                    {filesPieData.length > 0 ? (
-                      <PieChart
-                        series={[
-                          {
-                            data: filesPieData,
-                            innerRadius: 50,
-                            outerRadius: 120,
-                            paddingAngle: 2,
-                            cornerRadius: 8,
-                            startAngle: -90,
-                            endAngle: 270,
-                            colorScale: "category10",
-                            highlightScope: {
-                              faded: "global",
-                              highlighted: "item",
-                            },
-                            faded: {
-                              innerRadius: 30,
-                              additionalRadius: -30,
-                              color: "gray",
-                            },
+                    <PieChart
+                      series={[
+                        {
+                          data: filesPieData,
+                          innerRadius: 50,
+                          outerRadius: 120,
+                          paddingAngle: 2,
+                          cornerRadius: 8,
+                          startAngle: -90,
+                          endAngle: 270,
+                          colorScale: "category10",
+                          highlightScope: {
+                            faded: "global",
+                            highlighted: "item",
                           },
-                        ]}
-                        width={350}
-                        height={300}
-                        slotProps={{
-                          legend: {
-                            direction: "column",
-                            position: {
-                              vertical: "middle",
-                              horizontal: "right",
-                            },
-                            padding: 0,
+                          faded: {
+                            innerRadius: 30,
+                            additionalRadius: -30,
+                            color: "gray",
                           },
-                        }}
-                      />
-                    ) : (
-                      <Box sx={{ textAlign: "center", p: 4 }}>
-                        <Typography variant="body1" color="text.secondary">
-                          No file type data available
-                        </Typography>
-                      </Box>
-                    )}
+                        },
+                      ]}
+                      width={350}
+                      height={300}
+                      slotProps={{
+                        legend: {
+                          direction: "column",
+                          position: {
+                            vertical: "middle",
+                            horizontal: "right",
+                          },
+                          padding: 0,
+                        },
+                      }}
+                    />
                   </Box>
                 </CardContent>
               </Card>
             </Col>
           </Row>
 
-          {/* Bar Chart - Resource Overview */}
           <Row>
             <Col xs={12}>
               <Card data-aos="fade-up" data-aos-delay="300">
@@ -651,8 +627,8 @@ const Dashboard = () => {
                           borderRadius: 8,
                         },
                       ]}
-                      height={350}
-                      margin={{ top: 10, right: 10, bottom: 40, left: 40 }}
+                      height={430}
+                      margin={{ top: 40, right: 10, bottom: 40, left: 40 }}
                       slotProps={{
                         bar: {
                           style: {

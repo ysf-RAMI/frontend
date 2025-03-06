@@ -25,7 +25,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 
 const ProfTable = () => {
-  // State variables
+
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
@@ -48,32 +48,30 @@ const ProfTable = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [addProfPass, setAddProfPass] = useState(false);
 
-  const baseUrl = "http://localhost:8080/api/admin";
+  const baseUrl = "http://localhost:8080";
   const { token } = JSON.parse(localStorage.getItem("auth")) || {};
 
-  // Initialize AOS
+
   useEffect(() => {
     AOS.init({ duration: 300 });
   }, []);
 
-  // Fetch professors on component mount
   useEffect(() => {
     fetchProfs();
   }, []);
 
   const fetchProfs = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/ListProfesseurs`, {
+      const response = await axios.get(`${baseUrl}/api/admin/ListProfesseurs`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProfs(response.data);
     } catch (error) {
-      console.error("Error fetching professors:", error);
       toast.error("Erreur lors de la récupération des professeurs");
     }
   };
 
-  // Handle search
+
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
     setPage(0);
@@ -86,7 +84,7 @@ const ProfTable = () => {
       p.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination
+
   const paginatedProfs = filteredProfs.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
@@ -143,7 +141,7 @@ const ProfTable = () => {
 
     try {
       await axios.put(
-        `${baseUrl}/UpdateProfesseur`,
+        `${baseUrl}/api/admin/UpdateProfesseur`,
         { id: selectedProfId, nom: newNom, prenom: newPrenom, email: newEmail },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -157,12 +155,11 @@ const ProfTable = () => {
       toast.success("Professeur modifié avec succès");
       handleClose();
     } catch (error) {
-      console.error("Error updating professor:", error);
       toast.error("Erreur lors de la modification");
     }
   };
 
-  // Delete professor
+
   const handleDeleteClick = (id) => {
     setSelectedProfId(id);
     setOpenDelete(true);
@@ -170,19 +167,21 @@ const ProfTable = () => {
 
   const handleDeleteAgree = async () => {
     try {
-      await axios.delete(`${baseUrl}/DeleteProfesseur/${selectedProfId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `${baseUrl}/api/admin/DeleteProfesseur/${selectedProfId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setProfs((prevProfs) => prevProfs.filter((p) => p.id !== selectedProfId));
       toast.success("Professeur supprimé avec succès");
       handleClose();
     } catch (error) {
-      console.error("Error deleting professor:", error);
       toast.error("Erreur lors de la suppression");
     }
   };
 
-  // Add professor
+
   const handleAddAgree = async () => {
     if (!name || !prenom || !email || !password) {
       toast.error("Veuillez remplir tous les champs");
@@ -191,7 +190,7 @@ const ProfTable = () => {
 
     try {
       const response = await axios.post(
-        `${baseUrl}/AddNewProfesseur`,
+        `${baseUrl}/api/admin/AddNewProfesseur`,
         { nom: name, prenom: prenom, email: email, password: password },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -199,12 +198,11 @@ const ProfTable = () => {
       toast.success("Professeur ajouté avec succès");
       handleClose();
     } catch (error) {
-      console.error("Error adding professor:", error);
       toast.error("Erreur lors de l'ajout du professeur");
     }
   };
 
-  // Change password
+
   const handleChangePasswordClick = (id) => {
     setSelectedProfId(id);
     setOpenChangePassword(true);
@@ -223,19 +221,18 @@ const ProfTable = () => {
 
     try {
       await axios.put(
-        `${baseUrl}/UpdateProfPassword`,
+        `${baseUrl}/api/admin/UpdateProfPassword`,
         { id: selectedProfId, password: newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success("Mot de passe mis à jour");
       setOpenChangePassword(false);
     } catch (error) {
-      console.error("Error updating password:", error);
       toast.error("Erreur lors de la mise à jour du mot de passe");
     }
   };
 
-  // Password strength and visibility
+
   const getPasswordStrength = (password) => {
     if (password.length === 0) return "";
     if (password.length < 6) return "Très faible";
@@ -270,7 +267,7 @@ const ProfTable = () => {
         position="top-center"
         zIndex={9999}
       />
-      {/* Add Professor Button */}
+      
       <Button
         variant="contained"
         color="primary"
@@ -281,7 +278,7 @@ const ProfTable = () => {
         Ajouter un Professeur
       </Button>
 
-      {/* Search Bar */}
+   
       <TextField
         label="Rechercher un Professeur"
         variant="outlined"
@@ -291,7 +288,7 @@ const ProfTable = () => {
         data-aos="fade-down"
       />
 
-      {/* Professors Table */}
+    
       <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
         <Table>
           <TableHead style={{ backgroundColor: "#f4f4f9" }}>
@@ -349,7 +346,7 @@ const ProfTable = () => {
         </Table>
       </TableContainer>
 
-      {/* Pagination */}
+ 
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
@@ -361,8 +358,6 @@ const ProfTable = () => {
         data-aos="fade-up"
       />
 
-      {/* Dialogs for Delete, Edit, Add, and Change Password */}
-      {/* Delete Dialog */}
       <Dialog open={openDelete} onClose={handleClose} data-aos="zoom-in">
         <DialogTitle>Supprimer Professeur</DialogTitle>
         <DialogContent>
@@ -378,7 +373,7 @@ const ProfTable = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Edit Dialog */}
+  
       <Dialog open={openEdit} onClose={handleClose} data-aos="zoom-in">
         <DialogTitle>Modifier Professeur</DialogTitle>
         <DialogContent>

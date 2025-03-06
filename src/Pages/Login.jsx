@@ -79,16 +79,7 @@ const LoginPage = () => {
         const decode = jwtDecode(token);
 
         // Show success message with custom styling
-        toast.success("Login successful! Redirecting...", {
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        toast.success("Login successful! Redirecting...");
 
         // Redirect based on role with delay for toast to show
         setTimeout(() => {

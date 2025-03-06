@@ -18,16 +18,7 @@ import {
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import { Add, AddBoxOutlined, AddCircleOutlineRounded, AddIcCallOutlined } from "@mui/icons-material";
 
-/**
- * FiliereTable component
- *
- * This component displays a table of all filières, allows the user to search for
- * a specific filière, and provides buttons to add, edit, and delete filières.
- *
- * @returns {React.ReactElement} The FiliereTable component
- */
 const FiliereTable = () => {
   const [filiere, setFiliere] = useState([]);
   const [openDelete, setOpenDelete] = useState(false);
@@ -39,41 +30,35 @@ const FiliereTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const baseUrl = "http://localhost:8080/api/admin";
+  const baseUrl = "http://localhost:8080";
   const token = JSON.parse(localStorage.getItem("auth"))?.token;
 
   // Fetch all filières on component mount
   useEffect(() => {
     axios
-      .get(`${baseUrl}/getAllFiliere`, {
+      .get(`${baseUrl}/api/admin/getAllFiliere`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => {
         setFiliere(res.data);
-        console.log("response from fillier table ", res.data);
       })
-      .catch((error) => {
-        console.error("Error fetching filières:", error);
+      .catch(() => {
         toast.error("Erreur lors de la récupération des filières");
       });
   }, [token]);
 
 
-
-  // Handle search input change
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-    setPage(0); // Reset to the first page when searching
+    setPage(0); 
   };
 
-  // Filter filières based on search term
   const filteredFiliere = filiere.filter((f) =>
     f.nom.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Handle pagination
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -82,8 +67,6 @@ const FiliereTable = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-  // Calculate the rows to display for the current page
   const paginatedFiliere = filteredFiliere.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
@@ -106,7 +89,7 @@ const FiliereTable = () => {
     if (selectedFiliereId && newFiliereName.trim() !== "") {
       axios
         .put(
-          `${baseUrl}/ModifyFiliere`,
+          `${baseUrl}/api/admin/ModifyFiliere`,
           { id: selectedFiliereId, nom: newFiliereName },
           {
             headers: {
@@ -123,8 +106,7 @@ const FiliereTable = () => {
           toast.success("Filière modifiée avec succès");
           handleClose();
         })
-        .catch((error) => {
-          console.error("Error updating filière:", error);
+        .catch(() => {
           toast.error("Erreur lors de la modification de la filière");
         });
     }
@@ -138,7 +120,7 @@ const FiliereTable = () => {
   const handleDeleteAgree = () => {
     if (selectedFiliereId) {
       axios
-        .delete(`${baseUrl}/RemoveFiliere/${selectedFiliereId}`, {
+        .delete(`${baseUrl}/api/admin/RemoveFiliere/${selectedFiliereId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -149,8 +131,7 @@ const FiliereTable = () => {
           );
           toast.success("Filière supprimée avec succès");
         })
-        .catch((error) => {
-          console.error("Error deleting filière:", error);
+        .catch(() => {
           toast.error("Erreur lors de la suppression de la filière");
         });
       handleClose();
@@ -161,7 +142,7 @@ const FiliereTable = () => {
     if (addFiliereName.trim() !== "") {
       axios
         .post(
-          `${baseUrl}/AddNewFiliere`,
+          `${baseUrl}/api/admin/AddNewFiliere`,
           { nom: addFiliereName },
           {
             headers: {
@@ -175,8 +156,7 @@ const FiliereTable = () => {
           setAddFiliereName("");
           handleClose();
         })
-        .catch((error) => {
-          console.error("Error adding filière:", error);
+        .catch(() => {
           toast.error("Erreur lors de l'ajout de la filière");
         });
     }
@@ -190,8 +170,6 @@ const FiliereTable = () => {
     setNewFiliereName("");
     setAddFiliereName("");
   };
-
-
 
   return (
     <>
