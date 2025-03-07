@@ -17,7 +17,7 @@ const ProfSection = () => {
   }, []);
 
   return (
-    <section className="hero-section" style={{ backgroundColor: "#f1f4f6" }}>
+    <section  style={{ backgroundColor: "#f1f4f6",padding:"100px 0" }}>
       <Container>
         <Row className="align-items-center">
           <Col

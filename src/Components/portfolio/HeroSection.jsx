@@ -9,12 +9,11 @@ export default function HeroSection() {
   useEffect(() => {
     Aos.init({
       duration: 1000,
-      once: true,
     });
   }, []);
 
   return (
-    <section className="hero-section">
+    <section className="hero-section" style={{userSelect:"none"}}>
       <Container>
         <Row className="align-items-center">
           <Col
@@ -47,29 +46,12 @@ export default function HeroSection() {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                }}
+                  color:"rgba(1, 1, 1, 0.32)"
+                }}  
               >
-                <h1
-                  style={{
-                    textShadow: "0 1px 6px black",
-                  }}
-                >
-                  Dr. Hamza HAMOUT
-                </h1>
-                <h3
-                  style={{
-                    textShadow: "0 1px 6px black",
-                  }}
-                >
-                  Maître de Conférences Habilité
-                </h3>
-                <p
-                  style={{
-                    textShadow: "0 1px 6px black",
-                  }}
-                >
-                  École Supérieure de Technologie Guelmim
-                </p>
+                <h1>Dr. Hamza HAMOUT</h1>
+                <h3>Maître de Conférences Habilité</h3>
+                <p>École Supérieure de Technologie . Guelmim</p>
                 <div className="social-icons" style={{ marginTop: "-10px" }}>
                   <motion.a
                     href="#"

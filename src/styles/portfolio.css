@@ -8,7 +8,7 @@
 
 .hero-section {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #78787892, #ffffff18) !important;
+  background-color: #f1f4f6;
   color: white;
   padding: 4rem 0;
 }
@@ -35,13 +35,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #916f6f;
-  transition: all 0.3s ease;
+  color: rgba(1, 1, 1, 0.32);
+  transition: all 0.1s ease;
 }
 
 .social-icon:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.541);
 }
 
 .timeline {

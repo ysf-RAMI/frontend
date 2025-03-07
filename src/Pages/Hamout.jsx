@@ -8,11 +8,14 @@ import "../styles/portfolio.css";
 import HeroSection from "../Components/portfolio/HeroSection";
 import Educational from "../Components/portfolio/Educational";
 import Competnces from "../Components/portfolio/Competences";
-import Publications from "../Components/portfolio/Publications";
+import Publications from "../Components/portfolio/PublicationsJournaux";
 import Teaching from "../Components/portfolio/Teaching";
 import Responsabilies from "../Components/portfolio/Responsibilities";
+import Communications from "../Components/portfolio/Communication";
+import PublicationsJournaux from "../Components/portfolio/PublicationsJournaux";
 
 const Hamout = () => {
+  window.scroll(0, 0);
   useEffect(() => {
     AOS.init({
       duration: 1000,
@@ -20,7 +23,7 @@ const Hamout = () => {
   }, []);
 
   return (
-    <div className="modern-portfolio">
+    <div className="modern-portfolio" style={{ backgroundColor: "#f8f8f8" }}>
       {/* Hero Section */}
       <HeroSection />
       {/* Educational Timeline */}
@@ -28,7 +31,8 @@ const Hamout = () => {
       <Competnces />
 
       {/* Publications */}
-      <Publications />
+      <PublicationsJournaux />
+      <Communications />
       {/* Teaching Experience */}
       <Teaching />
       {/* Administrative Responsibilities */}

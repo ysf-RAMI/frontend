@@ -15,8 +15,6 @@ import { Container } from "react-bootstrap";
 import { RiUserSettingsLine } from "react-icons/ri";
 import { MdGroups } from "react-icons/md";
 
-
-
 export default function Responsabilies() {
   const responsibilities = [
     {
@@ -27,7 +25,7 @@ export default function Responsabilies() {
       ],
       period: "06/2024-présent",
       category: "Coordination",
-      color: "#3f51b5",
+      color: "#333",
       icon: <RiUserSettingsLine />,
       animation: "zoom-in-right",
     },
@@ -40,7 +38,7 @@ export default function Responsabilies() {
       ],
       period: "2024-présent",
       category: "Administration",
-      color: "#3f51b5",
+      color: "#333",
       icon: <MdGroups />,
       animation: "zoom-in-left",
     },
@@ -55,7 +53,7 @@ export default function Responsabilies() {
       ],
       period: "2022-présent",
       category: "Module",
-      color: "#3f51b5",
+      color: "#333",
       icon: <RiUserSettingsLine />,
 
       animation: "zoom-in-right",
@@ -69,7 +67,7 @@ export default function Responsabilies() {
       ],
       period: "2024-présent",
       category: "Module",
-      color: "#3f51b5",
+      color: "#333",
       icon: <RiUserSettingsLine />,
       animation: "zoom-in-left",
     },
@@ -79,7 +77,7 @@ export default function Responsabilies() {
       description: ["Exploration de données", "Apprentissage Automatique"],
       period: "2024-présent",
       category: "Module",
-      color: "#3f51b5",
+      color: "#333",
       icon: <RiUserSettingsLine />,
       animation: "zoom-in-right",
     },
@@ -89,21 +87,28 @@ export default function Responsabilies() {
       description: ["Administration des Systèmes"],
       period: "2024-présent",
       category: "Module",
-      color: "#3f51b5",
-    icon: <RiUserSettingsLine />,
+      color: "#333",
+      icon: <RiUserSettingsLine />,
       animation: "zoom-in-left",
     },
   ];
 
   return (
-    <section className="responsibilities-section py-5" style={{userSelect:"none",cursor:"pointer",backgroundColor:"rgba(255, 255, 255, 0.09)"}}>
+    <section
+      className="responsibilities-section py-5"
+      style={{
+        userSelect: "none",
+        cursor: "pointer",
+        backgroundColor: "rgba(255, 255, 255, 0.09)",
+      }}
+    >
       <Container>
         <Typography
           variant="h4"
           component="h2"
           align="center"
           gutterBottom
-          sx={{ mb: 4, fontWeight: "bold" ,color:"rgb(142, 75, 4)"}}
+          sx={{ mb: 4, fontWeight: "bold", color: "#333" }}
         >
           Responsabilités Pédagogiques & Tâches Administratives
         </Typography>
@@ -184,7 +189,11 @@ export default function Responsabilies() {
                       size="small"
                       sx={{ backgroundColor: `${r.color}20`, color: r.color }}
                     />
-                    <Typography variant="caption" color="text.secondary" className="">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className=""
+                    >
                       {r.period}
                     </Typography>
                   </Box>

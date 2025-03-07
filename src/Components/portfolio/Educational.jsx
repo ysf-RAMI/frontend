@@ -10,12 +10,13 @@ import {
   TimelineContent,
 } from "@mui/lab";
 
-
 const Educational = () => {
   return (
     <section className="section">
       <Container>
-        <h2 className="section-title">Parcours Universitaire</h2>
+        <h2 className="section-title" style={{ color: "#333" }}>
+          Parcours Universitaire
+        </h2>
         <Timeline position="alternate">
           {/* 2025-Présent */}
           <TimelineItem>
@@ -54,7 +55,7 @@ const Educational = () => {
               <TimelineConnector />
             </TimelineSeparator>
             <TimelineContent>
-              <h4>2023</h4>
+              <h4>2024</h4>
               <h3>Habilité Universitaire à Diriger des Recherches</h3>
               <p>
                 Laboratoire des Systèmes Informatiques & Vision (LabSIV),

@@ -1,0 +1,41 @@
+.publication-card {
+  background: #fff; /* White background for cards */
+  border: 1px solid #eaeaea; /* Light border */
+  border-radius: 8px; /* Rounded corners */
+  padding: 20px; /* Padding inside the card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+  height: 100%; /* Ensure all cards have the same height */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content horizontally */
+  text-align: center; /* Center text */
+}
+
+.publication-card:hover {
+  transform: translateY(-5px); /* Lift card on hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+}
+
+.publication-icon {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.publication-content {
+  width: 100%; /* Ensure content takes full width */
+}
+
+.publication-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.publication-details {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}

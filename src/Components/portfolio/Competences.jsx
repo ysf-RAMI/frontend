@@ -12,7 +12,7 @@ export default function Competnces() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="tech-icon m-2" >
+        <div className="tech-icon m-2">
           {typeof Icon === "function" ? <Icon /> : <Icon size={30} />}
           <span className="tech-name" style={{ marginBottom: "14px" }}>
             {name}
@@ -23,8 +23,10 @@ export default function Competnces() {
   };
   return (
     <section className="section">
-      <Container>
-        <h6 className="section-title">Compétences & Langues</h6>
+      <Container >
+        <h6 className="section-title" style={{ color: "#333" }}>
+          Compétences & Langues
+        </h6>
         <div className="text-center">
           <div className="d-flex flex-wrap justify-content-center">
             {[
