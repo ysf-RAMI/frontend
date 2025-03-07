@@ -25,10 +25,10 @@ const TeamSection = () => {
       linkedin: "https://www.linkedin.com/in/youssef-rami/",
     },
     {
-      nom: "Yassine BOUGROUOU",
+      nom: "Yassin BOUGROUOU",
       role: "Développeur Fullstack",
       image: yassine,
-      email: "yssinebougrou@gmail.com",
+      email: "bouougrouyassin@gmail.com",
       instagram: "https://www.instagram.com/rammi_yssf",
       linkedin: "linkedin.com/in/youssef-rami",
     },
