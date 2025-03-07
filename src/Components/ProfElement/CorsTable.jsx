@@ -85,7 +85,7 @@ const CorsTable = () => {
       setResource(response.data);
       setCors(response.data.filter((r) => r.type === "COURS"));
     } catch (error) {
-      toast.error("Failed to fetch resources.");
+      console.error(error);
     }
   };
 
@@ -99,7 +99,7 @@ const CorsTable = () => {
       );
       setFilieres(response.data);
     } catch (error) {
-      toast.error("Failed to fetch filieres.");
+      console.error(error);
     }
   };
 
@@ -113,7 +113,7 @@ const CorsTable = () => {
       );
       setModules(response.data);
     } catch (error) {
-      toast.error("Failed to fetch modules.");
+      console.error(error);
     }
   };
 
@@ -397,19 +397,15 @@ const CourseFormDialog = ({
 
     try {
       const url =
-        mode === "add" ? `${baseUrl}/addResource` : `${baseUrl}/updateResource`;
+        mode === "add"
+          ? `${baseUrl}/api/professeur/addResource`
+          : `${baseUrl}/api/professeur/updateResource`;
       const method = mode === "add" ? "post" : "put";
 
       await axios[method](url, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (progressEvent) => {
-          const progress = Math.round(
-            (progressEvent.loaded / progressEvent.total) * 100
-          );
-          setUploadProgress(progress);
         },
       });
 
@@ -418,8 +414,8 @@ const CourseFormDialog = ({
       );
       fetchResources();
       onClose();
+
     } catch (error) {
-      
       toast.error(`Failed to ${mode === "add" ? "add" : "update"} course.`);
     }
   };
@@ -536,9 +532,12 @@ const DeleteDialog = ({
 }) => {
   const handleDelete = async () => {
     try {
-      await axios.delete(`${baseUrl}/deleteResource/${course.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `${baseUrl}/api/professeur/deleteResource/${course.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       toast.success("Course deleted successfully!");
       fetchResources();
       onClose();

@@ -115,10 +115,8 @@
 }
 
 .tech-icon {
-  filter: grayscale(1010%);
 }
 
 .tech-icon:hover {
-  filter: grayscale(0%);
   transition: step-end;
 }
