@@ -112,17 +112,17 @@ export default function Filiere() {
   const [openSearch, setOpenSearch] = useState(false);
   const [filiere, setFiliere] = useState([]);
 
-  // Initialize AOS
+ 
   useEffect(() => {
+    axios.get(`${baseUrl}/api/student/getAllFiliere`).then((response) => {
+      setFiliere(response.data);
+    });
     AOS.init({
       duration: 1000,
       once: true,
       mirror: false,
     });
 
-    axios.get(`${baseUrl}/api/student/getAllFiliere`).then((response) => {
-      setFiliere(response.data);
-    });
   }, []);
 
   return (

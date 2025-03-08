@@ -14,6 +14,7 @@ import {
   DialogTitle,
   TextField,
   TablePagination,
+  CircularProgress, // Import CircularProgress for loading spinner
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -30,11 +31,13 @@ const FiliereTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [loading, setLoading] = useState(false); // Loading state
   const baseUrl = "http://localhost:8080";
   const token = JSON.parse(localStorage.getItem("auth"))?.token;
 
   // Fetch all filières on component mount
   useEffect(() => {
+    setLoading(true); // Start loading
     axios
       .get(`${baseUrl}/api/admin/getAllFiliere`, {
         headers: {
@@ -43,16 +46,17 @@ const FiliereTable = () => {
       })
       .then((res) => {
         setFiliere(res.data);
+        setLoading(false); // Stop loading after data is fetched
       })
       .catch(() => {
         toast.error("Erreur lors de la récupération des filières");
+        setLoading(false); // Stop loading on error
       });
   }, [token]);
 
-
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-    setPage(0); 
+    setPage(0);
   };
 
   const filteredFiliere = filiere.filter((f) =>
@@ -67,6 +71,7 @@ const FiliereTable = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
   const paginatedFiliere = filteredFiliere.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
@@ -87,6 +92,7 @@ const FiliereTable = () => {
 
   const handleEditAgree = () => {
     if (selectedFiliereId && newFiliereName.trim() !== "") {
+      setLoading(true); // Start loading
       axios
         .put(
           `${baseUrl}/api/admin/ModifyFiliere`,
@@ -105,9 +111,11 @@ const FiliereTable = () => {
           );
           toast.success("Filière modifiée avec succès");
           handleClose();
+          setLoading(false); // Stop loading after success
         })
         .catch(() => {
           toast.error("Erreur lors de la modification de la filière");
+          setLoading(false); // Stop loading on error
         });
     }
   };
@@ -119,6 +127,7 @@ const FiliereTable = () => {
 
   const handleDeleteAgree = () => {
     if (selectedFiliereId) {
+      setLoading(true); // Start loading
       axios
         .delete(`${baseUrl}/api/admin/RemoveFiliere/${selectedFiliereId}`, {
           headers: {
@@ -130,9 +139,11 @@ const FiliereTable = () => {
             prevFiliere.filter((f) => f.id !== selectedFiliereId)
           );
           toast.success("Filière supprimée avec succès");
+          setLoading(false); // Stop loading after success
         })
         .catch(() => {
           toast.error("Erreur lors de la suppression de la filière");
+          setLoading(false); // Stop loading on error
         });
       handleClose();
     }
@@ -140,6 +151,7 @@ const FiliereTable = () => {
 
   const handleAddAgree = () => {
     if (addFiliereName.trim() !== "") {
+      setLoading(true); // Start loading
       axios
         .post(
           `${baseUrl}/api/admin/AddNewFiliere`,
@@ -155,9 +167,11 @@ const FiliereTable = () => {
           toast.success("Filière ajoutée avec succès");
           setAddFiliereName("");
           handleClose();
+          setLoading(false); // Stop loading after success
         })
         .catch(() => {
           toast.error("Erreur lors de l'ajout de la filière");
+          setLoading(false); // Stop loading on error
         });
     }
   };
@@ -183,6 +197,28 @@ const FiliereTable = () => {
         position="top-center"
         zIndex={9999}
       />
+
+      {/* Loading Spinner */}
+      {loading && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 9999,
+          }}
+        >
+          <CircularProgress color="primary" />
+        </Box>
+      )}
+
       <Button
         variant="contained"
         color="primary"
