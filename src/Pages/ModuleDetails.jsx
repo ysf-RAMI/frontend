@@ -258,6 +258,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
             <IconButton
               color="inherit"
               edge="start"
+              disabled={isSmallScreen ? false : true }
               onClick={() => toggleDrawer(!isDrawerOpen)}
               sx={{ mr: 2 }}
             >
