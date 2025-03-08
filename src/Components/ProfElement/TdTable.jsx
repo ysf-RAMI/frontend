@@ -27,7 +27,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AOS from "aos";
-import "aos/dist/aos.css"; // Import AOS styles
+import "aos/dist/aos.css";
 
 const TDTable = () => {
   const [resource, setResource] = useState([]);
@@ -48,11 +48,10 @@ const TDTable = () => {
   const token = JSON.parse(localStorage.getItem("auth")).token;
   const profId = localStorage.getItem("profId");
 
-  // Initialize AOS
   useEffect(() => {
     AOS.init({
-      duration: 200, // Animation duration
-      once: true, // Whether animation should happen only once
+      duration: 200,
+      once: true,
     });
   }, []);
 
@@ -68,7 +67,7 @@ const TDTable = () => {
       })
       .then((response) => {
         setResource(response.data);
-        setTds(response.data.filter((r) => r.type === "TD")); // Filter for TDs
+        setTds(response.data.filter((r) => r.type === "TD"));
       })
       .catch((error) => {
         toast.error("Error fetching resources:", error);
@@ -143,34 +142,28 @@ const TDTable = () => {
   const handleSave = (tdData, isEdit = false) => {
     const formData = new FormData();
 
-    // Append fields in the required order and with the correct names
-    formData.append("nom", tdData.name); // TD name
-    formData.append("type", "TD"); // Hardcoded as "TD"
+    formData.append("nom", tdData.name);
+    formData.append("type", "TD");
 
-    // Set dataType based on the resource type
     if (tdData.dataType === "VIDEO") {
-      formData.append("dataType", "VIDEO"); // Video resource
-      formData.append("lien", tdData.url); // Video URL
+      formData.append("dataType", "VIDEO");
+      formData.append("lien", tdData.url);
     } else if (tdData.dataType === "FICHIER") {
-      formData.append("dataType", "FICHIER"); // PDF resource
+      formData.append("dataType", "FICHIER");
       if (tdData.file) {
-        formData.append("data", tdData.file); // PDF file
+        formData.append("data", tdData.file);
       }
     }
 
-    // Append moduleId and professorId
     const selectedModuleObj = modules.find((m) => m.name === selectedModule);
     if (selectedModuleObj) {
-      formData.append("moduleId", selectedModuleObj.id); // Module ID
+      formData.append("moduleId", selectedModuleObj.id);
     }
-    formData.append("professorId", profId); // Professor ID
+    formData.append("professorId", profId);
 
-    // For editing, append the TD ID
     if (isEdit && tdData.id) {
       formData.append("id", tdData.id);
     }
-
-    
 
     const url = isEdit
       ? `${baseUrl}/api/professeur/updateResource`
@@ -192,7 +185,7 @@ const TDTable = () => {
     })
       .then((response) => {
         toast.success(`TD ${isEdit ? "updated" : "added"} successfully!`);
-        fetchResources(); // Refresh the resource list
+        fetchResources();
         handleCloseDialogs();
       })
       .catch((error) => {
@@ -207,7 +200,7 @@ const TDTable = () => {
       })
       .then(() => {
         toast.success("TD deleted successfully!");
-        fetchResources(); // Refresh the resource list
+        fetchResources();
         handleCloseDialogs();
       })
       .catch((error) => {
@@ -228,7 +221,6 @@ const TDTable = () => {
         zIndex={9999}
       />
 
-      {/* Add TD Button */}
       <Button
         variant="contained"
         color="primary"
@@ -239,7 +231,6 @@ const TDTable = () => {
         Add TD
       </Button>
 
-      {/* Search Box */}
       <TextField
         label="Search TDs"
         variant="outlined"
@@ -249,7 +240,6 @@ const TDTable = () => {
         data-aos="fade-down"
       />
 
-      {/* TD Table */}
       <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
         <Table>
           <TableHead>
@@ -307,7 +297,6 @@ const TDTable = () => {
         </Table>
       </TableContainer>
 
-      {/* Pagination */}
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
@@ -319,7 +308,6 @@ const TDTable = () => {
         data-aos="fade-up"
       />
 
-      {/* Add Dialog */}
       <AddDialog
         open={openAddDialog}
         onClose={handleCloseDialogs}
@@ -332,7 +320,6 @@ const TDTable = () => {
         uploadProgress={uploadProgress}
       />
 
-      {/* Edit Dialog */}
       <EditDialog
         open={openEditDialog}
         onClose={handleCloseDialogs}
@@ -346,7 +333,6 @@ const TDTable = () => {
         uploadProgress={uploadProgress}
       />
 
-      {/* Delete Dialog */}
       <DeleteDialog
         open={openDeleteDialog}
         onClose={handleCloseDialogs}
@@ -357,7 +343,6 @@ const TDTable = () => {
   );
 };
 
-// Add Dialog Component
 const AddDialog = ({
   open,
   onClose,
@@ -377,8 +362,14 @@ const AddDialog = ({
   });
 
   const handleSave = () => {
-    toast.success("TD updated");
+    if (!tdData.name || !tdData.dataType || (!tdData.url && !tdData.file)) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
+
     onSave(tdData);
+    setTdData({ name: "", dataType: "", url: "", file: null });
+    setFileName("");
   };
 
   const handleFileChange = (e) => {
@@ -470,7 +461,6 @@ const AddDialog = ({
   );
 };
 
-// Edit Dialog Component
 const EditDialog = ({
   open,
   onClose,
@@ -501,7 +491,7 @@ const EditDialog = ({
         file: null,
       });
       setSelectedModule(td.moduleName);
-      setFileName(""); // Reset file name when opening the dialog
+      setFileName("");
     }
   }, [td]);
 
@@ -593,7 +583,6 @@ const EditDialog = ({
   );
 };
 
-// Delete Dialog Component
 const DeleteDialog = ({ open, onClose, onDelete, td }) => {
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">

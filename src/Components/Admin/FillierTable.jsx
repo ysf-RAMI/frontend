@@ -15,7 +15,8 @@ import {
   TextField,
   TablePagination,
   CircularProgress,
-  Box, // Import CircularProgress for loading spinner
+  Box,
+  Typography,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -294,7 +295,9 @@ const FiliereTable = () => {
           />
         </>
       ) : (
-        <p>No filière available.</p>
+        <Typography variant="body1" align="center" sx={{ p: 2 }}>
+          No filière available.
+        </Typography>
       )}
 
       {/* Dialogs for Add, Edit, and Delete */}

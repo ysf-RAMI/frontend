@@ -48,7 +48,7 @@ import "aos/dist/aos.css";
 import axios from "axios";
 import logo from "../assets/logoSite.png";
 import { ArrowBack, Home } from "@mui/icons-material";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 const getEmbedUrl = (youtubeUrl) => {
   const regex = /^https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/;
@@ -83,11 +83,8 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
       .get(`${baseUrl}/api/student/getAllResourcesByModuleId/${moduleId}`)
       .then((response) => {
         setResources(response.data);
-      })
-      .catch((error) => {
-        toast.error("Error fetching resources:");
       });
-  }, [moduleId]);
+  }, [moduleId,selectedSection]);
 
   useEffect(() => {
     const filtered = resources
@@ -160,15 +157,15 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
       }}
     >
       <ToastContainer
-              autoClose={2500}
-              hideProgressBar={false}
-              closeOnClick={true}
-              newestOnTop={true}
-              closeButton={false}
-              enableMultiContainer={true}
-              position="top-center"
-              zIndex={9999}
-            />
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
       {/* Drawer */}
       <Drawer
         variant={isSmallScreen ? "temporary" : "persistent"}
@@ -258,7 +255,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
             <IconButton
               color="inherit"
               edge="start"
-              disabled={isSmallScreen ? false : true }
+              disabled={isSmallScreen ? false : true}
               onClick={() => toggleDrawer(!isDrawerOpen)}
               sx={{ mr: 2 }}
             >
@@ -418,7 +415,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
           {selectedContent?.dataType === "FICHIER" ? (
             <iframe
               ref={iframeRef}
-              src={`http://localhost:8080/api/files/getFile/${selectedContent.lien}#toolbar=0`}
+              src={`${baseUrl}/api/files/getFile/${selectedContent.lien}#toolbar=0`}
               width="100%"
               height="480px"
               style={{ border: "none" }}

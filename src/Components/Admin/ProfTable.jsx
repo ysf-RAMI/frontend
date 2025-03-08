@@ -17,6 +17,9 @@ import {
   TablePagination,
   InputAdornment,
   IconButton,
+  CircularProgress,
+  Box,
+  Typography,
 } from "@mui/material";
 import { Visibility, VisibilityOff, Key } from "@mui/icons-material";
 import axios from "axios";
@@ -25,7 +28,6 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 
 const ProfTable = () => {
-
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
@@ -47,10 +49,10 @@ const ProfTable = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [addProfPass, setAddProfPass] = useState(false);
+  const [loading, setLoading] = useState(false); // Loading state
 
   const baseUrl = "http://localhost:8080";
   const { token } = JSON.parse(localStorage.getItem("auth")) || {};
-
 
   useEffect(() => {
     AOS.init({ duration: 300 });
@@ -61,6 +63,7 @@ const ProfTable = () => {
   }, []);
 
   const fetchProfs = async () => {
+    setLoading(true); // Start loading
     try {
       const response = await axios.get(`${baseUrl}/api/admin/ListProfesseurs`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -68,9 +71,10 @@ const ProfTable = () => {
       setProfs(response.data);
     } catch (error) {
       toast.error("Erreur lors de la récupération des professeurs");
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
-
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -83,7 +87,6 @@ const ProfTable = () => {
       p.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
 
   const paginatedProfs = filteredProfs.slice(
     page * rowsPerPage,
@@ -99,11 +102,6 @@ const ProfTable = () => {
     setPage(0);
   };
 
-  function handleAddProfPass() {
-    setAddProfPass(!addProfPass);
-  }
-
-  // Close all dialogs
   const handleClose = () => {
     setOpenDelete(false);
     setOpenEdit(false);
@@ -121,7 +119,6 @@ const ProfTable = () => {
     setConfirmPassword("");
   };
 
-  // Edit professor
   const handleEditClick = (id) => {
     const selectedProf = profs.find((p) => p.id === id);
     if (selectedProf) {
@@ -159,7 +156,6 @@ const ProfTable = () => {
     }
   };
 
-
   const handleDeleteClick = (id) => {
     setSelectedProfId(id);
     setOpenDelete(true);
@@ -181,7 +177,6 @@ const ProfTable = () => {
     }
   };
 
-
   const handleAddAgree = async () => {
     if (!name || !prenom || !email || !password) {
       toast.error("Veuillez remplir tous les champs");
@@ -201,7 +196,6 @@ const ProfTable = () => {
       toast.error("Erreur lors de l'ajout du professeur");
     }
   };
-
 
   const handleChangePasswordClick = (id) => {
     setSelectedProfId(id);
@@ -231,7 +225,6 @@ const ProfTable = () => {
       toast.error("Erreur lors de la mise à jour du mot de passe");
     }
   };
-
 
   const getPasswordStrength = (password) => {
     if (password.length === 0) return "";
@@ -267,97 +260,123 @@ const ProfTable = () => {
         position="top-center"
         zIndex={9999}
       />
-      
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setOpenAdd(true)}
-        sx={{ m: 2 }}
-        data-aos="fade-down"
-      >
-        Ajouter un Professeur
-      </Button>
 
-   
-      <TextField
-        label="Rechercher un Professeur"
-        variant="outlined"
-        value={searchTerm}
-        onChange={handleSearchChange}
-        sx={{ m: 2, width: "300px" }}
-        data-aos="fade-down"
-      />
+      {loading ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "50vh",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setOpenAdd(true)}
+            sx={{ m: 2 }}
+            data-aos="fade-down"
+          >
+            Ajouter un Professeur
+          </Button>
 
-    
-      <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
-        <Table>
-          <TableHead style={{ backgroundColor: "#f4f4f9" }}>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Nom</TableCell>
-              <TableCell>Prénom</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {paginatedProfs.map((p, index) => (
-              <TableRow
-                key={p.id}
-                style={{
-                  backgroundColor: index % 2 === 0 ? "#ffffff" : "#f4f4f9",
-                }}
+          <TextField
+            label="Rechercher un Professeur"
+            variant="outlined"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            sx={{ m: 2, width: "300px" }}
+            data-aos="fade-down"
+          />
+
+          {profs.length === 0 ? (
+            <Typography variant="body1" align="center" sx={{ p: 2 }}>
+              Aucun professeur disponible.
+            </Typography>
+          ) : (
+            <>
+              <TableContainer
+                component={Paper}
+                sx={{ m: 2 }}
                 data-aos="fade-up"
               >
-                <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
-                <TableCell>{p.nom}</TableCell>
-                <TableCell>{p.prenom}</TableCell>
-                <TableCell>{p.email}</TableCell>
-                <TableCell align="center">
-                  <Button
-                    onClick={() => handleEditClick(p.id)}
-                    color="info"
-                    variant="outlined"
-                    sx={{ m: 0.5 }}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => handleDeleteClick(p.id)}
-                    color="secondary"
-                    variant="outlined"
-                    sx={{ m: 0.5 }}
-                  >
-                    Delete
-                  </Button>
-                  <Button
-                    onClick={() => handleChangePasswordClick(p.id)}
-                    color="warning"
-                    variant="outlined"
-                    sx={{ m: 0.5 }}
-                    startIcon={<Key />}
-                  >
-                    Password
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                <Table>
+                  <TableHead style={{ backgroundColor: "#f4f4f9" }}>
+                    <TableRow>
+                      <TableCell>ID</TableCell>
+                      <TableCell>Nom</TableCell>
+                      <TableCell>Prénom</TableCell>
+                      <TableCell>Email</TableCell>
+                      <TableCell align="center">Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {paginatedProfs.map((p, index) => (
+                      <TableRow
+                        key={p.id}
+                        style={{
+                          backgroundColor:
+                            index % 2 === 0 ? "#ffffff" : "#f4f4f9",
+                        }}
+                        data-aos="fade-up"
+                      >
+                        <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+                        <TableCell>{p.nom}</TableCell>
+                        <TableCell>{p.prenom}</TableCell>
+                        <TableCell>{p.email}</TableCell>
+                        <TableCell align="center">
+                          <Button
+                            onClick={() => handleEditClick(p.id)}
+                            color="info"
+                            variant="outlined"
+                            sx={{ m: 0.5 }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteClick(p.id)}
+                            color="secondary"
+                            variant="outlined"
+                            sx={{ m: 0.5 }}
+                          >
+                            Delete
+                          </Button>
+                          <Button
+                            onClick={() => handleChangePasswordClick(p.id)}
+                            color="warning"
+                            variant="outlined"
+                            sx={{ m: 0.5 }}
+                            startIcon={<Key />}
+                          >
+                            Password
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
- 
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={filteredProfs.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        data-aos="fade-up"
-      />
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredProfs.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                data-aos="fade-up"
+              />
+            </>
+          )}
+        </>
+      )}
 
+      {/* Dialogs for Delete, Edit, Add, and Change Password */}
       <Dialog open={openDelete} onClose={handleClose} data-aos="zoom-in">
         <DialogTitle>Supprimer Professeur</DialogTitle>
         <DialogContent>
@@ -373,7 +392,6 @@ const ProfTable = () => {
         </DialogActions>
       </Dialog>
 
-  
       <Dialog open={openEdit} onClose={handleClose} data-aos="zoom-in">
         <DialogTitle>Modifier Professeur</DialogTitle>
         <DialogContent>
@@ -411,7 +429,6 @@ const ProfTable = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Add Dialog */}
       <Dialog open={openAdd} onClose={handleClose} data-aos="zoom-in">
         <DialogTitle>Ajouter un Professeur</DialogTitle>
         <DialogContent>
@@ -470,7 +487,6 @@ const ProfTable = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Change Password Dialog */}
       <Dialog
         open={openChangePassword}
         onClose={handleClose}
