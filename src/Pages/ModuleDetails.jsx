@@ -160,19 +160,19 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
       }}
     >
       <ToastContainer
-        autoClose={2500}
-        hideProgressBar={false}
-        closeOnClick={true}
-        newestOnTop={true}
-        closeButton={false}
-        enableMultiContainer={true}
-        position="top-center"
-        zIndex={9999}
-      />
+              autoClose={2500}
+              hideProgressBar={false}
+              closeOnClick={true}
+              newestOnTop={true}
+              closeButton={false}
+              enableMultiContainer={true}
+              position="top-center"
+              zIndex={9999}
+            />
       {/* Drawer */}
       <Drawer
         variant={isSmallScreen ? "temporary" : "persistent"}
-        open={isSmallScreen ? isDrawerOpen : true}
+        open={isDrawerOpen}
         onClose={() => toggleDrawer(false)}
         sx={{
           width: 270,
@@ -200,7 +200,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
           </Typography>
           <Divider />
           <List style={{ cursor: "pointer" }}>
-            {["Course", "Td", "Tp", "Exam"].map((section) => (
+            {["COURS", "TD", "TP", "EXAM"].map((section) => (
               <ListItem
                 key={section}
                 button
@@ -246,8 +246,8 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
         <AppBar
           position="fixed"
           sx={{
-            width:   "100%" , 
-            ml: isSmallScreen ? 0 : "270px",
+            width: isDrawerOpen ? "calc(100% - 270px)" : "100%",
+            ml: isDrawerOpen ? "270px" : 0,
             backgroundColor: "transparent",
             boxShadow: "none",
             transition: "width 0.3s ease, margin 0.3s ease",
@@ -255,16 +255,14 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
         >
           <Toolbar>
             {/* Menu Control Icon (Top-Left) */}
-            {isSmallScreen && (
-              <IconButton
-                color="inherit"
-                edge="start"
-                onClick={() => toggleDrawer(!isDrawerOpen)}
-                sx={{ mr: 2 }}
-              >
-                <FontAwesomeIcon color="blue" icon={faBars} />
-              </IconButton>
-            )}
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={() => toggleDrawer(!isDrawerOpen)}
+              sx={{ mr: 2 }}
+            >
+              <FontAwesomeIcon color="blue" icon={faBars} />
+            </IconButton>
 
             <Box sx={{ flexGrow: 1 }} />
 
