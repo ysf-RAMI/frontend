@@ -14,7 +14,8 @@ import {
   DialogTitle,
   TextField,
   TablePagination,
-  CircularProgress, // Import CircularProgress for loading spinner
+  CircularProgress,
+  Box, // Import CircularProgress for loading spinner
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import axios from "axios";
