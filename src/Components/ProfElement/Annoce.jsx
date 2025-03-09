@@ -62,7 +62,7 @@ export default function Annonce() {
         setAnnouncements(response.data);
       })
       .catch((error) => {
-        toast.error("Failed to fetch announcements.");
+        console.error("Failed to fetch announcements.");
       });
   };
 

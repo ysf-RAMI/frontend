@@ -70,7 +70,7 @@ const ProfTable = () => {
       });
       setProfs(response.data);
     } catch (error) {
-      toast.error("Erreur lors de la récupération des professeurs");
+      console.error("Erreur lors de la récupération des professeurs");
     } finally {
       setLoading(false); // Stop loading
     }

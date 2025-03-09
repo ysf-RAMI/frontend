@@ -71,7 +71,7 @@ const TDTable = () => {
         setTds(response.data.filter((r) => r.type === "TD"));
       })
       .catch((error) => {
-        toast.error("Error fetching resources:", error);
+        console.error("Error fetching resources:", error);
       });
   };
 
@@ -84,7 +84,7 @@ const TDTable = () => {
         setModules(response.data);
       })
       .catch((error) => {
-        toast.error("Error fetching modules:", error);
+        console.error("Error fetching modules:", error);
       });
   };
 
@@ -196,7 +196,7 @@ const TDTable = () => {
         handleCloseDialogs();
       })
       .catch((error) => {
-        toast.error("Failed to save/update TD.");
+        toast.error(`Failed to ${isEdit ? "Update" : "Add"} TD.`);
       });
   };
 

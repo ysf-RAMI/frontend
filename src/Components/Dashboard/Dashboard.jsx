@@ -100,8 +100,6 @@ const Dashboard = () => {
         setDashboardData(response.data);
         setLoading(false);
       } catch (err) {
-        setError("Failed to load dashboard data. Please try again later.");
-        toast.error("Failed to load dashboard data. Please try again later.");
         setLoading(false);
 
         setDashboardData({

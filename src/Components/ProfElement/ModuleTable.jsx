@@ -69,7 +69,7 @@ const ModuleTable = () => {
         setFiliers(response.data);
       })
       .catch((error) => {
-        toast.error("Error fetching filières:");
+        console.error("Error fetching filières:");
       });
   };
 
@@ -84,7 +84,7 @@ const ModuleTable = () => {
         setModules(response.data);
       })
       .catch((error) => {
-        toast.error("Error fetching modules:", error);
+        console.error("Error fetching modules:", error);
       });
   };
 

@@ -230,7 +230,7 @@ const Profile = () => {
         setProfileValues({ nom, prenom, email });
       }
     } catch (error) {
-      toast.error("Failed to load profile data");
+      console.error("Failed to load profile data");
     } finally {
       setIsLoading(false);
     }

@@ -67,7 +67,7 @@ const TpTable = () => {
     try {
       await Promise.all([fetchResources(), fetchModules()]);
     } catch (error) {
-      toast.error("Failed to fetch data.");
+      console.error("Failed to fetch data.");
     } finally {
       setLoading(false);
     }

@@ -258,7 +258,7 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
             color: "#000",
           }}
         >
-          <Box sx={{ maxWidth: 1200, mx: "auto" }}>
+          <Box sx={{  mx: "auto" }}>
             <Typography variant="h4" gutterBottom>
               {selectedSection.charAt(0).toUpperCase() +
                 selectedSection.slice(1)}

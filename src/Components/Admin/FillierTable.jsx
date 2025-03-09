@@ -51,7 +51,6 @@ const FiliereTable = () => {
         setLoading(false); // Stop loading after data is fetched
       })
       .catch(() => {
-        toast.error("Erreur lors de la récupération des filières");
         setLoading(false); // Stop loading on error
       });
   }, [token]);
@@ -189,34 +188,34 @@ const FiliereTable = () => {
 
   return (
     <>
-      <ToastContainer
-        autoClose={2500}
-        hideProgressBar={false}
-        closeOnClick={true}
-        newestOnTop={true}
-        closeButton={false}
-        enableMultiContainer={true}
-        position="top-center"
-        zIndex={9999}
-      />
 
       {/* Loading Spinner */}
       {loading && (
         <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            zIndex: 9999,
-          }}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          zIndex: 9999,
+        }}
         >
+        <ToastContainer
+          autoClose={2500}
+          hideProgressBar={false}
+          closeOnClick={true}
+          newestOnTop={true}
+          closeButton={false}
+          enableMultiContainer={true}
+          position="top-center"
+          zIndex={9999}
+        />
           <CircularProgress color="primary" />
         </Box>
       )}
