@@ -28,6 +28,7 @@ export default function Call() {
           color: "#ffffff",
         }}
       >
+
         <ToastContainer
           autoClose={2500}
           hideProgressBar={false}
@@ -43,14 +44,14 @@ export default function Call() {
             variant="h6"
             color="primary"
             sx={{
-              letterSpacing: 2,
+              letterSpacing: 3,
               textTransform: "uppercase",
               mb: 1,
               color: "#ffffff",
             }}
             data-aos="fade-up"
           >
-            Prêt à commencer votre voyage ?
+            Prêt à commencer votre Prentissage ?
           </Typography>
           <Typography
             variant="h4"
@@ -58,7 +59,7 @@ export default function Call() {
             data-aos="fade-up"
             data-aos-delay="100"
           >
-            Rejoignez-nous dès maintenant
+            
           </Typography>
           <Box data-aos="fade-up" data-aos-delay="200">
             <Button
@@ -68,7 +69,7 @@ export default function Call() {
               sx={{
                 backgroundColor: "#ff5722",
                 color: "#ffffff",
-                "&:hover": { backgroundColor: "#e64a19" },
+                "&:hover": { backgroundColor: "#e04a19" },
               }}
             >
               Explorer les filières

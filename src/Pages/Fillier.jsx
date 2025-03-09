@@ -2,17 +2,14 @@ import { useState, useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import {
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   TextField,
-  Autocomplete,
   IconButton,
   Box,
   Card,
   CardContent,
   CardActionArea,
   CardMedia,
+  Skeleton,
 } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import { Link } from "react-router-dom";
@@ -22,6 +19,19 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 
 const baseUrl = "http://localhost:8080";
+
+// Skeleton Card Component for loading state
+const SkeletonCard = () => {
+  return (
+    <Card className="filiere-card" sx={{ height: "100%" }}>
+      <Skeleton variant="rectangular" height={140} animation="wave" />
+      <CardContent>
+        <Skeleton animation="wave" height={32} style={{ marginBottom: 6 }} />
+        <Skeleton animation="wave" height={20} width="80%" />
+      </CardContent>
+    </Card>
+  );
+};
 
 // Filiere Card Component
 const FiliereCard = ({ filiere }) => {
@@ -51,79 +61,62 @@ const FiliereCard = ({ filiere }) => {
   );
 };
 
-// Search Dialog Component
-const SearchDialog = ({ open, handleClose, filiere }) => {
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredFilieres = filiere.filter((f) =>
-    f.nom.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Typography variant="h5" fontWeight="bold">
-          Rechercher une filière
-        </Typography>
-      </DialogTitle>
-      <DialogContent>
-        <Autocomplete
-          freeSolo
-          options={filiere.map((f) => f.nom)}
-          onInputChange={(_, value) => setSearchQuery(value)}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Rechercher..."
-              variant="outlined"
-              fullWidth
-              margin="normal"
-            />
-          )}
-        />
-        <Box sx={{ mt: 3 }}>
-          {filteredFilieres.map((f) => (
-            <Link
-              key={f.id}
-              to={`/filiere/${f.id}`}
-              style={{ textDecoration: "none" }}
-              onClick={handleClose}
-            >
-              <Box
-                sx={{
-                  p: 2,
-                  mb: 1,
-                  borderRadius: 1,
-                  "&:hover": { backgroundColor: "action.hover" },
-                }}
-              >
-                <Typography variant="body1">{f.nom}</Typography>
-              </Box>
-            </Link>
-          ))}
-        </Box>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
 // Main Component
 export default function Filiere() {
-  const [openSearch, setOpenSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [filiere, setFiliere] = useState([]);
+  const [loading, setLoading] = useState(true);
 
- 
   useEffect(() => {
-    axios.get(`${baseUrl}/api/student/getAllFiliere`).then((response) => {
-      setFiliere(response.data);
-    });
     AOS.init({
       duration: 1000,
       once: true,
       mirror: false,
     });
 
+    // Simulate loading with a minimum duration to show the skeleton
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/student/getAllFiliere`
+        );
+        // Add a small delay to make the loading state visible
+        setTimeout(() => {
+          setFiliere(response.data);
+          setLoading(false);
+        }, 1500); // 1.5 second delay to show loading state
+      } catch (error) {
+        console.error("Error fetching filiere data:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
+
+  // Filter filières based on search query
+  const filteredFilieres = filiere.filter((f) =>
+    f.nom.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Generate skeleton placeholders
+  const skeletonCards = Array(6)
+    .fill()
+    .map((_, index) => (
+      <Col
+        key={`skeleton-${index}`}
+        lg={4}
+        md={6}
+        className="mb-4"
+        data-aos="fade-up"
+        data-aos-delay={index * 100}
+        style={{ display: "flex", justifyContent: "center" }}
+      >
+        <div style={{ width: "100%", maxWidth: "400px" }}>
+          <SkeletonCard />
+        </div>
+      </Col>
+    ));
 
   return (
     <>
@@ -135,6 +128,7 @@ export default function Filiere() {
             overflow: hidden;
             background-color: #fff;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 100%;
           }
 
           .filiere-card:hover {
@@ -158,6 +152,23 @@ export default function Filiere() {
           ::-webkit-scrollbar-thumb:hover {
             background: #555;
           }
+          
+          .card-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+          }
+          
+          .card-wrapper {
+            width: 100%;
+            max-width: 400px;
+          }
+          
+          .no-results {
+            text-align: center;
+            padding: 40px 0;
+            width: 100%;
+          }
         `}
       </style>
 
@@ -177,7 +188,7 @@ export default function Filiere() {
           </Typography>
         </Box>
 
-        {/* Search Bar */}
+        {/* Search Bar - Now directly filters cards */}
         <Box
           className="mb-5"
           data-aos="fade-up"
@@ -187,7 +198,8 @@ export default function Filiere() {
             fullWidth
             variant="outlined"
             placeholder="Rechercher une filière..."
-            onClick={() => setOpenSearch(true)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
               endAdornment: (
                 <IconButton>
@@ -198,28 +210,34 @@ export default function Filiere() {
           />
         </Box>
 
-        {/* Filières Grid */}
-        <Row>
-          {filiere.map((f, index) => (
-            <Col
-              key={f.id}
-              lg={4}
-              md={6}
-              className="mb-4"
-              data-aos="fade-up"
-              data-aos-delay={index * 100}
-            >
-              <FiliereCard filiere={f} />
-            </Col>
-          ))}
+        {/* Filières Grid with Centered Cards */}
+        <Row className="justify-content-center">
+          {loading ? (
+            skeletonCards
+          ) : filteredFilieres.length > 0 ? (
+            filteredFilieres.map((f, index) => (
+              <Col
+                key={f.id}
+                lg={4}
+                md={6}
+                className="mb-4"
+                data-aos="fade-up"
+                data-aos-delay={index * 100}
+                style={{ display: "flex", justifyContent: "center" }}
+              >
+                <div className="card-wrapper">
+                  <FiliereCard filiere={f} />
+                </div>
+              </Col>
+            ))
+          ) : (
+            <div className="no-results">
+              <Typography variant="h6" color="textSecondary">
+                Aucune filière trouvée pour "{searchQuery}"
+              </Typography>
+            </div>
+          )}
         </Row>
-
-        {/* Search Dialog */}
-        <SearchDialog
-          open={openSearch}
-          handleClose={() => setOpenSearch(false)}
-          filiere={filiere}
-        />
       </Container>
     </>
   );

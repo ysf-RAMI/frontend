@@ -242,9 +242,11 @@ const Admin = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
 
         <Box
           component="main"
+          style={{
+            padding:"0 20px"
+          }}
           sx={{
             flexGrow: 1,
-            p: 3,
             transition: theme.transitions.create("margin", {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.leavingScreen,

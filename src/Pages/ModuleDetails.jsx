@@ -28,6 +28,15 @@ import {
   Toolbar,
   useMediaQuery,
   useTheme,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Skeleton,
+  Badge,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -40,6 +49,7 @@ import {
   faExpand,
   faCompress,
   faBars,
+  faCalendarAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Module.css";
@@ -47,8 +57,8 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import axios from "axios";
 import logo from "../assets/logoSite.png";
-import { ArrowBack, Home } from "@mui/icons-material";
-import { ToastContainer } from "react-toastify";
+import { ArrowBack, Home, Search, FilterList } from "@mui/icons-material";
+import { ToastContainer, toast } from "react-toastify";
 
 const getEmbedUrl = (youtubeUrl) => {
   const regex = /^https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/;
@@ -73,18 +83,47 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
   const [page, setPage] = useState(1);
   const [filteredResources, setFilteredResources] = useState([]);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [resourceCounts, setResourceCounts] = useState({
+    COURS: 0,
+    TD: 0,
+    TP: 0,
+    EXAM: 0,
+  });
 
   const iframeRef = useRef(null);
+  const tableContainerRef = useRef(null);
 
   const itemsPerPage = 5;
 
   useEffect(() => {
+    setLoading(true);
     axios
       .get(`${baseUrl}/api/student/getAllResourcesByModuleId/${moduleId}`)
       .then((response) => {
         setResources(response.data);
+
+        // Calculate resource counts by type
+        const counts = response.data.reduce((acc, resource) => {
+          acc[resource.type] = (acc[resource.type] || 0) + 1;
+          return acc;
+        }, {});
+
+        setResourceCounts({
+          COURS: counts.COURS || 0,
+          TD: counts.TD || 0,
+          TP: counts.TP || 0,
+          EXAM: counts.EXAM || 0,
+        });
+
+        setTimeout(() => setLoading(false), 800); // Artificial delay for skeleton effect
+      })
+      .catch((error) => {
+        console.error("Error fetching resources:", error);
+        toast.error("Failed to load resources");
+        setLoading(false);
       });
-  }, [moduleId,selectedSection]);
+  }, [moduleId, selectedSection]);
 
   useEffect(() => {
     const filtered = resources
@@ -142,6 +181,19 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
 
   const handlePageChange = (event, value) => {
     setPage(value);
+    // Scroll to top of table when page changes
+    if (tableContainerRef.current) {
+      tableContainerRef.current.scrollTop = 0;
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   useEffect(() => {
@@ -154,6 +206,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
         display: "flex",
         height: "100vh",
         userSelect: "none",
+        backgroundColor: "#fff",
       }}
     >
       <ToastContainer
@@ -187,15 +240,26 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
           <img
             src={logo}
             alt="Logo"
-            style={{ width: "70%", padding: "10px", marginBottom: "40px" }}
+            style={{
+              width: "70%",
+              padding: "10px",
+              marginBottom: "40px",
+              cursor:"pointer"
+            }}
+            onClick={()=>{navigate("/")}}
           />
           <Typography
             variant="h6"
-            sx={{ textAlign: "center", mb: 2, color: "grey" }}
+            sx={{
+              textAlign: "center",
+              mb: 2,
+              color: "#e0e0e0",
+              fontWeight: "600",
+            }}
           >
             Module Resources
           </Typography>
-          <Divider />
+          <Divider sx={{ backgroundColor: "rgba(255,255,255,0.1)", mb: 2 }} />
           <List style={{ cursor: "pointer" }}>
             {["COURS", "TD", "TP", "EXAM"].map((section) => (
               <ListItem
@@ -206,8 +270,11 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
                   "&:hover": { backgroundColor: "#003366" },
                   borderRadius: 1,
                   mb: 1,
-                  ":active": { backgroundColor: "#002366" },
+                  ":active": { backgroundColor: "#003366" },
                   backgroundColor: selectedSection === section ? "#003366" : "",
+                  transition: "all 0.2s ease",
+                  position: "relative",
+                  overflow: "visible",
                 }}
               >
                 <ListItemIcon sx={{ color: "#fff" }}>
@@ -224,6 +291,19 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
                   />
                 </ListItemIcon>
                 <ListItemText primary={section} />
+                <Badge
+                  badgeContent={resourceCounts[section]}
+                  color="primary"
+                  sx={{
+                    mr: 1,
+                    "& .MuiBadge-badge": {
+                      fontSize: "0.6rem",
+                      height: "18px",
+                      minWidth: "18px",
+                      backgroundColor: "#1976d2",
+                    },
+                  }}
+                />
               </ListItem>
             ))}
           </List>
@@ -243,36 +323,33 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
         <AppBar
           position="fixed"
           sx={{
-            width: isDrawerOpen ? "calc(100% - 270px)" : "100%",
-            ml: isDrawerOpen ? "270px" : 0,
-            backgroundColor: "transparent",
-            boxShadow: "none",
+            width:
+              isDrawerOpen && !isSmallScreen ? "calc(100% - 270px)" : "100%",
+            ml: isDrawerOpen && !isSmallScreen ? "270px" : 0,
+            backgroundColor: "white",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+            color: "#333",
             transition: "width 0.3s ease, margin 0.3s ease",
           }}
         >
           <Toolbar>
             {/* Menu Control Icon (Top-Left) */}
             <IconButton
-              color="inherit"
               edge="start"
               disabled={isSmallScreen ? false : true}
               onClick={() => toggleDrawer(!isDrawerOpen)}
               sx={{ mr: 2 }}
             >
-              <FontAwesomeIcon color="blue" icon={faBars} />
+              <FontAwesomeIcon color="#1976d2" icon={faBars} />
             </IconButton>
 
             <Box sx={{ flexGrow: 1 }} />
 
-            <IconButton
-              color="inherit"
-              onClick={() => navigate("/")}
-              sx={{ mr: 2 }}
-            >
-              <Home color="primary" />
+            <IconButton onClick={() => navigate("/")} sx={{ mr: 2 }}>
+              <Home style={{ color: "#1976d2" }} />
             </IconButton>
-            <IconButton color="inherit" onClick={() => navigate(-1)}>
-              <ArrowBack color="primary" />
+            <IconButton onClick={() => navigate(-1)}>
+              <ArrowBack style={{ color: "#1976d2" }} />
             </IconButton>
           </Toolbar>
         </AppBar>
@@ -280,21 +357,48 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
         <Box
           sx={{
             p: 3,
+            pt: 10,
             flexGrow: 1,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
           }}
         >
-          <Grid
-            container
-            spacing={2}
-            sx={{ maxWidth: 1200, width: "100%", mt: 2 }}
-          >
+          <Grid container spacing={2} sx={{ width: "100%" }}>
             <Grid item xs={12}>
-              <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
-                {selectedSection}
-              </Typography>
+              <Card
+                sx={{
+                  p: 2,
+                  borderRadius: "10px",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                  backgroundColor: "#1976d2",
+                  mb: 3,
+                }}
+                data-aos="fade-down"
+              >
+                <Typography
+                  variant="h4"
+                  gutterBottom
+                  sx={{
+                    fontWeight: "bold",
+                    color: "white",
+                  }}
+                >
+                  {selectedSection} Materials
+                  <Typography
+                    component="span"
+                    sx={{
+                      ml: 2,
+                      fontSize: "1rem",
+                      opacity: 0.8,
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    {filteredResources.length} resource
+                    {filteredResources.length !== 1 ? "s" : ""}
+                  </Typography>
+                </Typography>
+              </Card>
             </Grid>
             <Grid item xs={12}>
               <Box
@@ -303,74 +407,240 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
                   justifyContent: "space-between",
                   alignItems: "center",
                   mb: 2,
+                  flexWrap: "wrap",
+                  gap: 2,
                 }}
               >
                 <TextField
-                  label="Search"
-                  variant="filled"
+                  label="Search resources"
+                  variant="outlined"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  sx={{ width: "300px" }}
+                  sx={{
+                    width: { xs: "100%", sm: "300px" },
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                    },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <Search sx={{ mr: 1, color: "text.secondary" }} />
+                    ),
+                  }}
                 />
-                <FormControl sx={{ width: "200px" }}>
-                  <InputLabel>Filter by Type</InputLabel>
+                <FormControl sx={{ width: { xs: "100%", sm: "200px" } }}>
+                  <InputLabel>Resource Type</InputLabel>
                   <Select
                     value={filterType}
                     onChange={handleFilterChange}
-                    label="Filter by Type"
+                    label="Resource Type"
+                    sx={{ borderRadius: "8px" }}
+                    InputProps={{
+                      startAdornment: (
+                        <FilterList sx={{ mr: 1, color: "text.secondary" }} />
+                      ),
+                    }}
                   >
-                    <MenuItem value="all">All</MenuItem>
-                    <MenuItem value="pdf">PDF</MenuItem>
-                    <MenuItem value="video">Video</MenuItem>
+                    <MenuItem value="all">All Types</MenuItem>
+                    <MenuItem value="pdf">PDF Documents</MenuItem>
+                    <MenuItem value="video">Video Lessons</MenuItem>
                   </Select>
                 </FormControl>
               </Box>
+
               <Card
                 sx={{
-                  p: 2,
                   borderRadius: 2,
-                  boxShadow: 5,
-                  backgroundColor: "#f9f9f9",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                  backgroundColor: "#ffffff",
+                  overflow: "hidden",
+                  width: "100%",
                 }}
+                data-aos="fade-up"
               >
-                <List>
-                  {filteredResources
-                    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
-                    .map((resource) => (
-                      <ListItem
-                        key={resource.id}
-                        button
-                        onClick={() => openContent(resource)}
-                        sx={{
-                          "&:hover": { backgroundColor: "#eaeaea" },
-                          borderRadius: 1,
-                          mb: 1,
-                        }}
-                        data-aos="fade-up"
+                {loading ? (
+                  <Box sx={{ p: 2 }}>
+                    {[...Array(itemsPerPage)].map((_, index) => (
+                      <Box
+                        key={index}
+                        sx={{ display: "flex", mb: 2, alignItems: "center" }}
                       >
-                        <ListItemIcon>
-                          {resource.dataType === "FICHIER" ? (
-                            <FontAwesomeIcon
-                              icon={faFilePdf}
-                              style={{ color: "red" }}
+                        <Skeleton
+                          variant="circular"
+                          width={40}
+                          height={40}
+                          sx={{ mr: 2 }}
+                        />
+                        <Box sx={{ width: "100%" }}>
+                          <Skeleton variant="text" width="60%" height={30} />
+                          <Box sx={{ display: "flex", mt: 1 }}>
+                            <Skeleton
+                              variant="text"
+                              width={100}
+                              height={20}
+                              sx={{ mr: 2 }}
                             />
-                          ) : (
-                            <FontAwesomeIcon
-                              icon={faPlayCircle}
-                              style={{ color: "blue" }}
-                            />
-                          )}
-                        </ListItemIcon>
-                        <ListItemText primary={resource.nom} />
-                      </ListItem>
+                            <Skeleton variant="text" width={120} height={20} />
+                          </Box>
+                        </Box>
+                      </Box>
                     ))}
-                </List>
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                  </Box>
+                ) : (
+                  <TableContainer
+                    component={Paper}
+                    elevation={0}
+                    sx={{
+                      maxHeight: "calc(100vh - 280px)",
+                      width: "100%",
+                    }}
+                    ref={tableContainerRef}
+                  >
+                    <Table stickyHeader>
+                      <TableHead>
+                        <TableRow sx={{ backgroundColor: "rgba(0,0,0,0.02)" }}>
+                          <TableCell width="50%">Resource Name</TableCell>
+                          <TableCell width="20%">Type</TableCell>
+                          <TableCell width="20%">Added On</TableCell>
+                          <TableCell width="10%">Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {filteredResources.length === 0 ? (
+                          <TableRow>
+                            <TableCell
+                              colSpan={4}
+                              align="center"
+                              sx={{ py: 4 }}
+                            >
+                              <Typography
+                                variant="body1"
+                                color="text.secondary"
+                              >
+                                No resources found for the selected criteria
+                              </Typography>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredResources
+                            .slice(
+                              (page - 1) * itemsPerPage,
+                              page * itemsPerPage
+                            )
+                            .map((resource) => (
+                              <TableRow
+                                key={resource.id}
+                                hover
+                                sx={{
+                                  cursor: "pointer",
+                                  "&:hover": { backgroundColor: "#f5f9ff" },
+                                  transition: "background-color 0.2s",
+                                }}
+                                data-aos="fade-up"
+                                data-aos-delay={100}
+                                onClick={() => openContent(resource)}
+                              >
+                                <TableCell sx={{ fontWeight: "500" }}>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    {resource.dataType === "FICHIER" ? (
+                                      <FontAwesomeIcon
+                                        icon={faFilePdf}
+                                        style={{
+                                          color: "#1976d2",
+                                          marginRight: "12px",
+                                          fontSize: "1.2rem",
+                                        }}
+                                      />
+                                    ) : (
+                                      <FontAwesomeIcon
+                                        icon={faPlayCircle}
+                                        style={{
+                                          color: "#1976d2",
+                                          marginRight: "12px",
+                                          fontSize: "1.2rem",
+                                        }}
+                                      />
+                                    )}
+                                    {resource.nom}
+                                  </Box>
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="outlined"
+                                    size="small"
+                                    sx={{
+                                      borderRadius: "20px",
+                                      color: "#1976d2",
+                                      borderColor: "#1976d2",
+                                      textTransform: "none",
+                                      "&:hover": {
+                                        borderColor: "#1976d2",
+                                        backgroundColor:
+                                          "rgba(25, 118, 210, 0.08)",
+                                      },
+                                    }}
+                                  >
+                                    {resource.dataType === "FICHIER"
+                                      ? "Document"
+                                      : "Video"}
+                                  </Button>
+                                </TableCell>
+                                <TableCell>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <FontAwesomeIcon
+                                      icon={faCalendarAlt}
+                                      style={{
+                                        color: "#757575",
+                                        marginRight: "8px",
+                                        fontSize: "0.9rem",
+                                      }}
+                                    />
+                                    {resource.dateAjout
+                                      ? formatDate(resource.dateAjout)
+                                      : "N/A"}
+                                  </Box>
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="contained"
+                                    size="small"
+                                    sx={{
+                                      backgroundColor: "#1976d2",
+                                      borderRadius: "8px",
+                                      textTransform: "none",
+                                      "&:hover": {
+                                        backgroundColor: "#1565c0",
+                                      },
+                                    }}
+                                  >
+                                    View
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+                <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
                   <Pagination
                     count={Math.ceil(filteredResources.length / itemsPerPage)}
                     page={page}
                     onChange={handlePageChange}
                     color="primary"
+                    shape="rounded"
+                    disabled={loading}
                   />
                 </Box>
               </Card>
@@ -386,8 +656,14 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
         fullWidth
         maxWidth="md"
         TransitionComponent={Fade}
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            overflow: "hidden",
+          },
+        }}
       >
-        <DialogTitle>
+        <DialogTitle sx={{ p: 2 }}>
           <Box
             sx={{
               display: "flex",
@@ -395,50 +671,104 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
               alignItems: "center",
             }}
           >
-            <Typography variant="h6">{selectedContent?.nom}</Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "500",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {selectedContent?.dataType === "FICHIER" ? (
+                <FontAwesomeIcon
+                  icon={faFilePdf}
+                  style={{
+                    color: "#1976d2",
+                    marginRight: "12px",
+                    fontSize: "1.2rem",
+                  }}
+                />
+              ) : (
+                <FontAwesomeIcon
+                  icon={faPlayCircle}
+                  style={{
+                    color: "#1976d2",
+                    marginRight: "12px",
+                    fontSize: "1.2rem",
+                  }}
+                />
+              )}
+              {selectedContent?.nom}
+            </Typography>
             <Box>
               {selectedContent?.dataType === "FICHIER" && (
-                <IconButton onClick={toggleFullScreen}>
+                <IconButton onClick={toggleFullScreen} sx={{ mr: 1 }}>
                   <FontAwesomeIcon
                     icon={isFullScreen ? faCompress : faExpand}
-                    style={{ color: "black" }}
+                    style={{ color: "#1976d2" }}
                   />
                 </IconButton>
               )}
               <IconButton onClick={handleCloseDialog}>
-                <FontAwesomeIcon icon={faTimes} style={{ color: "black" }} />
+                <FontAwesomeIcon icon={faTimes} style={{ color: "#1976d2" }} />
               </IconButton>
             </Box>
           </Box>
         </DialogTitle>
         <DialogContent dividers>
           {selectedContent?.dataType === "FICHIER" ? (
-            <iframe
-              ref={iframeRef}
-              src={`${baseUrl}/api/files/getFile/${selectedContent.lien}#toolbar=0`}
-              width="100%"
-              height="480px"
-              style={{ border: "none" }}
-              title="PDF Viewer"
-            />
+            <Box sx={{ position: "relative", height: "480px" }}>
+              <iframe
+                ref={iframeRef}
+                src={`${baseUrl}/api/files/getFile/${selectedContent.lien}#toolbar=1`}
+                width="100%"
+                height="100%"
+                style={{
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+                title="PDF Viewer"
+              />
+            </Box>
           ) : selectedContent?.dataType === "VIDEO" ? (
-            <iframe
-              title={selectedContent.nom}
-              src={getEmbedUrl(selectedContent.lien)}
-              width="100%"
-              height="500px"
-              allow="autoplay"
-              style={{ border: "none" }}
-              allowFullScreen
-            />
+            <Box sx={{ position: "relative", paddingTop: "56.25%" }}>
+              <iframe
+                title={selectedContent.nom}
+                src={getEmbedUrl(selectedContent.lien)}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </Box>
           ) : (
-            <Typography variant="body1" align="center">
-              No content available.
+            <Typography variant="body1" align="center" sx={{ py: 8 }}>
+              No content available for preview.
             </Typography>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            onClick={handleCloseDialog}
+            variant="contained"
+            color="primary"
+            sx={{
+              borderRadius: "8px",
+              textTransform: "none",
+              px: 3,
+              backgroundColor: "#1976d2",
+              "&:hover": {
+                backgroundColor: "#1565c0",
+              },
+            }}
+          >
             Close
           </Button>
         </DialogActions>

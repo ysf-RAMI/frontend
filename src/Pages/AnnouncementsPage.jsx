@@ -10,6 +10,7 @@ import {
   Avatar,
   InputAdornment,
   CardMedia,
+  Skeleton,
 } from "@mui/material";
 import { Row, Col } from "react-bootstrap";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -17,24 +18,28 @@ import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
 import Footer from "../Components/Footer";
 import defaultImage from "../assets/annonceDefaultImage.jpg";
-import { toast, ToastContainer } from "react-toastify";
 
 const AnnouncementsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true); // Set initial loading to true
   const baseUrl = "http://localhost:8080";
 
   // Fetch announcements
   useEffect(() => {
-    axios
-      .get(`${baseUrl}/api/student/getAllAnnoces`)
-      .then((res) => {
-        setAnnouncements(res.data);
-      })
-      .catch((err) => {
-        toast.error("Error in fetching annonces");
-      });
+    fetchAnnonces();
   }, []);
+
+  const fetchAnnonces = async () => {
+    try {
+      const res = await axios.get(`${baseUrl}/api/student/getAllAnnoces`);
+      setAnnouncements(res.data);
+    } catch (error) {
+      console.error("Error fetching announcements:", error);
+    } finally {
+      setLoading(false); 
+    }
+  };
 
   // Format date
   const formatDate = (dateString) => {
@@ -60,16 +65,8 @@ const AnnouncementsPage = () => {
 
   return (
     <>
-    <ToastContainer
-            autoClose={2500}
-            hideProgressBar={false}
-            closeOnClick={true}
-            newestOnTop={true}
-            closeButton={false}
-            enableMultiContainer={true}
-            position="top-center"
-            zIndex={9999}
-          />
+  
+
       <Box sx={{ py: 8, bgcolor: "background.default", mt: 3 }}>
         <Container maxWidth="xl">
           <Row className="mb-5">
@@ -96,7 +93,7 @@ const AnnouncementsPage = () => {
             </Col>
           </Row>
 
-          {/* Search Bar */}
+
           <Box
             sx={{
               mb: 4,
@@ -126,108 +123,145 @@ const AnnouncementsPage = () => {
             </Grid>
           </Box>
 
-          {/* Announcements Grid */}
-          <Grid container spacing={4}>
-            {filterAnnouncements().map((announcement, index) => (
-              <Grid item xs={12} sm={6} md={4} key={announcement.id}>
-                <Card
-                  sx={{
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    borderRadius: 2,
-                    transition: "transform 0.3s ease",
-                    "&:hover": {
-                      transform: "translateY(-8px)",
-                      boxShadow: 6,
-                    },
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={
-                      announcement.imageUrl
-                        ? `${baseUrl}${announcement.imageUrl}`
-                        : defaultImage
-                    }
-                    alt={announcement.titre}
-                    sx={{
-                      objectFit: "cover",
-                      width: "100%",
-                    }}
-                  />
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+
+          {loading ? (
+
+            <Grid container spacing={4}>
+              {Array.from({ length: 3 }).map((_, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Card sx={{ height: "100%", borderRadius: 2 }}>
+                    <Skeleton variant="rectangular" height={200} />
+                    <CardContent>
                       <Box
+                        sx={{ display: "flex", alignItems: "center", mb: 2 }}
+                      >
+                        <Skeleton variant="circular" width={24} height={24} />
+                        <Skeleton variant="text" width="60%" sx={{ ml: 1 }} />
+                      </Box>
+                      <Skeleton variant="text" width="80%" height={30} />
+                      <Skeleton variant="text" width="100%" height={60} />
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", mt: 2 }}
+                      >
+                        <Skeleton variant="circular" width={40} height={40} />
+                        <Box sx={{ ml: 2 }}>
+                          <Skeleton variant="text" width={100} height={20} />
+                          <Skeleton variant="text" width={80} height={15} />
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+
+            <Grid container spacing={4} sx={{display:"flex",justifyContent:"center",alignItems:"center"}}>
+              {filterAnnouncements().map((announcement) => (
+                <Grid item xs={12} sm={6} md={4} key={announcement.id}>
+                  <Card
+                    sx={{
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      borderRadius: 2,
+                      transition: "transform 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-8px)",
+                        boxShadow: 6,
+                      },
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={
+                        announcement.imageUrl
+                          ? `${baseUrl}${announcement.imageUrl}`
+                          : defaultImage
+                      }
+                      alt={announcement.titre}
+                      sx={{
+                        objectFit: "cover",
+                        width: "100%",
+                      }}
+                    />
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", mb: 2 }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            color: "text.secondary",
+                          }}
+                        >
+                          <AccessTimeIcon sx={{ fontSize: "1rem", mr: 0.5 }} />
+                          <Typography variant="caption">
+                            {formatDate(announcement.date)}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      <Typography
+                        variant="h5"
+                        gutterBottom
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          color: "text.secondary",
+                          fontWeight: "bold",
+                          fontSize: "1.25rem",
+                          mb: 2,
                         }}
                       >
-                        <AccessTimeIcon sx={{ fontSize: "1rem", mr: 0.5 }} />
-                        <Typography variant="caption">
-                          {formatDate(announcement.date)}
-                        </Typography>
-                      </Box>
-                    </Box>
+                        {announcement.titre}
+                      </Typography>
 
-                    <Typography
-                      variant="h5"
-                      gutterBottom
-                      sx={{
-                        fontWeight: "bold",
-                        fontSize: "1.25rem",
-                        mb: 2,
-                      }}
-                    >
-                      {announcement.titre}
-                    </Typography>
-
-                    <Typography
-                      color="text.secondary"
-                      sx={{
-                        mb: 3,
-                        height: "4.5rem",
-                        overflow: "hidden",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: "vertical",
-                      }}
-                    >
-                      {announcement.description}
-                    </Typography>
-
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                      <Avatar
-                        alt={`${announcement.nomProfesseur} ${announcement.prenomProfesseur}`}
+                      <Typography
+                        color="text.secondary"
                         sx={{
-                          mr: 2,
-                          border: "2px solid #fff",
-                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                          mb: 3,
+                          height: "4.5rem",
+                          overflow: "hidden",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
                         }}
-                      />
-                      <Box>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: "bold" }}
-                        >
-                          {`${announcement.nomProfesseur} ${announcement.prenomProfesseur}`}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          Professeur
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                      >
+                        {announcement.description}
+                      </Typography>
 
-          {/* No Announcements Found */}
-          {filterAnnouncements().length === 0 && (
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", mb: 3 }}
+                      >
+                        <Avatar
+                          alt={`${announcement.nomProfesseur} ${announcement.prenomProfesseur}`}
+                          sx={{
+                            mr: 2,
+                            border: "2px solid #fff",
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                          }}
+                        />
+                        <Box>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ fontWeight: "bold" }}
+                          >
+                            {`${announcement.nomProfesseur} ${announcement.prenomProfesseur}`}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Professeur
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+
+
+          {!loading && filterAnnouncements().length === 0 && (
             <Box
               sx={{
                 textAlign: "center",

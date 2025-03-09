@@ -44,12 +44,12 @@ const ProfTable = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(5); // Default rows per page
   const [profs, setProfs] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [addProfPass, setAddProfPass] = useState(false);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(true); // Loading state
 
   const baseUrl = "http://localhost:8080";
   const { token } = JSON.parse(localStorage.getItem("auth")) || {};
@@ -71,6 +71,7 @@ const ProfTable = () => {
       setProfs(response.data);
     } catch (error) {
       console.error("Erreur lors de la récupération des professeurs");
+      toast.error("Erreur lors de la récupération des professeurs");
     } finally {
       setLoading(false); // Stop loading
     }
@@ -78,7 +79,7 @@ const ProfTable = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-    setPage(0);
+    setPage(0); // Reset to first page when searching
   };
 
   const filteredProfs = profs.filter(
@@ -99,7 +100,7 @@ const ProfTable = () => {
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    setPage(0); // Reset to first page when changing rows per page
   };
 
   const handleClose = () => {
@@ -226,22 +227,6 @@ const ProfTable = () => {
     }
   };
 
-  const getPasswordStrength = (password) => {
-    if (password.length === 0) return "";
-    if (password.length < 6) return "Très faible";
-    if (password.length < 8) return "Faible";
-    if (password.length < 10) return "Fort";
-    return "Très fort";
-  };
-
-  const getPasswordStrengthColor = (password) => {
-    if (password.length === 0) return "primary";
-    if (password.length < 6) return "error";
-    if (password.length < 8) return "warning";
-    if (password.length < 10) return "info";
-    return "success";
-  };
-
   const togglePasswordVisibility = (field) => {
     if (field === "newPassword") setShowPassword(!showPassword);
     else if (field === "confirmPassword")
@@ -274,24 +259,26 @@ const ProfTable = () => {
         </Box>
       ) : (
         <>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setOpenAdd(true)}
-            sx={{ m: 2 }}
-            data-aos="fade-down"
-          >
-            Ajouter un Professeur
-          </Button>
+          <Box sx={{ display: "flex", justifyContent: "space-between", pb: 1 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setOpenAdd(true)}
+              data-aos="fade-down"
+              sx={{pt:0.5,pb:0.5}}
+            >
+              Ajouter un Professeur
+            </Button>
 
-          <TextField
-            label="Rechercher un Professeur"
-            variant="outlined"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            sx={{ m: 2, width: "300px" }}
-            data-aos="fade-down"
-          />
+            <TextField
+              label="Rechercher un Professeur"
+              variant="outlined"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              sx={{ width: "300px" }}
+              data-aos="fade-down"
+            />
+          </Box>
 
           {profs.length === 0 ? (
             <Typography variant="body1" align="center" sx={{ p: 2 }}>
@@ -301,7 +288,7 @@ const ProfTable = () => {
             <>
               <TableContainer
                 component={Paper}
-                sx={{ m: 2 }}
+                sx={{  maxHeight: "calc(100vh - 200px)" }} // Adjust height to fit screen
                 data-aos="fade-up"
               >
                 <Table>
@@ -333,7 +320,7 @@ const ProfTable = () => {
                             onClick={() => handleEditClick(p.id)}
                             color="info"
                             variant="outlined"
-                            sx={{ m: 0.5 }}
+                            sx={{ ml: 0.5 }}
                           >
                             Edit
                           </Button>
@@ -341,7 +328,7 @@ const ProfTable = () => {
                             onClick={() => handleDeleteClick(p.id)}
                             color="secondary"
                             variant="outlined"
-                            sx={{ m: 0.5 }}
+                            sx={{ ml: 0.5 }}
                           >
                             Delete
                           </Button>
@@ -349,7 +336,7 @@ const ProfTable = () => {
                             onClick={() => handleChangePasswordClick(p.id)}
                             color="warning"
                             variant="outlined"
-                            sx={{ m: 0.5 }}
+                            sx={{ ml: 0.5 }}
                             startIcon={<Key />}
                           >
                             Password
@@ -369,7 +356,6 @@ const ProfTable = () => {
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
-                data-aos="fade-up"
               />
             </>
           )}
@@ -501,8 +487,6 @@ const ProfTable = () => {
             fullWidth
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            color={getPasswordStrengthColor(newPassword)}
-            helperText={getPasswordStrength(newPassword)}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">

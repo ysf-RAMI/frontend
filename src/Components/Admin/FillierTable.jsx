@@ -188,59 +188,60 @@ const FiliereTable = () => {
 
   return (
     <>
-
       {/* Loading Spinner */}
       {loading && (
         <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
-          zIndex: 9999,
-        }}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 9999,
+          }}
         >
-        <ToastContainer
-          autoClose={2500}
-          hideProgressBar={false}
-          closeOnClick={true}
-          newestOnTop={true}
-          closeButton={false}
-          enableMultiContainer={true}
-          position="top-center"
-          zIndex={9999}
-        />
+          <ToastContainer
+            autoClose={2500}
+            hideProgressBar={false}
+            closeOnClick={true}
+            newestOnTop={true}
+            closeButton={false}
+            enableMultiContainer={true}
+            position="top-center"
+            zIndex={9999}
+          />
           <CircularProgress color="primary" />
         </Box>
       )}
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleAddClick}
-        sx={{ m: 2 }}
-      >
-        Add Filière
-      </Button>
+      <Box sx={{display:"flex",justifyContent:"space-between"}}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleAddClick}
+          sx={{ m: 2 }}
+        >
+          Add Filière
+        </Button>
 
-      {/* Search Box */}
-      <TextField
-        label="Search Filière"
-        variant="outlined"
-        value={searchTerm}
-        onChange={handleSearchChange}
-        sx={{ m: 2, width: "300px" }}
-      />
+        {/* Search Box */}
+        <TextField
+          label="Search Filière"
+          variant="outlined"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          sx={{ m: 2, width: "300px" }}
+        />
+      </Box>
 
       {filiere && filiere.length > 0 ? (
         <>
-          <TableContainer component={Paper} sx={{ m: 2 }}>
+          <TableContainer component={Paper} sx={{}}>
             <Table>
               <TableHead style={{ backgroundColor: "#f4f4f9" }}>
                 <TableRow>

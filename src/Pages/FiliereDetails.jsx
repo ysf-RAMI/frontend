@@ -6,17 +6,16 @@ import {
   Card,
   CardContent,
   Divider,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   TextField,
-  Autocomplete,
   Chip,
   Select,
   MenuItem,
   InputLabel,
   FormControl,
+  Box,
+  Skeleton,
 } from "@mui/material";
+import { Search } from "@mui/icons-material";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -24,34 +23,122 @@ import "../styles/FiliereDetails.css";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 
-// Initialize AOS animations
-AOS.init({
-  duration: 1000,
-  once: true,
-  mirror: false,
-});
+// Module Card Skeleton Component
+const ModuleCardSkeleton = () => {
+  return (
+    <Card className="moduleCard">
+      <CardContent>
+        <Skeleton
+          variant="rectangular"
+          height={200}
+          animation="wave"
+          style={{ borderRadius: "8px" }}
+        />
+        <Skeleton
+          height={36}
+          style={{ marginTop: "10px", marginBottom: "10px" }}
+        />
+        <Divider style={{ margin: "15px 0" }} />
+        <Skeleton height={20} />
+        <Skeleton height={20} width="80%" />
+        <Skeleton height={20} width="60%" />
+        <Skeleton
+          height={32}
+          width={100}
+          style={{ marginTop: "10px", borderRadius: "16px" }}
+        />
+      </CardContent>
+    </Card>
+  );
+};
+
+// Module Card Component
+const ModuleCard = ({ module, filiereId }) => {
+  return (
+    <Link
+      to={`/filiere/${filiereId}/module/${module.id}`}
+      style={{ textDecoration: "none" }}
+    >
+      <Card className="moduleCard">
+        <CardContent>
+          <img
+            src={`https://dummyimage.com/400x170/000/fff&text=${module.name}`}
+            alt={module.name}
+            style={{
+              width: "100%",
+              height: "200px",
+              borderRadius: "8px",
+            }}
+          />
+          <Typography variant="h5" gutterBottom style={{ marginTop: "10px" }}>
+            {module.name}
+          </Typography>
+          <Divider style={{ margin: "15px 0" }} />
+          <Typography
+            variant="body1"
+            color="textSecondary"
+            sx={{
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+              WebkitLineClamp: 3,
+              overflow: "hidden",
+            }}
+          >
+            {module.description}
+          </Typography>
+          <Chip
+            label={module.semestre}
+            color="primary"
+            style={{ marginTop: "10px" }}
+          />
+        </CardContent>
+      </Card>
+    </Link>
+  );
+};
 
 export default function FiliereDetails() {
   const { filiereId } = useParams();
   const [modules, setModules] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [openModal, setOpenModal] = useState(false);
   const [selectedSemester, setSelectedSemester] = useState("all");
+  const [filiereName, setFiliereName] = useState("Filière");
   const baseUrl = "http://localhost:8080";
 
   useEffect(() => {
-    axios
-      .get(`${baseUrl}/api/student/getAllModuleByFiliereId/${filiereId}`)
-      .then((response) => {
-        setModules(response.data);
-      })
-      .catch((error) => {
-        toast.error("Error fetching modules:", error);
-      });
-  }, [filiereId]);
+    // Initialize AOS animations
+    AOS.init({
+      duration: 1000,
+      once: true,
+      mirror: false,
+    });
 
-  const handleSearchClick = () => setOpenModal(true);
-  const handleCloseModal = () => setOpenModal(false);
+    // Fetch modules data
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/student/getAllModuleByFiliereId/${filiereId}`
+        );
+
+        // Add a small delay to make the loading state visible
+        setTimeout(() => {
+          const data = response.data;
+          setModules(data);
+          if (data.length > 0) {
+            setFiliereName(data[0].filiereName);
+          }
+          setLoading(false);
+        }, 1500);
+      } catch (error) {
+        toast.error("Erreur lors du chargement des modules");
+        console.error("Error fetching modules:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [filiereId]);
 
   // Filter modules by semester and search query
   const filteredModules = modules.filter((module) => {
@@ -66,11 +153,57 @@ export default function FiliereDetails() {
   // Extract unique semesters for the filter dropdown
   const semesters = [...new Set(modules.map((module) => module.semestre))];
 
+  // Generate skeleton placeholders
+  const skeletonCards = Array(6)
+    .fill()
+    .map((_, index) => (
+      <Col
+        key={`skeleton-${index}`}
+        lg={4}
+        md={6}
+        sm={12}
+        className="mb-4"
+        data-aos="fade-up"
+        data-aos-delay={index * 100}
+        style={{ display: "flex", justifyContent: "center" }}
+      >
+        <div className="card-wrapper">
+          <ModuleCardSkeleton />
+        </div>
+      </Col>
+    ));
+
   return (
     <Container
       className="main-content"
       style={{ marginTop: "100px", marginBottom: "30px" }}
     >
+      <style>
+        {`
+          .moduleCard {
+            height: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          }
+          
+          .moduleCard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+          }
+          
+          .card-wrapper {
+            width: 100%;
+            max-width: 400px;
+          }
+          
+          .no-results {
+            text-align: center;
+            padding: 40px 0;
+            width: 100%;
+          }
+        `}
+      </style>
+
       <ToastContainer
         autoClose={2500}
         hideProgressBar={false}
@@ -81,13 +214,14 @@ export default function FiliereDetails() {
         position="top-center"
         zIndex={9999}
       />
+
       {/* Filière Title */}
       <Typography
         variant="h4"
         className="serviceMainTitle"
         data-aos="fade-down"
       >
-        {modules.length > 0 ? modules[0].filiereName : "Filière"}
+        {loading ? <Skeleton width={300} height={50} /> : filiereName}
       </Typography>
 
       {/* Search Bar and Semester Filter */}
@@ -96,10 +230,12 @@ export default function FiliereDetails() {
           Rechercher un module
         </Typography>
         <TextField
-          onClick={handleSearchClick}
           fullWidth
           placeholder="Tapez pour rechercher..."
           style={{ marginBottom: "20px" }}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          disabled={loading}
         />
         <FormControl fullWidth style={{ marginBottom: "20px" }}>
           <InputLabel id="semester-filter-label">Semestre</InputLabel>
@@ -108,6 +244,7 @@ export default function FiliereDetails() {
             value={selectedSemester}
             onChange={(e) => setSelectedSemester(e.target.value)}
             label="Semestre"
+            disabled={loading}
           >
             <MenuItem value="all">Tous les semestres</MenuItem>
             {semesters.map((semester) => (
@@ -122,117 +259,36 @@ export default function FiliereDetails() {
       {/* Module List */}
       <div className="module-list">
         <Row className="justify-content-center" style={{ gap: "20px 0" }}>
-          {filteredModules.map((module) => (
-            <Col key={module.id} lg={4} md={6} sm={12} data-aos="fade-up">
-              <Link
-                to={`/filiere/${filiereId}/module/${module.id}`}
-                style={{ textDecoration: "none" }}
+          {loading ? (
+            skeletonCards
+          ) : filteredModules.length > 0 ? (
+            filteredModules.map((module) => (
+              <Col
+                key={module.id}
+                lg={4}
+                md={6}
+                sm={12}
+                data-aos="fade-up"
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginBottom: "20px",
+                }}
               >
-                <Card className="moduleCard">
-                  <CardContent>
-                    <img
-                      src={`https://dummyimage.com/400x170/000/fff&text=${module.name}`}
-                      alt={module.name}
-                      style={{
-                        width: "100%",
-                        height: "200px",
-                        borderRadius: "8px",
-                      }}
-                    />
-                    <Typography
-                      variant="h5"
-                      gutterBottom
-                      style={{ marginTop: "10px" }}
-                    >
-                      {module.name}
-                    </Typography>
-                    <Divider style={{ margin: "15px 0" }} />
-                    <Typography
-                      variant="body1"
-                      color="textSecondary"
-                      sx={{
-                        display: "-webkit-box",
-                        WebkitBoxOrient: "vertical",
-                        WebkitLineClamp: 3,
-                        overflow: "hidden",
-                      }}
-                    >
-                      {module.description}
-                    </Typography>
-                    <Chip
-                      label={module.semestre}
-                      color="primary"
-                      style={{ marginTop: "10px" }}
-                    />
-                  </CardContent>
-                </Card>
-              </Link>
-            </Col>
-          ))}
+                <div className="card-wrapper">
+                  <ModuleCard module={module} filiereId={filiereId} />
+                </div>
+              </Col>
+            ))
+          ) : (
+            <div className="no-results">
+              <Typography variant="h6" color="textSecondary">
+                Aucun module trouvé pour "{searchQuery}"
+              </Typography>
+            </div>
+          )}
         </Row>
       </div>
-
-      {/* Search Modal */}
-      <Dialog
-        open={openModal}
-        onClose={handleCloseModal}
-        fullWidth
-        maxWidth="md"
-      >
-        <DialogTitle>
-          <Typography variant="h5" style={{ fontWeight: 700 }}>
-            Rechercher un module
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <Autocomplete
-            sx={{ marginTop: "10px" }}
-            freeSolo
-            fullWidth
-            options={modules.map((m) => m.name)}
-            onInputChange={(event, newInputValue) =>
-              setSearchQuery(newInputValue)
-            }
-            renderInput={(params) => (
-              <TextField {...params} label="Rechercher..." />
-            )}
-          />
-          <div style={{ marginTop: "15px" }}>
-            {filteredModules.length > 0 ? (
-              filteredModules.map((module) => (
-                <Link
-                  to={`/filiere/${filiereId}/module/${module.id}`}
-                  key={module.id}
-                  style={{ textDecoration: "none" }}
-                >
-                  <Card
-                    variant="outlined"
-                    style={{ marginBottom: "10px", cursor: "pointer" }}
-                  >
-                    <CardContent>
-                      <Typography variant="body1" style={{ fontWeight: 600 }}>
-                        {module.name}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {module.description}
-                      </Typography>
-                      <Chip
-                        label={module.semestre}
-                        color="primary"
-                        style={{ marginTop: "10px" }}
-                      />
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))
-            ) : (
-              <Typography variant="body2" color="textSecondary">
-                Aucun module trouvé.
-              </Typography>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
     </Container>
   );
 }
