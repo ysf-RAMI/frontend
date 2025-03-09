@@ -58,7 +58,6 @@ import "aos/dist/aos.css";
 import axios from "axios";
 import logo from "../assets/logoSite.png";
 import { ArrowBack, Home, Search, FilterList } from "@mui/icons-material";
-import { ToastContainer, toast } from "react-toastify";
 
 const getEmbedUrl = (youtubeUrl) => {
   const regex = /^https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/;
@@ -120,7 +119,6 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
       })
       .catch((error) => {
         console.error("Error fetching resources:", error);
-        toast.error("Failed to load resources");
         setLoading(false);
       });
   }, [moduleId, selectedSection]);
@@ -209,16 +207,6 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
         backgroundColor: "#fff",
       }}
     >
-      <ToastContainer
-        autoClose={2500}
-        hideProgressBar={false}
-        closeOnClick={true}
-        newestOnTop={true}
-        closeButton={false}
-        enableMultiContainer={true}
-        position="top-center"
-        zIndex={9999}
-      />
       {/* Drawer */}
       <Drawer
         variant={isSmallScreen ? "temporary" : "persistent"}
@@ -244,9 +232,11 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
               width: "70%",
               padding: "10px",
               marginBottom: "40px",
-              cursor:"pointer"
+              cursor: "pointer",
             }}
-            onClick={()=>{navigate("/")}}
+            onClick={() => {
+              navigate("/");
+            }}
           />
           <Typography
             variant="h6"

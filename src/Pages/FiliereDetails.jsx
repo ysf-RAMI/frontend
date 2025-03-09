@@ -21,7 +21,6 @@ import "aos/dist/aos.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/FiliereDetails.css";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
 
 // Module Card Skeleton Component
 const ModuleCardSkeleton = () => {
@@ -131,7 +130,6 @@ export default function FiliereDetails() {
           setLoading(false);
         }, 1500);
       } catch (error) {
-        toast.error("Erreur lors du chargement des modules");
         console.error("Error fetching modules:", error);
         setLoading(false);
       }
@@ -204,16 +202,7 @@ export default function FiliereDetails() {
         `}
       </style>
 
-      <ToastContainer
-        autoClose={2500}
-        hideProgressBar={false}
-        closeOnClick={true}
-        newestOnTop={true}
-        closeButton={false}
-        enableMultiContainer={true}
-        position="top-center"
-        zIndex={9999}
-      />
+      
 
       {/* Filière Title */}
       <Typography
