@@ -20,6 +20,7 @@ import {
   Select,
   LinearProgress,
   Typography,
+  CircularProgress,
   TablePagination,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -27,7 +28,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AOS from "aos";
-import "aos/dist/aos.css"; // Import AOS styles
+import "aos/dist/aos.css";
 
 const ExamTable = () => {
   const [resource, setResource] = useState([]);
@@ -36,10 +37,12 @@ const ExamTable = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openPdfDialog, setOpenPdfDialog] = useState(false); // State for PDF dialog
   const [selectedExam, setSelectedExam] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [fileName, setFileName] = useState("");
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -50,38 +53,53 @@ const ExamTable = () => {
 
   useEffect(() => {
     AOS.init({
-      duration: 220,
+      duration: 200,
       once: true,
     });
   }, []);
 
   useEffect(() => {
-    fetchResources();
-    fetchModules();
+    fetchData();
   }, []);
 
-  const fetchResources = () => {
-    axios
-      .get(`${baseUrl}/api/professeur/getAllResources/${profId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        setResource(response.data);
-        setExams(response.data.filter((r) => r.type === "EXAM"));
-      })
-      .catch((error) => {
-        toast.error("Error while downloading Exams");
-      });
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([fetchResources(), fetchModules()]);
+    } catch (error) {
+      toast.error("Failed to fetch data.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const fetchModules = () => {
-    axios
-      .get(`${baseUrl}/api/professeur/getAllModuleByProfId/${profId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        setModules(response.data);
-      });
+  const fetchResources = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/professeur/getAllResources/${profId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setResource(response.data);
+      setExams(response.data.filter((r) => r.type === "EXAM"));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchModules = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/professeur/getAllModuleByProfId/${profId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setModules(response.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleSearchChange = (event) => {
@@ -126,83 +144,20 @@ const ExamTable = () => {
     setOpenDeleteDialog(true);
   };
 
+  const handleOpenPdfDialog = (exam) => {
+    setSelectedExam(exam);
+    setOpenPdfDialog(true); // Open PDF dialog
+  };
+
   const handleCloseDialogs = () => {
     setOpenAddDialog(false);
     setOpenEditDialog(false);
     setOpenDeleteDialog(false);
+    setOpenPdfDialog(false); // Close PDF dialog
     setSelectedExam(null);
     setSelectedModule("");
     setFileName("");
     setUploadProgress(0);
-  };
-
-  const handleSave = (examData, isEdit = false) => {
-    const formData = new FormData();
-
-    formData.append("nom", examData.name);
-    formData.append("type", "EXAM");
-
-    if (examData.dataType === "VIDEO") {
-      formData.append("dataType", "VIDEO");
-      formData.append("lien", examData.url);
-    } else if (examData.dataType === "FICHIER") {
-      formData.append("dataType", "FICHIER");
-      if (examData.file) {
-        formData.append("data", examData.file);
-      }
-    }
-
-    const selectedModuleObj = modules.find((m) => m.name === selectedModule);
-    if (selectedModuleObj) {
-      formData.append("moduleId", selectedModuleObj.id);
-    }
-    formData.append("professorId", profId);
-
-    if (isEdit && examData.id) {
-      formData.append("id", examData.id);
-    }
-
-    const url = isEdit
-      ? `${baseUrl}/api/professeur/updateResource`
-      : `${baseUrl}/api/professeur/addResource`;
-
-    const method = isEdit ? "put" : "post";
-
-    axios[method](url, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-      onUploadProgress: (progressEvent) => {
-        const progress = Math.round(
-          (progressEvent.loaded / progressEvent.total) * 100
-        );
-        setUploadProgress(progress);
-      },
-    })
-      .then((response) => {
-        toast.success(`Exam ${isEdit ? "updated" : "added"} successfully!`);
-        fetchResources(); // Refresh the resource list
-        handleCloseDialogs();
-      })
-      .catch((error) => {
-        toast.error("Failed to save/update exam.");
-      });
-  };
-
-  const handleDelete = () => {
-    axios
-      .delete(`${baseUrl}/deleteResource/${selectedExam.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(() => {
-        toast.success("Exam deleted successfully!");
-        fetchResources(); // Refresh the resource list
-        handleCloseDialogs();
-      })
-      .catch((error) => {
-        toast.error("Failed to delete exam.");
-      });
   };
 
   return (
@@ -217,8 +172,10 @@ const ExamTable = () => {
         position="top-center"
         zIndex={9999}
       />
+      {loading && (
+        <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
+      )}
 
-      {/* Add Exam Button */}
       <Button
         variant="contained"
         color="primary"
@@ -229,18 +186,16 @@ const ExamTable = () => {
         Add Exam
       </Button>
 
-      {/* Search Box */}
       <TextField
         label="Search Exams"
         variant="outlined"
         value={searchTerm}
         onChange={handleSearchChange}
-        sx={{ m: 1, width: "300px" }}
+        sx={{ m: 2, width: "300px" }}
         data-aos="fade-down"
       />
 
-      {/* Exam Table */}
-      <TableContainer component={Paper} sx={{ m: 1 }} data-aos="fade-up">
+      <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
         <Table>
           <TableHead>
             <TableRow>
@@ -268,12 +223,9 @@ const ExamTable = () => {
                   ) : (
                     <Button
                       variant="outlined"
-                      component="a"
-                      href={"http://localhost:8080" + exam.lien}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      onClick={() => handleOpenPdfDialog(exam)} // Open PDF dialog
                     >
-                      Download
+                      View PDF
                     </Button>
                   )}
                 </TableCell>
@@ -283,13 +235,13 @@ const ExamTable = () => {
                     onClick={() => handleOpenEditDialog(exam)}
                     color="info"
                     variant="outlined"
-                    sx={{ mr: 1 }}
                   >
                     Edit
                   </Button>
                   <Button
                     onClick={() => handleOpenDeleteDialog(exam)}
                     color="secondary"
+                    sx={{ ml: 1 }}
                     variant="outlined"
                   >
                     Delete
@@ -301,7 +253,6 @@ const ExamTable = () => {
         </Table>
       </TableContainer>
 
-      {/* Pagination */}
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
@@ -313,24 +264,25 @@ const ExamTable = () => {
         data-aos="fade-up"
       />
 
-      {/* Add Dialog */}
-      <AddDialog
+      <ExamFormDialog
         open={openAddDialog}
         onClose={handleCloseDialogs}
-        onSave={handleSave}
         modules={modules}
         selectedModule={selectedModule}
         setSelectedModule={setSelectedModule}
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
+        fetchResources={fetchResources}
+        baseUrl={baseUrl}
+        token={token}
+        profId={profId}
+        mode="add"
       />
 
-      {/* Edit Dialog */}
-      <EditDialog
+      <ExamFormDialog
         open={openEditDialog}
         onClose={handleCloseDialogs}
-        onSave={handleSave}
         exam={selectedExam}
         modules={modules}
         selectedModule={selectedModule}
@@ -338,41 +290,163 @@ const ExamTable = () => {
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
+        fetchResources={fetchResources}
+        baseUrl={baseUrl}
+        token={token}
+        profId={profId}
+        mode="edit"
       />
 
-      {/* Delete Dialog */}
       <DeleteDialog
         open={openDeleteDialog}
         onClose={handleCloseDialogs}
-        onDelete={handleDelete}
         exam={selectedExam}
+        fetchResources={fetchResources}
+        baseUrl={baseUrl}
+        token={token}
       />
+
+      {/* PDF Dialog */}
+      <Dialog
+        open={openPdfDialog}
+        onClose={handleCloseDialogs}
+        fullWidth
+        maxWidth="md"
+        data-aos="zoom-in"
+      >
+        <DialogTitle
+          sx={{
+            background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+            color: "white",
+            fontWeight: "bold",
+            mb: 1,
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          View PDF: {selectedExam?.nom}
+        </DialogTitle>
+        <DialogContent>
+          <iframe
+            src={`http://localhost:8080/api/files/getFile/${selectedExam?.lien}#toolbar=0`}
+            width="100%"
+            height="500px"
+            style={{ border: "none" }}
+            title="PDF Viewer"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialogs} variant="outlined" color="info">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
 
-// Add Dialog Component
-const AddDialog = ({
+const ExamFormDialog = ({
   open,
   onClose,
-  onSave,
+  exam,
   modules,
   selectedModule,
   setSelectedModule,
   fileName,
   setFileName,
   uploadProgress,
+  fetchResources,
+  baseUrl,
+  token,
+  profId,
+  mode,
 }) => {
+  // Initialize state with default values
   const [examData, setExamData] = useState({
+    id: "",
     name: "",
     dataType: "",
-    url: "",
+    lien: "",
     file: null,
   });
 
-  const handleSave = () => {
-    toast.success("Saving new exam:");
-    onSave(examData);
+  // Reset state when the dialog is opened or when the exam prop changes
+  useEffect(() => {
+    if (mode === "add") {
+      // Reset state for adding a new exam
+      setExamData({
+        id: "",
+        name: "",
+        dataType: "",
+        lien: "",
+        file: null,
+      });
+      setSelectedModule("");
+      setFileName("");
+    } else if (exam) {
+      // Set state for editing an existing exam
+      setExamData({
+        id: exam.id,
+        name: exam.nom,
+        dataType: exam.dataType,
+        lien: exam.lien,
+        file: null,
+      });
+      setSelectedModule(exam.moduleName);
+      setFileName("");
+    }
+  }, [open, exam, mode]); // Reset when the dialog opens or the exam prop changes
+
+  const handleSave = async () => {
+    if (
+      !examData.name ||
+      !selectedModule ||
+      (examData.dataType === "VIDEO" && !examData.lien) ||
+      (examData.dataType === "FICHIER" && !examData.file)
+    ) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("id", examData.id);
+    formData.append("nom", examData.name);
+    formData.append("type", "EXAM");
+    formData.append("dataType", examData.dataType);
+
+    if (examData.dataType === "VIDEO") {
+      formData.append("lien", examData.lien);
+    } else if (examData.dataType === "FICHIER") {
+      formData.append("data", examData.file);
+    }
+
+    const selectedModuleObj = modules.find((m) => m.name === selectedModule);
+    if (selectedModuleObj) {
+      formData.append("moduleId", selectedModuleObj.id);
+    }
+    formData.append("professorId", profId);
+
+    try {
+      const url =
+        mode === "add"
+          ? `${baseUrl}/api/professeur/addResource`
+          : `${baseUrl}/api/professeur/updateResource`;
+      const method = mode === "add" ? "post" : "put";
+
+      await axios[method](url, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success(
+        `Exam ${mode === "add" ? "added" : "updated"} successfully!`
+      );
+      fetchResources();
+      onClose();
+    } catch (error) {
+      toast.error(`Failed to ${mode === "add" ? "add" : "update"} exam.`);
+    }
   };
 
   const handleFileChange = (e) => {
@@ -396,7 +470,7 @@ const AddDialog = ({
           textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
         }}
       >
-        Add Exam
+        {mode === "add" ? "Add Exam" : "Edit Exam"}
       </DialogTitle>
       <DialogContent>
         <TextField
@@ -404,7 +478,7 @@ const AddDialog = ({
           fullWidth
           value={examData.name}
           onChange={(e) => setExamData({ ...examData, name: e.target.value })}
-          sx={{ mt: 2, mb: 2 }}
+          sx={{ mb: 2, mt: 2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Type</InputLabel>
@@ -420,13 +494,12 @@ const AddDialog = ({
         </FormControl>
         {examData.dataType === "VIDEO" ? (
           <>
-            {" "}
             <TextField
               label="Video URL"
               fullWidth
-              value={examData.url}
+              value={examData.lien}
               onChange={(e) =>
-                setExamData({ ...examData, url: e.target.value })
+                setExamData({ ...examData, lien: e.target.value })
               }
               sx={{}}
             />
@@ -435,36 +508,39 @@ const AddDialog = ({
             </p>
           </>
         ) : (
-          <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
-            Upload PDF
-            <input type="file" hidden onChange={handleFileChange} />
-          </Button>
-        )}
-        {fileName && <Typography>{fileName}</Typography>}
-        {uploadProgress > 0 && (
-          <LinearProgress variant="determinate" value={uploadProgress} />
+          <>
+            <Button
+              variant="outlined"
+              component="label"
+              fullWidth
+              sx={{ mb: 2 }}
+            >
+              Upload PDF
+              <input type="file" hidden onChange={handleFileChange} />
+            </Button>
+            {fileName && <Typography>{fileName}</Typography>}
+            {uploadProgress > 0 && (
+              <LinearProgress variant="determinate" value={uploadProgress} />
+            )}
+          </>
         )}
         <Autocomplete
           options={modules}
           getOptionLabel={(option) => option.name}
           value={modules.find((m) => m.name === selectedModule) || null}
-          onChange={(e, newValue) => {
-            setSelectedModule(newValue ? newValue.name : "");
-          }}
+          onChange={(e, newValue) =>
+            setSelectedModule(newValue ? newValue.name : "")
+          }
           renderInput={(params) => (
             <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
           )}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="primary">
+        <Button onClick={onClose} variant="outlined" color="info">
           Cancel
         </Button>
-        <Button
-          onClick={handleSave}
-          variant="outlined"
-          sx={{ color: "white", backgroundColor: "#01162e" }}
-        >
+        <Button onClick={handleSave} color="success" variant="outlined">
           Save
         </Button>
       </DialogActions>
@@ -472,129 +548,30 @@ const AddDialog = ({
   );
 };
 
-// Edit Dialog Component
-const EditDialog = ({
+const DeleteDialog = ({
   open,
   onClose,
-  onSave,
   exam,
-  modules,
-  selectedModule,
-  setSelectedModule,
-  fileName,
-  setFileName,
-  uploadProgress,
+  fetchResources,
+  baseUrl,
+  token,
 }) => {
-  const [examData, setExamData] = useState({
-    id: exam?.id || "",
-    name: exam?.nom || "",
-    dataType: exam?.dataType || "",
-    url: exam?.lien || "",
-    file: null,
-  });
-
-  useEffect(() => {
-    if (exam) {
-      setExamData({
-        id: exam.id,
-        name: exam.nom,
-        dataType: exam.dataType,
-        url: exam.lien,
-        file: null,
-      });
-      setSelectedModule(exam.moduleName);
-      setFileName(""); // Reset file name when opening the dialog
-    }
-  }, [exam]);
-
-  const handleSave = () => {
-    toast.success("Updating exam:");
-    onSave(examData, true);
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setExamData({ ...examData, file });
-      setFileName(file.name);
-    } else {
-      setFileName("");
+  const handleDelete = async () => {
+    try {
+      await axios.delete(
+        `${baseUrl}/api/professeur/deleteResource/${exam.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      toast.success("Exam deleted successfully!");
+      fetchResources();
+      onClose();
+    } catch (error) {
+      toast.error("Failed to delete exam.");
     }
   };
 
-  return (
-    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
-      <DialogTitle
-        sx={{
-          background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
-          color: "white",
-          fontWeight: "bold",
-          mb: 1,
-          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-        }}
-      >
-        Edit Exam
-      </DialogTitle>
-      <DialogContent>
-        <TextField
-          label="Exam Name"
-          fullWidth
-          value={examData.name}
-          onChange={(e) => setExamData({ ...examData, name: e.target.value })}
-          sx={{ mt: 2, mb: 2 }}
-        />
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Type</InputLabel>
-          <Select
-            value={examData.dataType}
-            onChange={(e) =>
-              setExamData({ ...examData, dataType: e.target.value })
-            }
-          >
-            <MenuItem value="VIDEO">Video</MenuItem>
-            <MenuItem value="FICHIER">PDF</MenuItem>
-          </Select>
-        </FormControl>
-        {examData.dataType === "VIDEO" ? (
-          <TextField
-            label="Video URL"
-            fullWidth
-            value={examData.url}
-            onChange={(e) => setExamData({ ...examData, url: e.target.value })}
-            sx={{ mb: 2 }}
-          />
-        ) : (
-          <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
-            Upload PDF
-            <input type="file" hidden onChange={handleFileChange} />
-          </Button>
-        )}
-        {fileName && <Typography>{fileName}</Typography>}
-        {uploadProgress > 0 && (
-          <LinearProgress variant="determinate" value={uploadProgress} />
-        )}
-        <Autocomplete
-          options={modules}
-          getOptionLabel={(option) => option.name}
-          value={modules.find((m) => m.name === selectedModule) || null}
-          onChange={(e, newValue) => {
-            setSelectedModule(newValue ? newValue.name : "");
-          }}
-          renderInput={(params) => (
-            <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
-          )}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave}>Save</Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
-// eslint-disable-next-line react/prop-types
-const DeleteDialog = ({ open, onClose, onDelete, exam }) => {
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
       <DialogTitle
@@ -609,16 +586,16 @@ const DeleteDialog = ({ open, onClose, onDelete, exam }) => {
         Delete Exam
       </DialogTitle>
       <DialogContent>
-        <DialogContentText color="error">
+        <DialogContentText color="error" sx={{ mt: 2 }}>
           Are you sure you want to delete this exam:{" "}
           <strong>{exam?.nom}</strong>?
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined">
+        <Button onClick={onClose} variant="outlined" color="info">
           Cancel
         </Button>
-        <Button onClick={onDelete} variant="contained" color="error">
+        <Button onClick={handleDelete} color="error" variant="contained">
           Delete
         </Button>
       </DialogActions>

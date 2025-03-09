@@ -23,13 +23,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import AOS from "aos";
 import "aos/dist/aos.css"; // Import AOS styles
-import {
-  Add,
-  AddCircleRounded,
-  AddIcCallOutlined,
-  DeleteForever,
-  Edit,
-} from "@mui/icons-material";
+import { Add, DeleteForever, Edit } from "@mui/icons-material";
 
 const ModuleTable = () => {
   const [modules, setModules] = useState([]);
@@ -194,6 +188,11 @@ const ModuleTable = () => {
 
   const handleAddClick = () => {
     setOpenAdd(true);
+    // Reset state for adding a new module
+    setAddModuleName("");
+    setSelectedFiliereId(null);
+    setSemestreSelected(null);
+    setDescription("");
   };
 
   const handleAddAgree = () => {

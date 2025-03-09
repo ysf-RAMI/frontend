@@ -375,8 +375,30 @@ const AddDialog = ({
     file: null,
   });
 
+  // Reset state when the dialog is opened
+  useEffect(() => {
+    if (open) {
+      setTpData({
+        name: "",
+        dataType: "",
+        url: "",
+        file: null,
+      });
+      setSelectedModule("");
+      setFileName("");
+    }
+  }, [open]);
+
   const handleSave = () => {
-    toast.success("New TP saved");
+    if (
+      !tpData.name ||
+      !selectedModule ||
+      (tpData.dataType === "VIDEO" && !tpData.url) ||
+      (tpData.dataType === "FICHIER" && !tpData.file)
+    ) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
     onSave(tpData);
   };
 
@@ -423,7 +445,6 @@ const AddDialog = ({
         </FormControl>
         {tpData.dataType === "VIDEO" ? (
           <>
-            {" "}
             <TextField
               label="Video URL"
               fullWidth
@@ -500,12 +521,20 @@ const EditDialog = ({
         file: null,
       });
       setSelectedModule(tp.moduleName);
-      setFileName(""); // Reset file name when opening the dialog
+      setFileName("");
     }
   }, [tp]);
 
   const handleSave = () => {
-    toast.succes("TP updated");
+    if (
+      !tpData.name ||
+      !selectedModule ||
+      (tpData.dataType === "VIDEO" && !tpData.url) ||
+      (tpData.dataType === "FICHIER" && !tpData.file)
+    ) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
     onSave(tpData, true);
   };
 

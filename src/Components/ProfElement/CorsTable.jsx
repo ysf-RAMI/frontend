@@ -28,7 +28,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AOS from "aos";
-import "aos/dist/aos.css"; // Import AOS styles
+import "aos/dist/aos.css";
 
 const CorsTable = () => {
   const [resource, setResource] = useState([]);
@@ -38,6 +38,7 @@ const CorsTable = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openPdfDialog, setOpenPdfDialog] = useState(false); // State for PDF dialog
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -51,11 +52,10 @@ const CorsTable = () => {
   const token = JSON.parse(localStorage.getItem("auth")).token;
   const profId = localStorage.getItem("profId");
 
-  // Initialize AOS
   useEffect(() => {
     AOS.init({
-      duration: 200, // Animation duration
-      once: true, // Whether animation should happen only once
+      duration: 200,
+      once: true,
     });
   }, []);
 
@@ -159,10 +159,16 @@ const CorsTable = () => {
     setOpenDeleteDialog(true);
   };
 
+  const handleOpenPdfDialog = (course) => {
+    setSelectedCourse(course);
+    setOpenPdfDialog(true); // Open PDF dialog
+  };
+
   const handleCloseDialogs = () => {
     setOpenAddDialog(false);
     setOpenEditDialog(false);
     setOpenDeleteDialog(false);
+    setOpenPdfDialog(false); // Close PDF dialog
     setSelectedCourse(null);
     setSelectedModule("");
     setFileName("");
@@ -185,7 +191,6 @@ const CorsTable = () => {
         <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
       )}
 
-      {/* Add Course Button */}
       <Button
         variant="contained"
         color="primary"
@@ -196,7 +201,6 @@ const CorsTable = () => {
         Add Course
       </Button>
 
-      {/* Search Box */}
       <TextField
         label="Search Courses"
         variant="outlined"
@@ -206,7 +210,6 @@ const CorsTable = () => {
         data-aos="fade-down"
       />
 
-      {/* Course Table */}
       <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
         <Table>
           <TableHead>
@@ -235,12 +238,9 @@ const CorsTable = () => {
                   ) : (
                     <Button
                       variant="outlined"
-                      component="a"
-                      href={"http://localhost:8080" + course.lien}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      onClick={() => handleOpenPdfDialog(course)} // Open PDF dialog
                     >
-                      Download
+                      View PDF
                     </Button>
                   )}
                 </TableCell>
@@ -268,7 +268,6 @@ const CorsTable = () => {
         </Table>
       </TableContainer>
 
-      {/* Pagination */}
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
@@ -280,7 +279,6 @@ const CorsTable = () => {
         data-aos="fade-up"
       />
 
-      {/* Add Dialog */}
       <CourseFormDialog
         open={openAddDialog}
         onClose={handleCloseDialogs}
@@ -297,7 +295,6 @@ const CorsTable = () => {
         mode="add"
       />
 
-      {/* Edit Dialog */}
       <CourseFormDialog
         open={openEditDialog}
         onClose={handleCloseDialogs}
@@ -323,11 +320,45 @@ const CorsTable = () => {
         baseUrl={baseUrl}
         token={token}
       />
+
+      {/* PDF Dialog */}
+      <Dialog
+        open={openPdfDialog}
+        onClose={handleCloseDialogs}
+        fullWidth
+        maxWidth="md"
+        data-aos="zoom-in"
+      >
+        <DialogTitle
+          sx={{
+            background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+            color: "white",
+            fontWeight: "bold",
+            mb: 1,
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          View PDF: {selectedCourse?.nom}
+        </DialogTitle>
+        <DialogContent>
+          <iframe
+            src={`http://localhost:8080/api/files/getFile/${selectedCourse?.lien}#toolbar=0`}
+            width="100%"
+            height="500px"
+            style={{ border: "none" }}
+            title="PDF Viewer"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialogs} variant="outlined" color="info">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
 
-// Reusable Course Form Dialog
 const CourseFormDialog = ({
   open,
   onClose,
@@ -414,7 +445,6 @@ const CourseFormDialog = ({
       );
       fetchResources();
       onClose();
-
     } catch (error) {
       toast.error(`Failed to ${mode === "add" ? "add" : "update"} course.`);
     }
@@ -521,7 +551,6 @@ const CourseFormDialog = ({
   );
 };
 
-// Delete Dialog Component
 const DeleteDialog = ({
   open,
   onClose,
