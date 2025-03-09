@@ -10,12 +10,17 @@ import Footer from "../Components/Footer";
 import AnnouncementSection from "../Components/Home/AnnouncementSection";
 import TeamSection from "../Components/TeamSection";
 import ProfSection from "../Components/Hamout/ProfSection";
-
-AOS.init();
-
-  
+import { useEffect } from "react";
 
 export const Home = () => {
+  useEffect(() => {
+    AOS.init({
+      offset: -100,
+      duration: 600,
+      easing: "ease-in-sine",
+      delay: 500,
+    });
+  }, []);
   return (
     <div className="home-container" style={{ userSelect: "none" }}>
       <ToastContainer
