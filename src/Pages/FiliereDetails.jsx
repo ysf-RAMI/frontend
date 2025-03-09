@@ -121,7 +121,7 @@ export default function FiliereDetails() {
 
       {/* Module List */}
       <div className="module-list" >
-        <Row className="justify-content-center" style={{gap:"10px 0"}}>
+        <Row className="justify-content-center" style={{gap:"20px 0"}}>
           {filteredModules.map((module) => (
             <Col key={module.id} lg={4} md={6} sm={12} data-aos="fade-up">
               <Link
