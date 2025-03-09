@@ -3,41 +3,55 @@ import { Container, Row, Col } from "react-bootstrap";
 import { Typography, Card, CardContent, Box } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faUsers,
-  faStar,
-  faLaptopCode,
+  faBullhorn,
+  faGraduationCap,
+  faBook,
+  faChalkboardTeacher,
+  faFileAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
-import { Scale } from "@mui/icons-material";
 
 const features = [
   {
     id: 1,
-    icon: faUsers,
-    title: "Communauté Engagée",
+    icon: faBullhorn,
+    title: "Annonces Importantes",
     description:
-      "Une communauté active et supportive pour vous aider tout au long de votre parcours.",
+      "Restez informé des dernières annonces et mises à jour concernant votre formation.",
   },
   {
     id: 2,
-    icon: faStar,
-    title: "Évaluation Continue",
+    icon: faGraduationCap,
+    title: "Filières Diversifiées",
     description:
-      "Des évaluations régulières pour suivre votre progression et ajuster votre apprentissage.",
+      "Une large sélection de filières adaptées aux besoins des étudiants . ",
   },
   {
     id: 3,
-    icon: faLaptopCode,
-    title: "Projets Réels",
+    icon: faBook,
+    title: "Modules Structurés",
     description:
-      "Des projets réels pour appliquer ce que vous avez appris et construire votre portfolio.",
+      "Des modules bien organisés pour une progression fluide et efficace dans votre apprentissage.",
+  },
+  {
+    id: 4,
+    icon: faChalkboardTeacher,
+    title: "Professeurs Qualifiés",
+    description:
+      "Apprenez avec des enseignants expérimentés qui vous guideront à chaque étape.",
+  },
+  {
+    id: 5,
+    icon: faFileAlt,
+    title: "Ressources Complètes",
+    description:
+      "Accédez à des supports de cours, exercices, examens et vidéos pour approfondir vos connaissances.",
   },
 ];
 
 export default function WhyUs() {
-  // Initialize AOS for animations
   useEffect(() => {
     AOS.init({ duration: 500 });
   }, []);
@@ -57,7 +71,7 @@ export default function WhyUs() {
             sx={{ letterSpacing: 2, textTransform: "uppercase", mb: 1 }}
             data-aos="fade-up"
           >
-            Pourquoi Nous Choisir ?
+            Pourquoi choisir Doctor H1 ?
           </Typography>
           <Typography
             variant="h4"
@@ -91,9 +105,6 @@ export default function WhyUs() {
                     "&:hover": {
                       transform: "translateY(-8px)",
                       boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
-                      "& .card-overlay": {
-                        opacity: 1,
-                      },
                     },
                   }}
                 >
@@ -106,8 +117,8 @@ export default function WhyUs() {
                     >
                       <FontAwesomeIcon
                         icon={feature.icon}
-                        size="2x"
-                        style={{ marginRight: "10px", color: "#01162e" }}
+                        size="1x"
+                        style={{ marginRight: "10px", color: "rgb(0, 26, 156)" }}
                       />
                       <Typography variant="h6">{feature.title}</Typography>
                     </Box>

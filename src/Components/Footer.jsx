@@ -23,10 +23,9 @@ const Footer = () => {
                 À Propos de Doctor h1
               </Typography>
               <Typography variant="body2" sx={{ mb: 2 }}>
-                Doctor h1 est une plateforme éducative dédiée à l'apprentissage
-                de l'informatique et des technologies de l'information. Nous
-                offrons des cours modernes et interactifs pour vous aider à
-                exceller.
+                Doctor H1 est une plateforme éducative dédiée à l'apprentissage.
+                Nous proposons des cours modernes, adaptés à vos besoins
+                spécifiques pour vous aider à exceller.
               </Typography>
             </Grid>
 
@@ -39,7 +38,7 @@ const Footer = () => {
                 Home
               </Link>
               <Link
-                href="/courses"
+                href="/filiere"
                 color="inherit"
                 underline="hover"
                 display="block"
@@ -54,7 +53,6 @@ const Footer = () => {
               >
                 Annonces
               </Link>
-              
             </Grid>
 
             {/* Social Media Section */}
@@ -64,29 +62,19 @@ const Footer = () => {
               </Typography>
               <Box>
                 <IconButton
-                  href="https://facebook.com"
-                  target="_blank"
-                  color="inherit"
-                >
-                  <Facebook />
-                </IconButton>
-                <IconButton
-                  href="https://twitter.com"
-                  target="_blank"
-                  color="inherit"
-                >
-                  <Twitter />
-                </IconButton>
-                <IconButton
-                  href="https://linkedin.com"
+                  href="https://www.linkedin.com/in/youssef-rami/"
                   target="_blank"
                   color="inherit"
                 >
                   <LinkedIn />
                 </IconButton>
                 <IconButton
-                  href="https://instagram.com"
-                  target="_blank"
+                  onClick={() =>
+                    window.open(
+                      "https://mail.google.com/mail/?view=cm&to=yousseframi012@gmail.com",
+                      "_blank"
+                    )
+                  }
                   color="inherit"
                 >
                   <Email />
