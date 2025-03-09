@@ -30,7 +30,7 @@ import { CloudUploadOutlined } from "@mui/icons-material";
 import logoSite from "../../assets/annonceDefaultImage.jpg";
 
 const baseUrl = "http://localhost:8080";
-const token = JSON.parse(localStorage.getItem("auth")).token;
+const token = JSON.parse(localStorage.getItem("auth"))?.token;
 const profId = localStorage.getItem("profId");
 
 export default function Annonce() {
