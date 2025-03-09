@@ -175,7 +175,6 @@ const AnnouncementsPage = () => {
                         transform: "translateY(-8px)",
                         boxShadow: 6,
                       },
-                      maxHeight:"300px"
                     }}
                   >
                     <CardMedia
