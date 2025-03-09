@@ -27,9 +27,10 @@ import "react-toastify/dist/ReactToastify.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { CloudUploadOutlined } from "@mui/icons-material";
+import logoSite from "../../assets/annonceDefaultImage.jpg";
 
 const baseUrl = "http://localhost:8080";
-const token = JSON.parse(localStorage.getItem("auth"))?.token;
+const token = JSON.parse(localStorage.getItem("auth")).token;
 const profId = localStorage.getItem("profId");
 
 export default function Annonce() {
@@ -40,8 +41,7 @@ export default function Annonce() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
   const [page, setPage] = useState(1);
-  const itemsPerPage = 6; 
-
+  const itemsPerPage = 6;
 
   useEffect(() => {
     AOS.init({ duration: 1, once: true });
@@ -51,22 +51,22 @@ export default function Annonce() {
     fetchAnnouncements();
   }, []);
 
-  const fetchAnnouncements = () => {
-    axios
-      .get(`${baseUrl}/api/professeur/getAllAnnonceByIdProfesseru/${profId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
-        setAnnouncements(response.data);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch announcements.");
-      });
+  const fetchAnnouncements = async () => {
+    try {
+      const res = await axios.get(
+        `${baseUrl}/api/professeur/getAllAnnonceByIdProfesseru/${profId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setAnnouncements(res.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  
   const handleOpenAddDialog = () => setOpenAddDialog(true);
   const handleOpenEditDialog = (announcement) => {
     setCurrentAnnouncement(announcement);
@@ -77,7 +77,6 @@ export default function Annonce() {
     setOpenDeleteDialog(true);
   };
 
-  
   const handleCloseAddDialog = () => setOpenAddDialog(false);
   const handleCloseEditDialog = () => {
     setOpenEditDialog(false);
@@ -88,7 +87,6 @@ export default function Annonce() {
     setCurrentAnnouncement(null);
   };
 
-  
   const handleAddAnnouncement = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -111,7 +109,6 @@ export default function Annonce() {
       });
   };
 
-  
   const handleEditAnnouncement = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -256,7 +253,11 @@ export default function Annonce() {
                 <CardMedia
                   component="img"
                   height="220"
-                  image={`http://localhost:8080${announcement.imageUrl}`}
+                  image={
+                    announcement.image
+                      ? `${baseUrl}${announcement.imageUrl}`
+                      : logoSite
+                  }
                   alt={announcement.titre}
                   sx={{
                     transition: "transform 0.3s ease",
