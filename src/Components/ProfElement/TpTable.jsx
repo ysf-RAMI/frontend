@@ -20,6 +20,7 @@ import {
   Select,
   LinearProgress,
   Typography,
+  CircularProgress,
   TablePagination,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -27,7 +28,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AOS from "aos";
-import "aos/dist/aos.css"; // Import AOS styles
+import "aos/dist/aos.css";
 
 const TpTable = () => {
   const [resource, setResource] = useState([]);
@@ -36,10 +37,12 @@ const TpTable = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openPdfDialog, setOpenPdfDialog] = useState(false); // State for PDF dialog
   const [selectedTp, setSelectedTp] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [fileName, setFileName] = useState("");
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -48,44 +51,55 @@ const TpTable = () => {
   const token = JSON.parse(localStorage.getItem("auth")).token;
   const profId = localStorage.getItem("profId");
 
-  // Initialize AOS
   useEffect(() => {
     AOS.init({
-      duration: 200, // Animation duration
-      once: true, // Whether animation should happen only once
+      duration: 200,
+      once: true,
     });
   }, []);
 
   useEffect(() => {
-    fetchResources();
-    fetchModules();
+    fetchData();
   }, []);
 
-  const fetchResources = () => {
-    axios
-      .get(`${baseUrl}/api/professeur/getAllResources/${profId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        setResource(response.data);
-        setTps(response.data.filter((r) => r.type === "TP")); // Filter for TPs
-      })
-      .catch((error) => {
-        toast.error("Error fetching resources:");
-      });
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([fetchResources(), fetchModules()]);
+    } catch (error) {
+      toast.error("Failed to fetch data.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const fetchModules = () => {
-    axios
-      .get(`${baseUrl}/api/professeur/getAllModuleByProfId/${profId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        setModules(response.data);
-      })
-      .catch(() => {
-        toast.error("Error fetching modules:");
-      });
+  const fetchResources = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/professeur/getAllResources/${profId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setResource(response.data);
+      setTps(response.data.filter((r) => r.type === "TP")); // Filter for TPs
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchModules = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/professeur/getAllModuleByProfId/${profId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setModules(response.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleSearchChange = (event) => {
@@ -130,88 +144,20 @@ const TpTable = () => {
     setOpenDeleteDialog(true);
   };
 
+  const handleOpenPdfDialog = (tp) => {
+    setSelectedTp(tp);
+    setOpenPdfDialog(true); // Open PDF dialog
+  };
+
   const handleCloseDialogs = () => {
     setOpenAddDialog(false);
     setOpenEditDialog(false);
     setOpenDeleteDialog(false);
+    setOpenPdfDialog(false); // Close PDF dialog
     setSelectedTp(null);
     setSelectedModule("");
     setFileName("");
     setUploadProgress(0);
-  };
-
-  const handleSave = (tpData, isEdit = false) => {
-    const formData = new FormData();
-
-    // Append fields in the required order and with the correct names
-    formData.append("nom", tpData.name); // TP name
-    formData.append("type", "TP"); // Hardcoded as "TP"
-
-    // Set dataType based on the resource type
-    if (tpData.dataType === "VIDEO") {
-      formData.append("dataType", "VIDEO"); // Video resource
-      formData.append("lien", tpData.url); // Video URL
-    } else if (tpData.dataType === "FICHIER") {
-      formData.append("dataType", "FICHIER"); // PDF resource
-      if (tpData.file) {
-        formData.append("data", tpData.file); // PDF file
-      }
-    }
-
-    // Append moduleId and professorId
-    const selectedModuleObj = modules.find((m) => m.name === selectedModule);
-    if (selectedModuleObj) {
-      formData.append("moduleId", selectedModuleObj.id); // Module ID
-    }
-    formData.append("professorId", profId); // Professor ID
-
-    // For editing, append the TP ID
-    if (isEdit && tpData.id) {
-      formData.append("id", tpData.id);
-    }
-
-    const url = isEdit
-      ? `${baseUrl}/api/professeur/updateResource`
-      : `${baseUrl}/api/professeur/addResource`;
-
-    const method = isEdit ? "put" : "post";
-
-    axios[method](url, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-      onUploadProgress: (progressEvent) => {
-        const progress = Math.round(
-          (progressEvent.loaded / progressEvent.total) * 100
-        );
-        setUploadProgress(progress);
-      },
-    })
-      .then((response) => {
-        toast.success(`TP ${isEdit ? "updated" : "added"} successfully!`);
-        fetchResources(); // Refresh the resource list
-        handleCloseDialogs();
-      })
-      .catch((error) => {
-        toast.error("Error saving/updating resource:");
-        toast.error("Failed to save/update TP.");
-      });
-  };
-
-  const handleDelete = () => {
-    axios
-      .delete(`${baseUrl}/api/professeur/deleteResource/${selectedTp.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(() => {
-        toast.success("TP deleted successfully!");
-        fetchResources(); // Refresh the resource list
-        handleCloseDialogs();
-      })
-      .catch((error) => {
-        toast.error("Failed to delete TP.");
-      });
   };
 
   return (
@@ -226,8 +172,10 @@ const TpTable = () => {
         position="top-center"
         zIndex={9999}
       />
+      {loading && (
+        <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
+      )}
 
-      {/* Add TP Button */}
       <Button
         variant="contained"
         color="primary"
@@ -238,7 +186,6 @@ const TpTable = () => {
         Add TP
       </Button>
 
-      {/* Search Box */}
       <TextField
         label="Search TPs"
         variant="outlined"
@@ -248,7 +195,6 @@ const TpTable = () => {
         data-aos="fade-down"
       />
 
-      {/* TP Table */}
       <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
         <Table>
           <TableHead>
@@ -273,12 +219,9 @@ const TpTable = () => {
                   ) : (
                     <Button
                       variant="outlined"
-                      component="a"
-                      href={"http://localhost:8080" + tp.lien}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      onClick={() => handleOpenPdfDialog(tp)} // Open PDF dialog
                     >
-                      Download
+                      View PDF
                     </Button>
                   )}
                 </TableCell>
@@ -294,8 +237,8 @@ const TpTable = () => {
                   <Button
                     onClick={() => handleOpenDeleteDialog(tp)}
                     color="secondary"
-                    variant="outlined"
                     sx={{ ml: 1 }}
+                    variant="outlined"
                   >
                     Delete
                   </Button>
@@ -306,7 +249,6 @@ const TpTable = () => {
         </Table>
       </TableContainer>
 
-      {/* Pagination */}
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
@@ -318,24 +260,25 @@ const TpTable = () => {
         data-aos="fade-up"
       />
 
-      {/* Add Dialog */}
-      <AddDialog
+      <TpFormDialog
         open={openAddDialog}
         onClose={handleCloseDialogs}
-        onSave={handleSave}
         modules={modules}
         selectedModule={selectedModule}
         setSelectedModule={setSelectedModule}
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
+        fetchResources={fetchResources}
+        baseUrl={baseUrl}
+        token={token}
+        profId={profId}
+        mode="add"
       />
 
-      {/* Edit Dialog */}
-      <EditDialog
+      <TpFormDialog
         open={openEditDialog}
         onClose={handleCloseDialogs}
-        onSave={handleSave}
         tp={selectedTp}
         modules={modules}
         selectedModule={selectedModule}
@@ -343,63 +286,147 @@ const TpTable = () => {
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
+        fetchResources={fetchResources}
+        baseUrl={baseUrl}
+        token={token}
+        profId={profId}
+        mode="edit"
       />
 
-      {/* Delete Dialog */}
       <DeleteDialog
         open={openDeleteDialog}
         onClose={handleCloseDialogs}
-        onDelete={handleDelete}
         tp={selectedTp}
+        fetchResources={fetchResources}
+        baseUrl={baseUrl}
+        token={token}
       />
+
+      {/* PDF Dialog */}
+      <Dialog
+        open={openPdfDialog}
+        onClose={handleCloseDialogs}
+        fullWidth
+        maxWidth="md"
+        data-aos="zoom-in"
+      >
+        <DialogTitle
+          sx={{
+            background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+            color: "white",
+            fontWeight: "bold",
+            mb: 1,
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          View PDF: {selectedTp?.nom}
+        </DialogTitle>
+        <DialogContent>
+          <iframe
+            src={`http://localhost:8080/api/files/getFile/${selectedTp?.lien}#toolbar=0`}
+            width="100%"
+            height="500px"
+            style={{ border: "none" }}
+            title="PDF Viewer"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialogs} variant="outlined" color="info">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
 
-// Add Dialog Component
-const AddDialog = ({
+const TpFormDialog = ({
   open,
   onClose,
-  onSave,
+  tp,
   modules,
   selectedModule,
   setSelectedModule,
   fileName,
   setFileName,
   uploadProgress,
+  fetchResources,
+  baseUrl,
+  token,
+  profId,
+  mode,
 }) => {
   const [tpData, setTpData] = useState({
-    name: "",
-    dataType: "",
-    url: "",
+    id: tp?.id || "",
+    name: tp?.nom || "",
+    dataType: tp?.dataType || "",
+    lien: tp?.lien || "",
     file: null,
   });
 
-  // Reset state when the dialog is opened
   useEffect(() => {
-    if (open) {
+    if (tp) {
       setTpData({
-        name: "",
-        dataType: "",
-        url: "",
+        id: tp.id,
+        name: tp.nom,
+        dataType: tp.dataType,
+        lien: tp.lien,
         file: null,
       });
-      setSelectedModule("");
+      setSelectedModule(tp.moduleName);
       setFileName("");
     }
-  }, [open]);
+  }, [tp]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (
       !tpData.name ||
       !selectedModule ||
-      (tpData.dataType === "VIDEO" && !tpData.url) ||
+      (tpData.dataType === "VIDEO" && !tpData.lien) ||
       (tpData.dataType === "FICHIER" && !tpData.file)
     ) {
       toast.error("Please fill all required fields.");
       return;
     }
-    onSave(tpData);
+
+    const formData = new FormData();
+    formData.append("id", tpData.id);
+    formData.append("nom", tpData.name);
+    formData.append("type", "TP");
+    formData.append("dataType", tpData.dataType);
+
+    if (tpData.dataType === "VIDEO") {
+      formData.append("lien", tpData.lien);
+    } else if (tpData.dataType === "FICHIER") {
+      formData.append("data", tpData.file);
+    }
+
+    const selectedModuleObj = modules.find((m) => m.name === selectedModule);
+    if (selectedModuleObj) {
+      formData.append("moduleId", selectedModuleObj.id);
+    }
+    formData.append("professorId", profId);
+
+    try {
+      const url =
+        mode === "add"
+          ? `${baseUrl}/api/professeur/addResource`
+          : `${baseUrl}/api/professeur/updateResource`;
+      const method = mode === "add" ? "post" : "put";
+
+      await axios[method](url, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success(`TP ${mode === "add" ? "added" : "updated"} successfully!`);
+      fetchResources();
+      onClose();
+    } catch (error) {
+      toast.error(`Failed to ${mode === "add" ? "add" : "update"} TP.`);
+    }
   };
 
   const handleFileChange = (e) => {
@@ -423,7 +450,7 @@ const AddDialog = ({
           textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
         }}
       >
-        Add TP
+        {mode === "add" ? "Add TP" : "Edit TP"}
       </DialogTitle>
       <DialogContent>
         <TextField
@@ -448,8 +475,8 @@ const AddDialog = ({
             <TextField
               label="Video URL"
               fullWidth
-              value={tpData.url}
-              onChange={(e) => setTpData({ ...tpData, url: e.target.value })}
+              value={tpData.lien}
+              onChange={(e) => setTpData({ ...tpData, lien: e.target.value })}
               sx={{}}
             />
             <p style={{ color: "grey", fontSize: "12px" }}>
@@ -457,22 +484,29 @@ const AddDialog = ({
             </p>
           </>
         ) : (
-          <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
-            Upload PDF
-            <input type="file" hidden onChange={handleFileChange} />
-          </Button>
-        )}
-        {fileName && <Typography>{fileName}</Typography>}
-        {uploadProgress > 0 && (
-          <LinearProgress variant="determinate" value={uploadProgress} />
+          <>
+            <Button
+              variant="outlined"
+              component="label"
+              fullWidth
+              sx={{ mb: 2 }}
+            >
+              Upload PDF
+              <input type="file" hidden onChange={handleFileChange} />
+            </Button>
+            {fileName && <Typography>{fileName}</Typography>}
+            {uploadProgress > 0 && (
+              <LinearProgress variant="determinate" value={uploadProgress} />
+            )}
+          </>
         )}
         <Autocomplete
           options={modules}
           getOptionLabel={(option) => option.name}
           value={modules.find((m) => m.name === selectedModule) || null}
-          onChange={(e, newValue) => {
-            setSelectedModule(newValue ? newValue.name : "");
-          }}
+          onChange={(e, newValue) =>
+            setSelectedModule(newValue ? newValue.name : "")
+          }
           renderInput={(params) => (
             <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
           )}
@@ -490,139 +524,27 @@ const AddDialog = ({
   );
 };
 
-// Edit Dialog Component
-const EditDialog = ({
+const DeleteDialog = ({
   open,
   onClose,
-  onSave,
   tp,
-  modules,
-  selectedModule,
-  setSelectedModule,
-  fileName,
-  setFileName,
-  uploadProgress,
+  fetchResources,
+  baseUrl,
+  token,
 }) => {
-  const [tpData, setTpData] = useState({
-    id: tp?.id || "",
-    name: tp?.nom || "",
-    dataType: tp?.dataType || "",
-    url: tp?.lien || "",
-    file: null,
-  });
-
-  useEffect(() => {
-    if (tp) {
-      setTpData({
-        id: tp.id,
-        name: tp.nom,
-        dataType: tp.dataType,
-        url: tp.lien,
-        file: null,
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`${baseUrl}/api/professeur/deleteResource/${tp.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setSelectedModule(tp.moduleName);
-      setFileName("");
-    }
-  }, [tp]);
-
-  const handleSave = () => {
-    if (
-      !tpData.name ||
-      !selectedModule ||
-      (tpData.dataType === "VIDEO" && !tpData.url) ||
-      (tpData.dataType === "FICHIER" && !tpData.file)
-    ) {
-      toast.error("Please fill all required fields.");
-      return;
-    }
-    onSave(tpData, true);
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setTpData({ ...tpData, file });
-      setFileName(file.name);
-    } else {
-      setFileName("");
+      toast.success("TP deleted successfully!");
+      fetchResources();
+      onClose();
+    } catch (error) {
+      toast.error("Failed to delete TP.");
     }
   };
 
-  return (
-    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
-      <DialogTitle
-        sx={{
-          background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
-          color: "white",
-          fontWeight: "bold",
-          mb: 1,
-          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-        }}
-      >
-        Edit TP
-      </DialogTitle>
-      <DialogContent>
-        <TextField
-          label="TP Name"
-          fullWidth
-          value={tpData.name}
-          onChange={(e) => setTpData({ ...tpData, name: e.target.value })}
-          sx={{ mb: 2, mt: 2 }}
-        />
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Type</InputLabel>
-          <Select
-            value={tpData.dataType}
-            onChange={(e) => setTpData({ ...tpData, dataType: e.target.value })}
-          >
-            <MenuItem value="VIDEO">Video</MenuItem>
-            <MenuItem value="FICHIER">PDF</MenuItem>
-          </Select>
-        </FormControl>
-        {tpData.dataType === "VIDEO" ? (
-          <TextField
-            label="Video URL"
-            fullWidth
-            value={tpData.url}
-            onChange={(e) => setTpData({ ...tpData, url: e.target.value })}
-            sx={{ mb: 2 }}
-          />
-        ) : (
-          <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
-            Upload PDF
-            <input type="file" hidden onChange={handleFileChange} />
-          </Button>
-        )}
-        {fileName && <Typography>{fileName}</Typography>}
-        {uploadProgress > 0 && (
-          <LinearProgress variant="determinate" value={uploadProgress} />
-        )}
-        <Autocomplete
-          options={modules}
-          getOptionLabel={(option) => option.name}
-          value={modules.find((m) => m.name === selectedModule) || null}
-          onChange={(e, newValue) => {
-            setSelectedModule(newValue ? newValue.name : "");
-          }}
-          renderInput={(params) => (
-            <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
-          )}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">
-          Cancel
-        </Button>
-        <Button onClick={handleSave} variant="outlined" color="success">
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
-// Delete Dialog Component
-const DeleteDialog = ({ open, onClose, onDelete, tp }) => {
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
       <DialogTitle
@@ -645,7 +567,7 @@ const DeleteDialog = ({ open, onClose, onDelete, tp }) => {
         <Button onClick={onClose} variant="outlined" color="info">
           Cancel
         </Button>
-        <Button onClick={onDelete} color="error" variant="contained">
+        <Button onClick={handleDelete} color="error" variant="contained">
           Delete
         </Button>
       </DialogActions>

@@ -36,6 +36,7 @@ const TDTable = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openPdfDialog, setOpenPdfDialog] = useState(false); // State for PDF dialog
   const [selectedTd, setSelectedTd] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -129,10 +130,16 @@ const TDTable = () => {
     setOpenDeleteDialog(true);
   };
 
+  const handleOpenPdfDialog = (td) => {
+    setSelectedTd(td);
+    setOpenPdfDialog(true); // Open PDF dialog
+  };
+
   const handleCloseDialogs = () => {
     setOpenAddDialog(false);
     setOpenEditDialog(false);
     setOpenDeleteDialog(false);
+    setOpenPdfDialog(false); // Close PDF dialog
     setSelectedTd(null);
     setSelectedModule("");
     setFileName("");
@@ -264,12 +271,9 @@ const TDTable = () => {
                   ) : (
                     <Button
                       variant="outlined"
-                      component="a"
-                      href={"http://localhost:8080" + td.lien}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      onClick={() => handleOpenPdfDialog(td)} // Open PDF dialog
                     >
-                      Download
+                      View PDF
                     </Button>
                   )}
                 </TableCell>
@@ -339,6 +343,41 @@ const TDTable = () => {
         onDelete={handleDelete}
         td={selectedTd}
       />
+
+      {/* PDF Dialog */}
+      <Dialog
+        open={openPdfDialog}
+        onClose={handleCloseDialogs}
+        fullWidth
+        maxWidth="md"
+        data-aos="zoom-in"
+      >
+        <DialogTitle
+          sx={{
+            background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+            color: "white",
+            fontWeight: "bold",
+            mb: 1,
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          View PDF: {selectedTd?.nom}
+        </DialogTitle>
+        <DialogContent>
+          <iframe
+            src={`http://localhost:8080/api/files/getFile/${selectedTd?.lien}#toolbar=0`}
+            width="100%"
+            height="500px"
+            style={{ border: "none" }}
+            title="PDF Viewer"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialogs} variant="outlined" color="info">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
