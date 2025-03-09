@@ -37,7 +37,7 @@ const AnnouncementsPage = () => {
     } catch (error) {
       console.error("Error fetching announcements:", error);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -65,8 +65,6 @@ const AnnouncementsPage = () => {
 
   return (
     <>
-  
-
       <Box sx={{ py: 8, bgcolor: "background.default", mt: 3 }}>
         <Container maxWidth="xl">
           <Row className="mb-5">
@@ -93,7 +91,7 @@ const AnnouncementsPage = () => {
             </Col>
           </Row>
 
-
+          {/* Search Bar */}
           <Box
             sx={{
               mb: 4,
@@ -123,9 +121,8 @@ const AnnouncementsPage = () => {
             </Grid>
           </Box>
 
-
+          {/* Loading Skeleton */}
           {loading ? (
-
             <Grid container spacing={4}>
               {Array.from({ length: 3 }).map((_, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
@@ -155,8 +152,16 @@ const AnnouncementsPage = () => {
               ))}
             </Grid>
           ) : (
-
-            <Grid container spacing={4} sx={{display:"flex",justifyContent:"center",alignItems:"center"}}>
+            
+            <Grid
+              container
+              spacing={4}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "stretch",
+              }}
+            >
               {filterAnnouncements().map((announcement) => (
                 <Grid item xs={12} sm={6} md={4} key={announcement.id}>
                   <Card
@@ -174,7 +179,7 @@ const AnnouncementsPage = () => {
                   >
                     <CardMedia
                       component="img"
-                      height="200"
+                      height="350"
                       image={
                         announcement.imageUrl
                           ? `${baseUrl}${announcement.imageUrl}`
@@ -260,7 +265,7 @@ const AnnouncementsPage = () => {
             </Grid>
           )}
 
-
+          {/* No Announcements Found */}
           {!loading && filterAnnouncements().length === 0 && (
             <Box
               sx={{
