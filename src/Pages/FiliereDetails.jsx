@@ -72,15 +72,15 @@ export default function FiliereDetails() {
       style={{ marginTop: "100px", marginBottom: "30px" }}
     >
       <ToastContainer
-              autoClose={2500}
-              hideProgressBar={false}
-              closeOnClick={true}
-              newestOnTop={true}
-              closeButton={false}
-              enableMultiContainer={true}
-              position="top-center"
-              zIndex={9999}
-            />
+        autoClose={2500}
+        hideProgressBar={false}
+        closeOnClick={true}
+        newestOnTop={true}
+        closeButton={false}
+        enableMultiContainer={true}
+        position="top-center"
+        zIndex={9999}
+      />
       {/* Filière Title */}
       <Typography
         variant="h4"
@@ -120,8 +120,8 @@ export default function FiliereDetails() {
       </div>
 
       {/* Module List */}
-      <div className="module-list" >
-        <Row className="justify-content-center" style={{gap:"20px 0"}}>
+      <div className="module-list">
+        <Row className="justify-content-center" style={{ gap: "20px 0" }}>
           {filteredModules.map((module) => (
             <Col key={module.id} lg={4} md={6} sm={12} data-aos="fade-up">
               <Link
@@ -147,7 +147,16 @@ export default function FiliereDetails() {
                       {module.name}
                     </Typography>
                     <Divider style={{ margin: "15px 0" }} />
-                    <Typography variant="body1" color="textSecondary">
+                    <Typography
+                      variant="body1"
+                      color="textSecondary"
+                      sx={{
+                        display: "-webkit-box",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: 3,
+                        overflow: "hidden",
+                      }}
+                    >
                       {module.description}
                     </Typography>
                     <Chip
