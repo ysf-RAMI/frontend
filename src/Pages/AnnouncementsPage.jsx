@@ -23,7 +23,7 @@ const AnnouncementsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true); // Set initial loading to true
-  const baseUrl = "http://localhost:8080";
+  const   baseUrl = "http://localhost:8080";
 
   // Fetch announcements
   useEffect(() => {
@@ -152,7 +152,7 @@ const AnnouncementsPage = () => {
               ))}
             </Grid>
           ) : (
-            
+
             <Grid
               container
               spacing={4}
@@ -175,6 +175,7 @@ const AnnouncementsPage = () => {
                         transform: "translateY(-8px)",
                         boxShadow: 6,
                       },
+                      maxHeight:"300px"
                     }}
                   >
                     <CardMedia

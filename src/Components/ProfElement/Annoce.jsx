@@ -138,7 +138,6 @@ export default function Annonce() {
       });
   };
 
-  // Delete announcement
   const handleDeleteAnnouncement = () => {
     axios
       .delete(
@@ -163,12 +162,10 @@ export default function Annonce() {
       });
   };
 
-  // Pagination logic
   const handlePageChange = (event, value) => {
     setPage(value);
   };
 
-  // Calculate the announcements to display for the current page
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const displayedAnnouncements = announcements.slice(startIndex, endIndex);
@@ -254,7 +251,7 @@ export default function Annonce() {
                   component="img"
                   height="220"
                   image={
-                    announcement.image
+                    announcement.imageUrl
                       ? `${baseUrl}${announcement.imageUrl}`
                       : logoSite
                   }
@@ -438,7 +435,6 @@ export default function Annonce() {
               textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
             }}
           >
-            {" "}
             Edit Announcement
           </DialogTitle>
           <DialogContent>
