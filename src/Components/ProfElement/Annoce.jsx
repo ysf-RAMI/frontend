@@ -29,7 +29,7 @@ import "aos/dist/aos.css";
 import { CloudUploadOutlined } from "@mui/icons-material";
 import logoSite from "../../assets/annonceDefaultImage.jpg";
 
-const baseUrl = "http://localhost:8080";
+const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
 const token = JSON.parse(localStorage.getItem("auth"))?.token;
 const profId = localStorage.getItem("profId");
 

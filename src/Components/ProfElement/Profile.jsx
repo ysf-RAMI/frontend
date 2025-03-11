@@ -96,7 +96,7 @@ const Profile = () => {
   const auth = JSON.parse(localStorage.getItem("auth")) || {};
   const token = auth.token;
   const profId = localStorage.getItem("profId");
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
 
 
   const themeColors = {

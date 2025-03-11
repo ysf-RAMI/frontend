@@ -103,7 +103,7 @@ export default function FiliereDetails() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("all");
   const [filiereName, setFiliereName] = useState("Filière");
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
 
   useEffect(() => {
     // Initialize AOS animations

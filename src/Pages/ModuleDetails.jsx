@@ -71,7 +71,7 @@ const ModuleDetails = ({ isDrawerOpen, toggleDrawer }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
 
   const [selectedSection, setSelectedSection] = useState("COURS");
   const [selectedContent, setSelectedContent] = useState(null);

@@ -93,7 +93,7 @@ const Profil = () => {
   const navigate = useNavigate();
   const auth = JSON.parse(localStorage.getItem("auth")) || {};
   const token = auth.token;
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
 
   // Theme colors
   const themeColors = {

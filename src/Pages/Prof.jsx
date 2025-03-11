@@ -48,7 +48,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
   const [selectedSection, setSelectedSection] = useState("dashboard");
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
 
   const token = JSON.parse(localStorage.getItem("auth")).token;
 

@@ -40,7 +40,7 @@ const ModuleTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [semestreSelected, setSemestreSelected] = useState(null);
   const [filiers, setFiliers] = useState([]);
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
 
   const token = JSON.parse(localStorage.getItem("auth")).token;
   const profId = localStorage.getItem("profId");

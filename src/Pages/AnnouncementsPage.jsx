@@ -23,7 +23,7 @@ const AnnouncementsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true); // Set initial loading to true
-  const baseUrl = "http://doctorh1-kjmev.ondigitalocean.app";
+  const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
 
   // Fetch announcements
   useEffect(() => {
@@ -32,9 +32,7 @@ const AnnouncementsPage = () => {
 
   const fetchAnnonces = async () => {
     try {
-      const res = await axios.get(
-        `https://doctorh1-kjmev.ondigitalocean.app/api/student/getAllAnnoces`
-      );
+      const res = await axios.get(`${baseUrl}/api/student/getAllAnnoces`);
       setAnnouncements(res.data);
     } catch (error) {
       console.error("Error fetching announcements:", error);
@@ -154,7 +152,6 @@ const AnnouncementsPage = () => {
               ))}
             </Grid>
           ) : (
-
             <Grid
               container
               spacing={4}

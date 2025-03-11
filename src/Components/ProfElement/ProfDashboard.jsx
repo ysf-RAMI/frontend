@@ -76,7 +76,7 @@ const theme = createTheme({
 });
 
 export default function ProfDashboard() {
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
   const token = JSON.parse(localStorage.getItem("auth"))?.token;
   const profId = localStorage.getItem("profId");
 

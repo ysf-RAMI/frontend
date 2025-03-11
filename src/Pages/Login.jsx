@@ -35,7 +35,7 @@ import schoolLogo from "../assets/logoSite.png";
 
 // Import custom CSS
 import "../styles/Login.css";
-const baseUrl = "http://localhost:8080";
+const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");

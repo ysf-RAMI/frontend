@@ -18,7 +18,7 @@ import "aos/dist/aos.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 
-const baseUrl = "http://localhost:8080";
+const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
 
 // Skeleton Card Component for loading state
 const SkeletonCard = () => {

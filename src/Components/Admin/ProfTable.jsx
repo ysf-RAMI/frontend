@@ -51,7 +51,7 @@ const ProfTable = () => {
   const [addProfPass, setAddProfPass] = useState(false);
   const [loading, setLoading] = useState(true); // Loading state
 
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
   const { token } = JSON.parse(localStorage.getItem("auth")) || {};
 
   useEffect(() => {
