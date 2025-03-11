@@ -342,7 +342,7 @@ const CorsTable = () => {
         </DialogTitle>
         <DialogContent>
           <iframe
-            src={`http://localhost:8080/api/files/getFile/${selectedCourse?.lien}#toolbar=0`}
+            src={`${baseUrl}/api/files/getFile/${selectedCourse?.lien}#toolbar=0`}
             width="100%"
             height="500px"
             style={{ border: "none" }}
