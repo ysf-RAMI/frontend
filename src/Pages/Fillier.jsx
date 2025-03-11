@@ -233,7 +233,7 @@ export default function Filiere() {
           ) : (
             <div className="no-results">
               <Typography variant="h6" color="textSecondary">
-                Aucune filière trouvée pour "{searchQuery}"
+                Aucune filière trouvée pour {searchQuery}
               </Typography>
             </div>
           )}
