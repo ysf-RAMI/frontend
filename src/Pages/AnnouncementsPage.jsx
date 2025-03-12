@@ -32,7 +32,7 @@ const AnnouncementsPage = () => {
 
   const fetchAnnonces = async () => {
     try {
-      const res = await axios.get(`https://doctorh1.vercel.app/announcements`);
+      const res = await axios.get(`${baseUrl}/api/student/getAllAnnoces`);
       setAnnouncements(res.data);
     } catch (error) {
       console.error("Error fetching announcements:", error);
@@ -41,7 +41,7 @@ const AnnouncementsPage = () => {
     }
   };
 
-  
+  // Format date
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
       year: "numeric",
@@ -50,6 +50,7 @@ const AnnouncementsPage = () => {
     });
   };
 
+  // Filter announcements based on search term
   const filterAnnouncements = () => {
     if (!searchTerm) return announcements; // Return all announcements if search term is empty
     return announcements.filter((announcement) => {
