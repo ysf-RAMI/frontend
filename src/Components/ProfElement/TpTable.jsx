@@ -323,7 +323,7 @@ const TpTable = () => {
         </DialogTitle>
         <DialogContent>
           <iframe
-            src={`http://localhost:8080/api/files/getFile/${selectedTp?.lien}#toolbar=0`}
+            src={`${baseUrl}/api/files/getFile/${selectedTp?.lien}`}
             width="100%"
             height="500px"
             style={{ border: "none" }}

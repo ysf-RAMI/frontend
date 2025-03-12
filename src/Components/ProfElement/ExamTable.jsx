@@ -327,7 +327,7 @@ const ExamTable = () => {
         </DialogTitle>
         <DialogContent>
           <iframe
-            src={`http://localhost:8080/api/files/getFile/${selectedExam?.lien}#toolbar=0`}
+            src={`${baseUrl}/api/files/getFile/${selectedExam?.lien}`}
             width="100%"
             height="500px"
             style={{ border: "none" }}

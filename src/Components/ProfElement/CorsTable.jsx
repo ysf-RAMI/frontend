@@ -288,6 +288,7 @@ const CorsTable = () => {
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
+        setUploadProgress={setUploadProgress}
         fetchResources={fetchResources}
         baseUrl={baseUrl}
         token={token}
@@ -305,6 +306,7 @@ const CorsTable = () => {
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
+        setUploadProgress={setUploadProgress}
         fetchResources={fetchResources}
         baseUrl={baseUrl}
         token={token}
@@ -342,7 +344,7 @@ const CorsTable = () => {
         </DialogTitle>
         <DialogContent>
           <iframe
-            src={`${baseUrl}/api/files/getFile/${selectedCourse?.lien}#toolbar=0`}
+            src={`${baseUrl}/api/files/getFile/${selectedCourse?.lien}`}
             width="100%"
             height="500px"
             style={{ border: "none" }}
@@ -369,6 +371,7 @@ const CourseFormDialog = ({
   fileName,
   setFileName,
   uploadProgress,
+  setUploadProgress,
   fetchResources,
   baseUrl,
   token,
@@ -433,12 +436,20 @@ const CourseFormDialog = ({
           : `${baseUrl}/api/professeur/updateResource`;
       const method = mode === "add" ? "post" : "put";
 
-      await axios[method](url, formData, {
+      const config = {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
-      });
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(percentCompleted);
+        },
+      };
+
+      await axios[method](url, formData, config);
 
       toast.success(
         `Course ${mode === "add" ? "added" : "updated"} successfully!`
@@ -447,6 +458,8 @@ const CourseFormDialog = ({
       onClose();
     } catch (error) {
       toast.error(`Failed to ${mode === "add" ? "add" : "update"} course.`);
+    } finally {
+      setUploadProgress(0); // Reset progress after upload
     }
   };
 
