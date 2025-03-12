@@ -32,7 +32,7 @@ const AnnouncementsPage = () => {
 
   const fetchAnnonces = async () => {
     try {
-      const res = await axios.get(`${baseUrl}/api/student/getAllAnnoces`);
+      const res = await axios.get(`https://doctorh1.vercel.app/announcements`);
       setAnnouncements(res.data);
     } catch (error) {
       console.error("Error fetching announcements:", error);

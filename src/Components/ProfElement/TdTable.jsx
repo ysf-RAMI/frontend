@@ -21,6 +21,8 @@ import {
   LinearProgress,
   Typography,
   TablePagination,
+  Box,
+  Chip,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -36,7 +38,7 @@ const TDTable = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [openPdfDialog, setOpenPdfDialog] = useState(false); // State for PDF dialog
+  const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [selectedTd, setSelectedTd] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -44,6 +46,7 @@ const TDTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [isUploading, setIsUploading] = useState(false); // State to track upload status
 
   const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
   const token = JSON.parse(localStorage.getItem("auth")).token;
@@ -116,12 +119,18 @@ const TDTable = () => {
   const handleOpenAddDialog = () => {
     setSelectedTd(null);
     setSelectedModule("");
+    setFileName("");
+    setUploadProgress(0);
+    setIsUploading(false);
     setOpenAddDialog(true);
   };
 
   const handleOpenEditDialog = (td) => {
     setSelectedTd(td);
     setSelectedModule(td.moduleName);
+    setFileName("");
+    setUploadProgress(0);
+    setIsUploading(false);
     setOpenEditDialog(true);
   };
 
@@ -132,34 +141,48 @@ const TDTable = () => {
 
   const handleOpenPdfDialog = (td) => {
     setSelectedTd(td);
-    setOpenPdfDialog(true); // Open PDF dialog
+    setOpenPdfDialog(true);
   };
 
   const handleCloseDialogs = () => {
-    setOpenAddDialog(false);
-    setOpenEditDialog(false);
-    setOpenDeleteDialog(false);
-    setOpenPdfDialog(false); // Close PDF dialog
-    setSelectedTd(null);
-    setSelectedModule("");
-    setFileName("");
-    setUploadProgress(0);
+    if (!isUploading) {
+      setOpenAddDialog(false);
+      setOpenEditDialog(false);
+      setOpenDeleteDialog(false);
+      setOpenPdfDialog(false);
+      setSelectedTd(null);
+      setSelectedModule("");
+      setFileName("");
+      setUploadProgress(0);
+    } else {
+      toast.warning("Please wait until upload is complete");
+    }
   };
 
-  const handleSave = (tdData, isEdit = false) => {
-    const formData = new FormData();
+  const handleSave = async (tdData, isEdit = false) => {
+    if (
+      !tdData.name ||
+      !selectedModule ||
+      (tdData.dataType === "VIDEO" && !tdData.url) ||
+      (tdData.dataType === "FICHIER" && !tdData.file && !isEdit)
+    ) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
 
+    // Start the upload process
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    const formData = new FormData();
     formData.append("nom", tdData.name);
     formData.append("type", "TD");
+    formData.append("dataType", tdData.dataType);
 
     if (tdData.dataType === "VIDEO") {
-      formData.append("dataType", "VIDEO");
       formData.append("lien", tdData.url);
-    } else if (tdData.dataType === "FICHIER") {
-      formData.append("dataType", "FICHIER");
-      if (tdData.file) {
-        formData.append("data", tdData.file);
-      }
+    } else if (tdData.dataType === "FICHIER" && tdData.file) {
+      formData.append("data", tdData.file);
     }
 
     const selectedModuleObj = modules.find((m) => m.name === selectedModule);
@@ -178,26 +201,28 @@ const TDTable = () => {
 
     const method = isEdit ? "put" : "post";
 
-    axios[method](url, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-      onUploadProgress: (progressEvent) => {
-        const progress = Math.round(
-          (progressEvent.loaded / progressEvent.total) * 100
-        );
-        setUploadProgress(progress);
-      },
-    })
-      .then((response) => {
-        toast.success(`TD ${isEdit ? "updated" : "added"} successfully!`);
-        fetchResources();
-        handleCloseDialogs();
-      })
-      .catch((error) => {
-        toast.error(`Failed to ${isEdit ? "Update" : "Add"} TD.`);
+    try {
+      await axios[method](url, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round(
+            (progressEvent.loaded / progressEvent.total) * 100
+          );
+          setUploadProgress(progress);
+        },
       });
+
+      toast.success(`TD ${isEdit ? "updated" : "added"} successfully!`);
+      fetchResources();
+      handleCloseDialogs();
+    } catch (error) {
+      toast.error(`Failed to ${isEdit ? "update" : "add"} TD.`);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleDelete = () => {
@@ -271,7 +296,7 @@ const TDTable = () => {
                   ) : (
                     <Button
                       variant="outlined"
-                      onClick={() => handleOpenPdfDialog(td)} // Open PDF dialog
+                      onClick={() => handleOpenPdfDialog(td)}
                     >
                       View PDF
                     </Button>
@@ -322,6 +347,7 @@ const TDTable = () => {
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
+        isUploading={isUploading}
       />
 
       <EditDialog
@@ -335,6 +361,7 @@ const TDTable = () => {
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
+        isUploading={isUploading}
       />
 
       <DeleteDialog
@@ -392,6 +419,7 @@ const AddDialog = ({
   fileName,
   setFileName,
   uploadProgress,
+  isUploading,
 }) => {
   const [tdData, setTdData] = useState({
     name: "",
@@ -422,7 +450,13 @@ const AddDialog = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      data-aos="zoom-in"
+      disableEscapeKeyDown={isUploading}
+      disableBackdropClick={isUploading}
+    >
       <DialogTitle
         sx={{
           background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
@@ -440,9 +474,10 @@ const AddDialog = ({
           fullWidth
           value={tdData.name}
           onChange={(e) => setTdData({ ...tdData, name: e.target.value })}
+          disabled={isUploading}
           sx={{ mb: 2, mt: 2 }}
         />
-        <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormControl fullWidth sx={{ mb: 2 }} disabled={isUploading}>
           <InputLabel>Type</InputLabel>
           <Select
             value={tdData.dataType}
@@ -459,22 +494,45 @@ const AddDialog = ({
               fullWidth
               value={tdData.url}
               onChange={(e) => setTdData({ ...tdData, url: e.target.value })}
-              sx={{}}
+              disabled={isUploading}
+              sx={{ mb: 2 }}
             />
-
-            <p style={{ color: "grey", fontSize: "12px" }}>
-              exmple: https://www.youtube.com/watch?v=vedioId
-            </p>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 2, display: "block" }}
+            >
+              Example: https://www.youtube.com/watch?v=videoId
+            </Typography>
           </>
         ) : (
-          <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
-            Upload PDF
-            <input type="file" hidden onChange={handleFileChange} />
-          </Button>
-        )}
-        {fileName && <Typography>{fileName}</Typography>}
-        {uploadProgress > 0 && (
-          <LinearProgress variant="determinate" value={uploadProgress} />
+          <>
+            <Button
+              variant="outlined"
+              component="label"
+              fullWidth
+              sx={{ mb: 1 }}
+              disabled={isUploading}
+              color={fileName ? "success" : "primary"}
+            >
+              {fileName ? "Change PDF" : "Upload PDF"}
+              <input
+                type="file"
+                hidden
+                onChange={handleFileChange}
+                accept="application/pdf"
+                disabled={isUploading}
+              />
+            </Button>
+            {fileName && (
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Selected file: <Chip label={fileName} color="primary" />
+              </Typography>
+            )}
+            {uploadProgress > 0 && (
+              <LinearProgress variant="determinate" value={uploadProgress} />
+            )}
+          </>
         )}
         <Autocomplete
           options={modules}
@@ -483,19 +541,47 @@ const AddDialog = ({
           onChange={(e, newValue) => {
             setSelectedModule(newValue ? newValue.name : "");
           }}
+          disabled={isUploading}
           renderInput={(params) => (
             <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
           )}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          color="info"
+          disabled={isUploading}
+        >
           Cancel
         </Button>
-        <Button onClick={handleSave} variant="outlined" color="success">
+        <Button
+          onClick={handleSave}
+          variant="outlined"
+          color="success"
+          disabled={isUploading}
+        >
           Save
         </Button>
       </DialogActions>
+      {isUploading && (
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: "background.paper",
+            borderTop: "1px solid rgba(0,0,0,0.1)",
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="primary"
+            sx={{ fontWeight: "medium" }}
+          >
+            Please wait while your file uploads. Do not close this dialog.
+          </Typography>
+        </Box>
+      )}
     </Dialog>
   );
 };
@@ -511,6 +597,7 @@ const EditDialog = ({
   fileName,
   setFileName,
   uploadProgress,
+  isUploading,
 }) => {
   const [tdData, setTdData] = useState({
     id: td?.id || "",
@@ -535,7 +622,6 @@ const EditDialog = ({
   }, [td]);
 
   const handleSave = () => {
-    toast.success("TD Updated ");
     onSave(tdData, true);
   };
 
@@ -550,7 +636,13 @@ const EditDialog = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      data-aos="zoom-in"
+      disableEscapeKeyDown={isUploading}
+      disableBackdropClick={isUploading}
+    >
       <DialogTitle
         sx={{
           background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
@@ -568,9 +660,10 @@ const EditDialog = ({
           fullWidth
           value={tdData.name}
           onChange={(e) => setTdData({ ...tdData, name: e.target.value })}
+          disabled={isUploading}
           sx={{ mb: 2, mt: 2 }}
         />
-        <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormControl fullWidth sx={{ mb: 2 }} disabled={isUploading}>
           <InputLabel>Type</InputLabel>
           <Select
             value={tdData.dataType}
@@ -586,17 +679,37 @@ const EditDialog = ({
             fullWidth
             value={tdData.url}
             onChange={(e) => setTdData({ ...tdData, url: e.target.value })}
+            disabled={isUploading}
             sx={{ mb: 2 }}
           />
         ) : (
-          <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
-            Upload PDF
-            <input type="file" hidden onChange={handleFileChange} />
-          </Button>
-        )}
-        {fileName && <Typography>{fileName}</Typography>}
-        {uploadProgress > 0 && (
-          <LinearProgress variant="determinate" value={uploadProgress} />
+          <>
+            <Button
+              variant="outlined"
+              component="label"
+              fullWidth
+              sx={{ mb: 1 }}
+              disabled={isUploading}
+              color={fileName ? "success" : "primary"}
+            >
+              {fileName ? "Change PDF" : "Upload PDF"}
+              <input
+                type="file"
+                hidden
+                onChange={handleFileChange}
+                accept="application/pdf"
+                disabled={isUploading}
+              />
+            </Button>
+            {fileName && (
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Selected file: <Chip label={fileName} color="primary" />
+              </Typography>
+            )}
+            {uploadProgress > 0 && (
+              <LinearProgress variant="determinate" value={uploadProgress} />
+            )}
+          </>
         )}
         <Autocomplete
           options={modules}
@@ -605,19 +718,47 @@ const EditDialog = ({
           onChange={(e, newValue) => {
             setSelectedModule(newValue ? newValue.name : "");
           }}
+          disabled={isUploading}
           renderInput={(params) => (
             <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
           )}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          color="info"
+          disabled={isUploading}
+        >
           Cancel
         </Button>
-        <Button onClick={handleSave} variant="outlined" color="success">
+        <Button
+          onClick={handleSave}
+          variant="outlined"
+          color="success"
+          disabled={isUploading}
+        >
           Save
         </Button>
       </DialogActions>
+      {isUploading && (
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: "background.paper",
+            borderTop: "1px solid rgba(0,0,0,0.1)",
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="primary"
+            sx={{ fontWeight: "medium" }}
+          >
+            Please wait while your file uploads. Do not close this dialog.
+          </Typography>
+        </Box>
+      )}
     </Dialog>
   );
 };
