@@ -1,9 +1,12 @@
 import { Container, Row, Col } from "react-bootstrap";
-import { FaGoogle, FaLinkedin, FaResearchgate } from "react-icons/fa";
+import { FaResearchgate } from "react-icons/fa";
 import { motion } from "framer-motion";
 import hamoutimage from "../../assets/hamoutpic.jpg";
 import { useEffect } from "react";
 import Aos from "aos";
+import "aos/dist/aos.css";
+import { IconButton } from "@mui/material";
+import { Email as EmailIcon } from "@mui/icons-material";
 
 export default function HeroSection() {
   useEffect(() => {
@@ -12,8 +15,11 @@ export default function HeroSection() {
     });
   }, []);
 
+  const email = "h.hamout@uiz.ac.ma";
+  const researchGate = "https://www.researchgate.net/profile/Hamza-Hamout";
+
   return (
-    <section className="hero-section" style={{userSelect:"none"}}>
+    <section className="hero-section" style={{ userSelect: "none" }}>
       <Container>
         <Row className="align-items-center">
           <Col
@@ -46,36 +52,37 @@ export default function HeroSection() {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  color:"rgba(1, 1, 1, 0.32)"
-                }}  
+                  color: "rgba(1, 1, 1, 0.32)",
+                }}
               >
                 <h1>Dr. Hamza HAMOUT</h1>
                 <h3>Maître de Conférences Habilité</h3>
                 <p>École Supérieure de Technologie . Guelmim</p>
                 <div className="social-icons" style={{ marginTop: "-10px" }}>
-                  <motion.a
-                    href="#"
-                    className="social-icon"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    <FaLinkedin />
-                  </motion.a>
-                  <motion.a
-                    href="#"
-                    className="social-icon"
-                    whileHover={{
-                      scale: 1.1,
+                  <IconButton
+                    size="large"
+                    style={{ color: "#9CA3AF" }}
+                    onClick={() => {
+                      window.open(researchGate, "_blank");
                     }}
                   >
-                    <FaResearchgate />
-                  </motion.a>
-                  <motion.a
-                    href="#"
-                    className="social-icon"
-                    whileHover={{ scale: 1.1 }}
+                    <FaResearchgate
+                      style={{ fontSize: "20px", color: "#6B7280" }}
+                    />
+                  </IconButton>
+
+                  <IconButton
+                    size="small"
+                    style={{ color: "#9CA3AF" }}
+                    onClick={() => {
+                      window.open(
+                        `https://mail.google.com/mail/?view=cm&to=${email}`,
+                        "_blank"
+                      );
+                    }}
                   >
-                    <FaGoogle />
-                  </motion.a>
+                    <EmailIcon style={{ fontSize: "20px", color: "#6B7280" }} />
+                  </IconButton>
                 </div>
               </div>
             </motion.div>

@@ -1,14 +1,11 @@
 import React from "react";
 import { Container, Typography, IconButton } from "@mui/material";
 import {
-  Twitter as TwitterIcon,
   LinkedIn as LinkedInIcon,
-  Instagram,
-  Email,
+  Email as EmailIcon,
 } from "@mui/icons-material";
 import { Row, Col } from "reactstrap";
 import { FaResearchgate } from "react-icons/fa";
-import picimg from "../assets/hamoutpic.jpg";
 import yassine from "../assets/team/yassine.jpg";
 import youssef from "../assets/team/youssef.jpg";
 import souhail from "../assets/team/souhail.jpg";
@@ -21,23 +18,21 @@ const TeamSection = () => {
       role: "Développeur Fullstack",
       image: youssef,
       email: "yousseframi012@gmail.com",
-      instagram: "https://www.instagram.com/rammi_yssf",
       linkedin: "https://www.linkedin.com/in/youssef-rami/",
     },
     {
-      nom: "Yassin BOUGROUOU",
+      nom: "Yassin BOUOUGROU",
       role: "Développeur Fullstack",
       image: yassine,
       email: "bouougrouyassin@gmail.com",
-      instagram: "https://www.instagram.com/rammi_yssf",
-      linkedin: "linkedin.com/in/youssef-rami",
+      linkedin: "https://www.linkedin.com/in/yassin-bouougrou-42217a344/",
     },
     {
       nom: "Souhail BABILE",
       role: "Développeur Fullstack",
       image: souhail,
-      email: "souhailbabile@gmail.com",
-      linkedin: "linkedin.com/in/souhail-babile-54736324b",
+      email: "babilesohail@gmail.com",
+      linkedin: "https://www.linkedin.com/in/souhail-babile-54736324b", 
     },
     {
       nom: "Dr. Hemza HAMOUT",
@@ -83,7 +78,7 @@ const TeamSection = () => {
 
       <Row>
         {membresEquipe.map((membre, index) => (
-          <Col xs={12} sm={6} lg={3} className="mb-4" key={membre.nom}>
+          <Col xs={12} sm={6} lg={3} className="mb-4" key={index}>
             <div
               className="text-center"
               data-aos="fade-up"
@@ -94,9 +89,6 @@ const TeamSection = () => {
                 padding: "20px",
                 boxShadow: "0 4px 6px rgba(0, 0, 0, 0.01)",
                 transition: "transform 0.3s ease-in-out",
-                ":hover": {
-                  transform: "translateY(-10px)",
-                },
               }}
             >
               <div
@@ -118,9 +110,12 @@ const TeamSection = () => {
                     objectPosition: "center",
                     cursor: "pointer",
                     transition: "transform 0.3s ease-in-out",
-                    ":hover": {
-                      transform: "scale(1.1)",
-                    },
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.transform = "scale(1.05)";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.transform = "scale(1)";
                   }}
                 />
               </div>
@@ -149,11 +144,14 @@ const TeamSection = () => {
                   <IconButton
                     size="small"
                     style={{ color: "#9CA3AF" }}
-                    onClick={() =>
-                      (window.location.href = `mailto:${membre.email}`)
-                    }
+                    onClick={() => {
+                      window.open(
+                        `https://mail.google.com/mail/?view=cm&to=${membre.email}`,
+                        "_blank"
+                      );
+                    }}
                   >
-                    <Email style={{ fontSize: "20px" }} />
+                    <EmailIcon style={{ fontSize: "20px", color: "#6B7280" }} />
                   </IconButton>
                 )}
                 {membre.linkedin && (
@@ -163,8 +161,7 @@ const TeamSection = () => {
                     onClick={() => window.open(membre.linkedin, "_blank")}
                   >
                     <LinkedInIcon
-                      color="primary"
-                      style={{ fontSize: "20px" }}
+                      style={{ fontSize: "20px", color: "#0077B5" }}
                     />
                   </IconButton>
                 )}
@@ -175,8 +172,7 @@ const TeamSection = () => {
                     onClick={() => window.open(membre.researchGate, "_blank")}
                   >
                     <FaResearchgate
-                      color="primary"
-                      style={{ fontSize: "20px" }}
+                      style={{ fontSize: "20px", color: "#0077B5" }}
                     />
                   </IconButton>
                 )}
