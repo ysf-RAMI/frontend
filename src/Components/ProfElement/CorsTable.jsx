@@ -22,6 +22,8 @@ import {
   Typography,
   CircularProgress,
   TablePagination,
+  Box,
+  Chip,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -31,6 +33,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 
 const CorsTable = () => {
+  // Existing state variables remain the same
   const [resource, setResource] = useState([]);
   const [filieres, setFilieres] = useState([]);
   const [modules, setModules] = useState([]);
@@ -38,7 +41,7 @@ const CorsTable = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [openPdfDialog, setOpenPdfDialog] = useState(false); // State for PDF dialog
+  const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -47,11 +50,13 @@ const CorsTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [isUploading, setIsUploading] = useState(false); // New state to track upload status
 
   const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
   const token = JSON.parse(localStorage.getItem("auth")).token;
   const profId = localStorage.getItem("profId");
 
+  // Existing useEffect hooks and functions remain the same
   useEffect(() => {
     AOS.init({
       duration: 200,
@@ -145,12 +150,18 @@ const CorsTable = () => {
   const handleOpenAddDialog = () => {
     setSelectedCourse(null);
     setSelectedModule("");
+    setFileName("");
+    setUploadProgress(0);
+    setIsUploading(false);
     setOpenAddDialog(true);
   };
 
   const handleOpenEditDialog = (course) => {
     setSelectedCourse(course);
     setSelectedModule(course.moduleName);
+    setFileName("");
+    setUploadProgress(0);
+    setIsUploading(false);
     setOpenEditDialog(true);
   };
 
@@ -161,18 +172,23 @@ const CorsTable = () => {
 
   const handleOpenPdfDialog = (course) => {
     setSelectedCourse(course);
-    setOpenPdfDialog(true); // Open PDF dialog
+    setOpenPdfDialog(true);
   };
 
   const handleCloseDialogs = () => {
-    setOpenAddDialog(false);
-    setOpenEditDialog(false);
-    setOpenDeleteDialog(false);
-    setOpenPdfDialog(false); // Close PDF dialog
-    setSelectedCourse(null);
-    setSelectedModule("");
-    setFileName("");
-    setUploadProgress(0);
+    // Only close if not currently uploading
+    if (!isUploading) {
+      setOpenAddDialog(false);
+      setOpenEditDialog(false);
+      setOpenDeleteDialog(false);
+      setOpenPdfDialog(false);
+      setSelectedCourse(null);
+      setSelectedModule("");
+      setFileName("");
+      setUploadProgress(0);
+    } else {
+      toast.warning("Please wait until upload is complete");
+    }
   };
 
   return (
@@ -238,7 +254,7 @@ const CorsTable = () => {
                   ) : (
                     <Button
                       variant="outlined"
-                      onClick={() => handleOpenPdfDialog(course)} // Open PDF dialog
+                      onClick={() => handleOpenPdfDialog(course)}
                     >
                       View PDF
                     </Button>
@@ -294,6 +310,8 @@ const CorsTable = () => {
         token={token}
         profId={profId}
         mode="add"
+        isUploading={isUploading}
+        setIsUploading={setIsUploading}
       />
 
       <CourseFormDialog
@@ -312,6 +330,8 @@ const CorsTable = () => {
         token={token}
         profId={profId}
         mode="edit"
+        isUploading={isUploading}
+        setIsUploading={setIsUploading}
       />
 
       <DeleteDialog
@@ -377,6 +397,8 @@ const CourseFormDialog = ({
   token,
   profId,
   mode,
+  isUploading,
+  setIsUploading,
 }) => {
   const [courseData, setCourseData] = useState({
     id: course?.id || "",
@@ -385,6 +407,7 @@ const CourseFormDialog = ({
     lien: course?.lien || "",
     file: null,
   });
+  const [uploadState, setUploadState] = useState("idle"); // idle, preparing, uploading, complete, error
 
   useEffect(() => {
     if (course) {
@@ -397,6 +420,7 @@ const CourseFormDialog = ({
       });
       setSelectedModule(course.moduleName);
       setFileName("");
+      setUploadState("idle");
     }
   }, [course]);
 
@@ -405,11 +429,16 @@ const CourseFormDialog = ({
       !courseData.name ||
       !selectedModule ||
       (courseData.dataType === "VIDEO" && !courseData.lien) ||
-      (courseData.dataType === "FICHIER" && !courseData.file)
+      (courseData.dataType === "FICHIER" && !courseData.file && mode === "add")
     ) {
       toast.error("Please fill all required fields.");
       return;
     }
+
+    // Start the upload process
+    setIsUploading(true);
+    setUploadState("preparing");
+    setUploadProgress(0);
 
     const formData = new FormData();
     formData.append("id", courseData.id);
@@ -419,7 +448,7 @@ const CourseFormDialog = ({
 
     if (courseData.dataType === "VIDEO") {
       formData.append("lien", courseData.lien);
-    } else if (courseData.dataType === "FICHIER") {
+    } else if (courseData.dataType === "FICHIER" && courseData.file) {
       formData.append("data", courseData.file);
     }
 
@@ -430,6 +459,11 @@ const CourseFormDialog = ({
     formData.append("professorId", profId);
 
     try {
+      // Short delay to show "preparing" state
+      setTimeout(() => {
+        setUploadState("uploading");
+      }, 500);
+
       const url =
         mode === "add"
           ? `${baseUrl}/api/professeur/addResource`
@@ -451,21 +485,38 @@ const CourseFormDialog = ({
 
       await axios[method](url, formData, config);
 
-      toast.success(
-        `Course ${mode === "add" ? "added" : "updated"} successfully!`
-      );
-      fetchResources();
-      onClose();
+      // Show completion state briefly
+      setUploadState("complete");
+      setTimeout(() => {
+        toast.success(
+          `Course ${mode === "add" ? "added" : "updated"} successfully!`
+        );
+        fetchResources();
+        setIsUploading(false);
+        onClose();
+      }, 500);
     } catch (error) {
+      setUploadState("error");
       toast.error(`Failed to ${mode === "add" ? "add" : "update"} course.`);
-    } finally {
-      setUploadProgress(0); // Reset progress after upload
+      setIsUploading(false);
     }
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Check file size (max 50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        toast.warning("File size should be less than 50MB");
+        return;
+      }
+
+      // Check file type
+      if (file.type !== "application/pdf") {
+        toast.warning("Only PDF files are allowed");
+        return;
+      }
+
       setCourseData({ ...courseData, file });
       setFileName(file.name);
     } else {
@@ -473,8 +524,86 @@ const CourseFormDialog = ({
     }
   };
 
+  // Function to render upload status with appropriate visual feedback
+  const renderUploadStatus = () => {
+    if (courseData.dataType !== "FICHIER") return null;
+
+    switch (uploadState) {
+      case "idle":
+        return (
+          fileName && (
+            <Box sx={{ mt: 1, mb: 2 }}>
+              <Typography
+                variant="body2"
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <Chip
+                  label={fileName}
+                  color="primary"
+                  variant="outlined"
+                  sx={{ mr: 1 }}
+                />
+                Selected file
+              </Typography>
+            </Box>
+          )
+        );
+      case "preparing":
+        return (
+          <Box sx={{ mt: 1, mb: 2 }}>
+            <Typography variant="body2" color="primary" sx={{ mb: 1 }}>
+              Preparing to upload...
+            </Typography>
+            <LinearProgress variant="indeterminate" />
+          </Box>
+        );
+      case "uploading":
+        return (
+          <Box sx={{ mt: 1, mb: 2 }}>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
+            >
+              <Typography variant="body2" color="primary">
+                Uploading...
+              </Typography>
+              <Typography variant="body2" color="primary">
+                {uploadProgress}%
+              </Typography>
+            </Box>
+            <LinearProgress variant="determinate" value={uploadProgress} />
+          </Box>
+        );
+      case "complete":
+        return (
+          <Box sx={{ mt: 1, mb: 2 }}>
+            <Typography variant="body2" color="success.main" sx={{ mb: 1 }}>
+              Upload complete!
+            </Typography>
+            <LinearProgress variant="determinate" value={100} color="success" />
+          </Box>
+        );
+      case "error":
+        return (
+          <Box sx={{ mt: 1, mb: 2 }}>
+            <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+              Upload failed. Please try again.
+            </Typography>
+            <LinearProgress variant="determinate" value={100} color="error" />
+          </Box>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      data-aos="zoom-in"
+      disableEscapeKeyDown={isUploading}
+      disableBackdropClick={isUploading}
+    >
       <DialogTitle
         sx={{
           background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
@@ -494,9 +623,10 @@ const CourseFormDialog = ({
           onChange={(e) =>
             setCourseData({ ...courseData, name: e.target.value })
           }
+          disabled={isUploading}
           sx={{ mb: 2, mt: 2 }}
         />
-        <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormControl fullWidth sx={{ mb: 2 }} disabled={isUploading}>
           <InputLabel>Type</InputLabel>
           <Select
             value={courseData.dataType}
@@ -517,11 +647,16 @@ const CourseFormDialog = ({
               onChange={(e) =>
                 setCourseData({ ...courseData, lien: e.target.value })
               }
-              sx={{}}
+              disabled={isUploading}
+              sx={{ mb: 2 }}
             />
-            <p style={{ color: "grey", fontSize: "12px" }}>
-              exmple: https://www.youtube.com/watch?v=vedioId
-            </p>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 2, display: "block" }}
+            >
+              Example: https://www.youtube.com/watch?v=videoId
+            </Typography>
           </>
         ) : (
           <>
@@ -529,14 +664,32 @@ const CourseFormDialog = ({
               variant="outlined"
               component="label"
               fullWidth
-              sx={{ mb: 2 }}
+              sx={{ mb: 1 }}
+              disabled={isUploading}
+              color={fileName ? "success" : "primary"}
             >
-              Upload PDF
-              <input type="file" hidden onChange={handleFileChange} />
+              {fileName ? "Change PDF" : "Upload PDF"}
+              <input
+                type="file"
+                hidden
+                onChange={handleFileChange}
+                accept="application/pdf"
+                disabled={isUploading}
+              />
             </Button>
-            {fileName && <Typography>{fileName}</Typography>}
-            {uploadProgress > 0 && (
-              <LinearProgress variant="determinate" value={uploadProgress} />
+
+            {renderUploadStatus()}
+
+            {mode === "edit" && !courseData.file && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ mt: 1, display: "block" }}
+              >
+                {courseData.file
+                  ? "New file will replace current PDF"
+                  : "Leave empty to keep current PDF"}
+              </Typography>
             )}
           </>
         )}
@@ -547,19 +700,47 @@ const CourseFormDialog = ({
           onChange={(e, newValue) =>
             setSelectedModule(newValue ? newValue.name : "")
           }
+          disabled={isUploading}
           renderInput={(params) => (
             <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
           )}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          color="info"
+          disabled={isUploading}
+        >
           Cancel
         </Button>
-        <Button onClick={handleSave} color="success" variant="outlined">
+        <Button
+          onClick={handleSave}
+          color="success"
+          variant="outlined"
+          disabled={isUploading}
+        >
           Save
         </Button>
       </DialogActions>
+      {isUploading && (
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: "background.paper",
+            borderTop: "1px solid rgba(0,0,0,0.1)",
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="primary"
+            sx={{ fontWeight: "medium" }}
+          >
+            Please wait while your file uploads. Do not close this dialog.
+          </Typography>
+        </Box>
+      )}
     </Dialog>
   );
 };
