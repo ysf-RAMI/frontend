@@ -407,7 +407,7 @@ const CourseFormDialog = ({
     lien: course?.lien || "",
     file: null,
   });
-  const [uploadState, setUploadState] = useState("idle"); // idle, preparing, uploading, complete, error
+  const [uploadState, setUploadState] = useState("idle"); 
 
   useEffect(() => {
     if (course) {
@@ -459,7 +459,6 @@ const CourseFormDialog = ({
     formData.append("professorId", profId);
 
     try {
-      // Short delay to show "preparing" state
       setTimeout(() => {
         setUploadState("uploading");
       }, 500);
@@ -485,7 +484,6 @@ const CourseFormDialog = ({
 
       await axios[method](url, formData, config);
 
-      // Show completion state briefly
       setUploadState("complete");
       setTimeout(() => {
         toast.success(

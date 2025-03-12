@@ -22,6 +22,8 @@ import {
   Typography,
   CircularProgress,
   TablePagination,
+  Box,
+  Chip,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -37,7 +39,7 @@ const ExamTable = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [openPdfDialog, setOpenPdfDialog] = useState(false); // State for PDF dialog
+  const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [selectedExam, setSelectedExam] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -46,6 +48,7 @@ const ExamTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [isUploading, setIsUploading] = useState(false); // State to track upload status
 
   const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
   const token = JSON.parse(localStorage.getItem("auth")).token;
@@ -130,12 +133,18 @@ const ExamTable = () => {
   const handleOpenAddDialog = () => {
     setSelectedExam(null);
     setSelectedModule("");
+    setFileName("");
+    setUploadProgress(0);
+    setIsUploading(false);
     setOpenAddDialog(true);
   };
 
   const handleOpenEditDialog = (exam) => {
     setSelectedExam(exam);
     setSelectedModule(exam.moduleName);
+    setFileName("");
+    setUploadProgress(0);
+    setIsUploading(false);
     setOpenEditDialog(true);
   };
 
@@ -146,18 +155,22 @@ const ExamTable = () => {
 
   const handleOpenPdfDialog = (exam) => {
     setSelectedExam(exam);
-    setOpenPdfDialog(true); // Open PDF dialog
+    setOpenPdfDialog(true);
   };
 
   const handleCloseDialogs = () => {
-    setOpenAddDialog(false);
-    setOpenEditDialog(false);
-    setOpenDeleteDialog(false);
-    setOpenPdfDialog(false); // Close PDF dialog
-    setSelectedExam(null);
-    setSelectedModule("");
-    setFileName("");
-    setUploadProgress(0);
+    if (!isUploading) {
+      setOpenAddDialog(false);
+      setOpenEditDialog(false);
+      setOpenDeleteDialog(false);
+      setOpenPdfDialog(false);
+      setSelectedExam(null);
+      setSelectedModule("");
+      setFileName("");
+      setUploadProgress(0);
+    } else {
+      toast.warning("Please wait until upload is complete");
+    }
   };
 
   return (
@@ -223,7 +236,7 @@ const ExamTable = () => {
                   ) : (
                     <Button
                       variant="outlined"
-                      onClick={() => handleOpenPdfDialog(exam)} // Open PDF dialog
+                      onClick={() => handleOpenPdfDialog(exam)}
                     >
                       View PDF
                     </Button>
@@ -273,11 +286,14 @@ const ExamTable = () => {
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
+        setUploadProgress={setUploadProgress}
         fetchResources={fetchResources}
         baseUrl={baseUrl}
         token={token}
         profId={profId}
         mode="add"
+        isUploading={isUploading}
+        setIsUploading={setIsUploading}
       />
 
       <ExamFormDialog
@@ -290,11 +306,14 @@ const ExamTable = () => {
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
+        setUploadProgress={setUploadProgress}
         fetchResources={fetchResources}
         baseUrl={baseUrl}
         token={token}
         profId={profId}
         mode="edit"
+        isUploading={isUploading}
+        setIsUploading={setIsUploading}
       />
 
       <DeleteDialog
@@ -354,36 +373,26 @@ const ExamFormDialog = ({
   fileName,
   setFileName,
   uploadProgress,
+  setUploadProgress,
   fetchResources,
   baseUrl,
   token,
   profId,
   mode,
+  isUploading,
+  setIsUploading,
 }) => {
-  // Initialize state with default values
   const [examData, setExamData] = useState({
-    id: "",
-    name: "",
-    dataType: "",
-    lien: "",
+    id: exam?.id || "",
+    name: exam?.nom || "",
+    dataType: exam?.dataType || "",
+    lien: exam?.lien || "",
     file: null,
   });
+  const [uploadState, setUploadState] = useState("idle");
 
-  // Reset state when the dialog is opened or when the exam prop changes
   useEffect(() => {
-    if (mode === "add") {
-      // Reset state for adding a new exam
-      setExamData({
-        id: "",
-        name: "",
-        dataType: "",
-        lien: "",
-        file: null,
-      });
-      setSelectedModule("");
-      setFileName("");
-    } else if (exam) {
-      // Set state for editing an existing exam
+    if (exam) {
       setExamData({
         id: exam.id,
         name: exam.nom,
@@ -393,19 +402,25 @@ const ExamFormDialog = ({
       });
       setSelectedModule(exam.moduleName);
       setFileName("");
+      setUploadState("idle");
     }
-  }, [open, exam, mode]); // Reset when the dialog opens or the exam prop changes
+  }, [exam]);
 
   const handleSave = async () => {
     if (
       !examData.name ||
       !selectedModule ||
       (examData.dataType === "VIDEO" && !examData.lien) ||
-      (examData.dataType === "FICHIER" && !examData.file)
+      (examData.dataType === "FICHIER" && !examData.file && mode === "add")
     ) {
       toast.error("Please fill all required fields.");
       return;
     }
+
+    // Start the upload process
+    setIsUploading(true);
+    setUploadState("preparing");
+    setUploadProgress(0);
 
     const formData = new FormData();
     formData.append("id", examData.id);
@@ -415,7 +430,7 @@ const ExamFormDialog = ({
 
     if (examData.dataType === "VIDEO") {
       formData.append("lien", examData.lien);
-    } else if (examData.dataType === "FICHIER") {
+    } else if (examData.dataType === "FICHIER" && examData.file) {
       formData.append("data", examData.file);
     }
 
@@ -426,32 +441,62 @@ const ExamFormDialog = ({
     formData.append("professorId", profId);
 
     try {
+      setTimeout(() => {
+        setUploadState("uploading");
+      }, 500);
+
       const url =
         mode === "add"
           ? `${baseUrl}/api/professeur/addResource`
           : `${baseUrl}/api/professeur/updateResource`;
       const method = mode === "add" ? "post" : "put";
 
-      await axios[method](url, formData, {
+      const config = {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
-      });
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(percentCompleted);
+        },
+      };
 
-      toast.success(
-        `Exam ${mode === "add" ? "added" : "updated"} successfully!`
-      );
-      fetchResources();
-      onClose();
+      await axios[method](url, formData, config);
+
+      setUploadState("complete");
+      setTimeout(() => {
+        toast.success(
+          `Exam ${mode === "add" ? "added" : "updated"} successfully!`
+        );
+        fetchResources();
+        setIsUploading(false);
+        onClose();
+      }, 500);
     } catch (error) {
+      setUploadState("error");
       toast.error(`Failed to ${mode === "add" ? "add" : "update"} exam.`);
+      setIsUploading(false);
     }
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Check file size (max 50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        toast.warning("File size should be less than 50MB");
+        return;
+      }
+
+      // Check file type
+      if (file.type !== "application/pdf") {
+        toast.warning("Only PDF files are allowed");
+        return;
+      }
+
       setExamData({ ...examData, file });
       setFileName(file.name);
     } else {
@@ -459,8 +504,85 @@ const ExamFormDialog = ({
     }
   };
 
+  const renderUploadStatus = () => {
+    if (examData.dataType !== "FICHIER") return null;
+
+    switch (uploadState) {
+      case "idle":
+        return (
+          fileName && (
+            <Box sx={{ mt: 1, mb: 2 }}>
+              <Typography
+                variant="body2"
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <Chip
+                  label={fileName}
+                  color="primary"
+                  variant="outlined"
+                  sx={{ mr: 1 }}
+                />
+                Selected file
+              </Typography>
+            </Box>
+          )
+        );
+      case "preparing":
+        return (
+          <Box sx={{ mt: 1, mb: 2 }}>
+            <Typography variant="body2" color="primary" sx={{ mb: 1 }}>
+              Preparing to upload...
+            </Typography>
+            <LinearProgress variant="indeterminate" />
+          </Box>
+        );
+      case "uploading":
+        return (
+          <Box sx={{ mt: 1, mb: 2 }}>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
+            >
+              <Typography variant="body2" color="primary">
+                Uploading...
+              </Typography>
+              <Typography variant="body2" color="primary">
+                {uploadProgress}%
+              </Typography>
+            </Box>
+            <LinearProgress variant="determinate" value={uploadProgress} />
+          </Box>
+        );
+      case "complete":
+        return (
+          <Box sx={{ mt: 1, mb: 2 }}>
+            <Typography variant="body2" color="success.main" sx={{ mb: 1 }}>
+              Upload complete!
+            </Typography>
+            <LinearProgress variant="determinate" value={100} color="success" />
+          </Box>
+        );
+      case "error":
+        return (
+          <Box sx={{ mt: 1, mb: 2 }}>
+            <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+              Upload failed. Please try again.
+            </Typography>
+            <LinearProgress variant="determinate" value={100} color="error" />
+          </Box>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      data-aos="zoom-in"
+      disableEscapeKeyDown={isUploading}
+      disableBackdropClick={isUploading}
+    >
       <DialogTitle
         sx={{
           background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
@@ -478,9 +600,10 @@ const ExamFormDialog = ({
           fullWidth
           value={examData.name}
           onChange={(e) => setExamData({ ...examData, name: e.target.value })}
+          disabled={isUploading}
           sx={{ mb: 2, mt: 2 }}
         />
-        <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormControl fullWidth sx={{ mb: 2 }} disabled={isUploading}>
           <InputLabel>Type</InputLabel>
           <Select
             value={examData.dataType}
@@ -501,11 +624,16 @@ const ExamFormDialog = ({
               onChange={(e) =>
                 setExamData({ ...examData, lien: e.target.value })
               }
-              sx={{}}
+              disabled={isUploading}
+              sx={{ mb: 2 }}
             />
-            <p style={{ color: "grey", fontSize: "12px" }}>
-              exmple: https://www.youtube.com/watch?v=vedioId
-            </p>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 2, display: "block" }}
+            >
+              Example: https://www.youtube.com/watch?v=videoId
+            </Typography>
           </>
         ) : (
           <>
@@ -513,14 +641,32 @@ const ExamFormDialog = ({
               variant="outlined"
               component="label"
               fullWidth
-              sx={{ mb: 2 }}
+              sx={{ mb: 1 }}
+              disabled={isUploading}
+              color={fileName ? "success" : "primary"}
             >
-              Upload PDF
-              <input type="file" hidden onChange={handleFileChange} />
+              {fileName ? "Change PDF" : "Upload PDF"}
+              <input
+                type="file"
+                hidden
+                onChange={handleFileChange}
+                accept="application/pdf"
+                disabled={isUploading}
+              />
             </Button>
-            {fileName && <Typography>{fileName}</Typography>}
-            {uploadProgress > 0 && (
-              <LinearProgress variant="determinate" value={uploadProgress} />
+
+            {renderUploadStatus()}
+
+            {mode === "edit" && !examData.file && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ mt: 1, display: "block" }}
+              >
+                {examData.file
+                  ? "New file will replace current PDF"
+                  : "Leave empty to keep current PDF"}
+              </Typography>
             )}
           </>
         )}
@@ -531,19 +677,47 @@ const ExamFormDialog = ({
           onChange={(e, newValue) =>
             setSelectedModule(newValue ? newValue.name : "")
           }
+          disabled={isUploading}
           renderInput={(params) => (
             <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
           )}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          color="info"
+          disabled={isUploading}
+        >
           Cancel
         </Button>
-        <Button onClick={handleSave} color="success" variant="outlined">
+        <Button
+          onClick={handleSave}
+          color="success"
+          variant="outlined"
+          disabled={isUploading}
+        >
           Save
         </Button>
       </DialogActions>
+      {isUploading && (
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: "background.paper",
+            borderTop: "1px solid rgba(0,0,0,0.1)",
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="primary"
+            sx={{ fontWeight: "medium" }}
+          >
+            Please wait while your file uploads. Do not close this dialog.
+          </Typography>
+        </Box>
+      )}
     </Dialog>
   );
 };

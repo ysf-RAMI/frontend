@@ -41,7 +41,7 @@ const AnnouncementsPage = () => {
     }
   };
 
-  // Format date
+  
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
       year: "numeric",
@@ -50,7 +50,6 @@ const AnnouncementsPage = () => {
     });
   };
 
-  // Filter announcements based on search term
   const filterAnnouncements = () => {
     if (!searchTerm) return announcements; // Return all announcements if search term is empty
     return announcements.filter((announcement) => {
