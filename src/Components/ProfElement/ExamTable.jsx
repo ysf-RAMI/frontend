@@ -189,24 +189,26 @@ const ExamTable = () => {
         <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
       )}
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleOpenAddDialog}
-        sx={{ m: 2 }}
-        data-aos="fade-down"
-      >
-        Add Exam
-      </Button>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenAddDialog}
+          sx={{ m: 2 }}
+          data-aos="fade-down"
+        >
+          Add Exam
+        </Button>
 
-      <TextField
-        label="Search Exams"
-        variant="outlined"
-        value={searchTerm}
-        onChange={handleSearchChange}
-        sx={{ m: 2, width: "300px" }}
-        data-aos="fade-down"
-      />
+        <TextField
+          label="Search Exams"
+          variant="outlined"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          sx={{ m: 2, width: "300px" }}
+          data-aos="fade-down"
+        />
+      </Box>
 
       <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
         <Table>

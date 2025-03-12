@@ -119,7 +119,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
         {[
           { name: "Dashboard", icon: <Dashboard />, section: "dashboard" },
           { name: "Module", icon: <Assignment />, section: "module" },
-          { name: "Cours", icon: <Book />, section: "cors" },
+          { name: "Cours", icon: <Book />, section: "cours" },
           { name: "TD", icon: <Description />, section: "td" },
           { name: "TP", icon: <Article />, section: "tp" },
           { name: "Exam", icon: <Quiz />, section: "exam" },
@@ -283,7 +283,7 @@ const Prof = ({ isDrawerOpen, toggleDrawer, isSmallScreen }) => {
                 selectedSection.slice(1)}
             </Typography>
             {selectedSection === "module" && <ModuleTable />}
-            {selectedSection === "cors" && <CorsTable />}
+            {selectedSection === "cours" && <CorsTable />}
             {selectedSection === "td" && <TDTable />}
             {selectedSection === "tp" && <TpTable />}
             {selectedSection === "exam" && <ExamTable />}

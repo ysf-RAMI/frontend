@@ -253,24 +253,26 @@ const TpTable = () => {
         zIndex={9999}
       />
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleOpenAddDialog}
-        sx={{ m: 2 }}
-        data-aos="fade-down"
-      >
-        Add TP
-      </Button>
+      <Box sx={{ display: "flex" ,justifyContent:"space-between"}}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenAddDialog}
+          sx={{ m: 2 }}
+          data-aos="fade-down"
+        >
+          Add TP
+        </Button>
 
-      <TextField
-        label="Search TPs"
-        variant="outlined"
-        value={searchTerm}
-        onChange={handleSearchChange}
-        sx={{ m: 2, width: "300px" }}
-        data-aos="fade-down"
-      />
+        <TextField
+          label="Search TPs"
+          variant="outlined"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          sx={{ m: 2, width: "300px" }}
+          data-aos="fade-down"
+        />
+      </Box>
 
       <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
         <Table>

@@ -17,6 +17,7 @@ import {
   Autocomplete,
   TablePagination,
   IconButton,
+  Box,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -247,7 +248,7 @@ const ModuleTable = () => {
   };
 
   return (
-    <div style={{ marginTop: "-25px" }}>
+    <div >
       <ToastContainer
         autoClose={2500}
         hideProgressBar={false}
@@ -258,25 +259,28 @@ const ModuleTable = () => {
         position="top-center"
         zIndex={9999}
       />
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleAddClick}
-        sx={{ m: 2 }}
-        data-aos="fade-down"
-        startIcon={<Add />}
-      >
-        Add Module
-      </Button>
 
-      <TextField
-        label="Search Modules"
-        variant="outlined"
-        value={searchTerm}
-        onChange={handleSearchChange}
-        sx={{ m: 2, width: "300px" }}
-        data-aos="fade-down"
-      />
+      <Box sx={{display:"flex",justifyContent:"space-between"}}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleAddClick}
+          sx={{ m: 2 }}
+          data-aos="fade-down"
+          startIcon={<Add />}
+        >
+          Add Module
+        </Button>
+
+        <TextField
+          label="Search Modules"
+          variant="outlined"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          sx={{ m: 2, width: "300px" }}
+          data-aos="fade-down"
+        />
+      </Box>
 
       <TableContainer component={Paper} sx={{ m: 1 }} data-aos="fade-up">
         <Table stickyHeader>

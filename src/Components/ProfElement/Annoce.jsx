@@ -183,7 +183,7 @@ export default function Annonce() {
   });
 
   return (
-    <Box sx={{ py: 8, bgcolor: "background.default" }}>
+    <Box>
       <ToastContainer
         autoClose={2500}
         hideProgressBar={false}
@@ -204,16 +204,6 @@ export default function Annonce() {
                 alignItems: "center",
               }}
             >
-              <Typography
-                variant="h2"
-                align="center"
-                sx={{
-                  fontSize: { xs: "2rem", md: "2.5rem" },
-                  fontWeight: "bold",
-                }}
-              >
-                Les announcements
-              </Typography>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
@@ -285,7 +275,7 @@ export default function Annonce() {
                         }}
                       />
                       <Typography variant="caption" color="text.secondary">
-                        {announcement.date}
+                        Annonce a {announcement.date}
                       </Typography>
                     </Box>
                   </Box>
@@ -318,7 +308,7 @@ export default function Annonce() {
                     {announcement.description}
                   </Typography>
 
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end" ,alignItems:"flex-end" }}>
                     <Button
                       variant="outlined"
                       color="primary"
@@ -378,6 +368,7 @@ export default function Annonce() {
                 variant="outlined"
                 color="primary"
               />
+
               <TextField
                 name="description"
                 label="Description"
@@ -388,6 +379,7 @@ export default function Annonce() {
                 required
                 variant="outlined"
                 color="primary"
+                placeholder="4 lines maximum"
               />
               <Button
                 component="label"
@@ -416,7 +408,7 @@ export default function Annonce() {
             <Button
               type="submit"
               variant="contained"
-              color="primary"
+              color="success"
               form="add-announcement-form"
             >
               Save

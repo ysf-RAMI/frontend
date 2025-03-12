@@ -189,12 +189,18 @@ const TDTable = () => {
         <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
       )}
 
-      <Box style={{ display: "flex", justifyContent: "space-between" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          m: 2,
+        }}
+      >
         <Button
           variant="contained"
           color="primary"
           onClick={handleOpenAddDialog}
-          sx={{ m: 2 }}
           data-aos="fade-down"
         >
           Add TD
@@ -205,7 +211,7 @@ const TDTable = () => {
           variant="outlined"
           value={searchTerm}
           onChange={handleSearchChange}
-          sx={{ m: 2, width: "300px" }}
+          sx={{ width: "300px" }}
           data-aos="fade-down"
         />
       </Box>
