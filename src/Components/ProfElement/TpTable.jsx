@@ -22,6 +22,8 @@ import {
   Typography,
   CircularProgress,
   TablePagination,
+  Box,
+  Chip,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -37,7 +39,7 @@ const TpTable = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [openPdfDialog, setOpenPdfDialog] = useState(false); // State for PDF dialog
+  const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [selectedTp, setSelectedTp] = useState(null);
   const [selectedModule, setSelectedModule] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -46,6 +48,7 @@ const TpTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [isUploading, setIsUploading] = useState(false); // State to track upload status
 
   const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
   const token = JSON.parse(localStorage.getItem("auth")).token;
@@ -130,12 +133,18 @@ const TpTable = () => {
   const handleOpenAddDialog = () => {
     setSelectedTp(null);
     setSelectedModule("");
+    setFileName("");
+    setUploadProgress(0);
+    setIsUploading(false);
     setOpenAddDialog(true);
   };
 
   const handleOpenEditDialog = (tp) => {
     setSelectedTp(tp);
     setSelectedModule(tp.moduleName);
+    setFileName("");
+    setUploadProgress(0);
+    setIsUploading(false);
     setOpenEditDialog(true);
   };
 
@@ -146,18 +155,22 @@ const TpTable = () => {
 
   const handleOpenPdfDialog = (tp) => {
     setSelectedTp(tp);
-    setOpenPdfDialog(true); // Open PDF dialog
+    setOpenPdfDialog(true);
   };
 
   const handleCloseDialogs = () => {
-    setOpenAddDialog(false);
-    setOpenEditDialog(false);
-    setOpenDeleteDialog(false);
-    setOpenPdfDialog(false); // Close PDF dialog
-    setSelectedTp(null);
-    setSelectedModule("");
-    setFileName("");
-    setUploadProgress(0);
+    if (!isUploading) {
+      setOpenAddDialog(false);
+      setOpenEditDialog(false);
+      setOpenDeleteDialog(false);
+      setOpenPdfDialog(false);
+      setSelectedTp(null);
+      setSelectedModule("");
+      setFileName("");
+      setUploadProgress(0);
+    } else {
+      toast.warning("Please wait until upload is complete");
+    }
   };
 
   return (
@@ -219,7 +232,7 @@ const TpTable = () => {
                   ) : (
                     <Button
                       variant="outlined"
-                      onClick={() => handleOpenPdfDialog(tp)} // Open PDF dialog
+                      onClick={() => handleOpenPdfDialog(tp)}
                     >
                       View PDF
                     </Button>
@@ -274,6 +287,8 @@ const TpTable = () => {
         token={token}
         profId={profId}
         mode="add"
+        isUploading={isUploading}
+        setIsUploading={setIsUploading}
       />
 
       <TpFormDialog
@@ -291,6 +306,8 @@ const TpTable = () => {
         token={token}
         profId={profId}
         mode="edit"
+        isUploading={isUploading}
+        setIsUploading={setIsUploading}
       />
 
       <DeleteDialog
@@ -355,6 +372,8 @@ const TpFormDialog = ({
   token,
   profId,
   mode,
+  isUploading,
+  setIsUploading,
 }) => {
   const [tpData, setTpData] = useState({
     id: tp?.id || "",
@@ -389,6 +408,9 @@ const TpFormDialog = ({
       return;
     }
 
+    setIsUploading(true);
+    setUploadProgress(0);
+
     const formData = new FormData();
     formData.append("id", tpData.id);
     formData.append("nom", tpData.name);
@@ -419,6 +441,12 @@ const TpFormDialog = ({
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round(
+            (progressEvent.loaded / progressEvent.total) * 100
+          );
+          setUploadProgress(progress);
+        },
       });
 
       toast.success(`TP ${mode === "add" ? "added" : "updated"} successfully!`);
@@ -426,6 +454,8 @@ const TpFormDialog = ({
       onClose();
     } catch (error) {
       toast.error(`Failed to ${mode === "add" ? "add" : "update"} TP.`);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -440,7 +470,13 @@ const TpFormDialog = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} data-aos="zoom-in">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      data-aos="zoom-in"
+      disableEscapeKeyDown={isUploading}
+      disableBackdropClick={isUploading}
+    >
       <DialogTitle
         sx={{
           background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
@@ -458,9 +494,10 @@ const TpFormDialog = ({
           fullWidth
           value={tpData.name}
           onChange={(e) => setTpData({ ...tpData, name: e.target.value })}
+          disabled={isUploading}
           sx={{ mb: 2, mt: 2 }}
         />
-        <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormControl fullWidth sx={{ mb: 2 }} disabled={isUploading}>
           <InputLabel>Type</InputLabel>
           <Select
             value={tpData.dataType}
@@ -477,11 +514,16 @@ const TpFormDialog = ({
               fullWidth
               value={tpData.lien}
               onChange={(e) => setTpData({ ...tpData, lien: e.target.value })}
-              sx={{}}
+              disabled={isUploading}
+              sx={{ mb: 2 }}
             />
-            <p style={{ color: "grey", fontSize: "12px" }}>
-              exmple: https://www.youtube.com/watch?v=vedioId
-            </p>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 2, display: "block" }}
+            >
+              Example: https://www.youtube.com/watch?v=videoId
+            </Typography>
           </>
         ) : (
           <>
@@ -489,12 +531,24 @@ const TpFormDialog = ({
               variant="outlined"
               component="label"
               fullWidth
-              sx={{ mb: 2 }}
+              sx={{ mb: 1 }}
+              disabled={isUploading}
+              color={fileName ? "success" : "primary"}
             >
-              Upload PDF
-              <input type="file" hidden onChange={handleFileChange} />
+              {fileName ? "Change PDF" : "Upload PDF"}
+              <input
+                type="file"
+                hidden
+                onChange={handleFileChange}
+                accept="application/pdf"
+                disabled={isUploading}
+              />
             </Button>
-            {fileName && <Typography>{fileName}</Typography>}
+            {fileName && (
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Selected file: <Chip label={fileName} color="primary" />
+              </Typography>
+            )}
             {uploadProgress > 0 && (
               <LinearProgress variant="determinate" value={uploadProgress} />
             )}
@@ -507,19 +561,47 @@ const TpFormDialog = ({
           onChange={(e, newValue) =>
             setSelectedModule(newValue ? newValue.name : "")
           }
+          disabled={isUploading}
           renderInput={(params) => (
             <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
           )}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined" color="info">
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          color="info"
+          disabled={isUploading}
+        >
           Cancel
         </Button>
-        <Button onClick={handleSave} color="success" variant="outlined">
+        <Button
+          onClick={handleSave}
+          color="success"
+          variant="outlined"
+          disabled={isUploading}
+        >
           Save
         </Button>
       </DialogActions>
+      {isUploading && (
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: "background.paper",
+            borderTop: "1px solid rgba(0,0,0,0.1)",
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="primary"
+            sx={{ fontWeight: "medium" }}
+          >
+            Please wait while your file uploads. Do not close this dialog.
+          </Typography>
+        </Box>
+      )}
     </Dialog>
   );
 };
