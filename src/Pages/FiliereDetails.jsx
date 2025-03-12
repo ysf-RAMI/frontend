@@ -106,21 +106,18 @@ export default function FiliereDetails() {
   const baseUrl = "https://doctorh1-kjmev.ondigitalocean.app";
 
   useEffect(() => {
-    // Initialize AOS animations
     AOS.init({
       duration: 1000,
       once: true,
       mirror: false,
     });
 
-    // Fetch modules data
     const fetchData = async () => {
       try {
         const response = await axios.get(
           `${baseUrl}/api/student/getAllModuleByFiliereId/${filiereId}`
         );
 
-        // Add a small delay to make the loading state visible
         setTimeout(() => {
           const data = response.data;
           setModules(data);
@@ -138,7 +135,6 @@ export default function FiliereDetails() {
     fetchData();
   }, [filiereId]);
 
-  // Filter modules by semester and search query
   const filteredModules = modules.filter((module) => {
     const matchesSemester =
       selectedSemester === "all" || module.semestre === selectedSemester;
@@ -148,7 +144,6 @@ export default function FiliereDetails() {
     return matchesSemester && matchesSearch;
   });
 
-  // Extract unique semesters for the filter dropdown
   const semesters = [...new Set(modules.map((module) => module.semestre))];
 
   // Generate skeleton placeholders
@@ -201,8 +196,6 @@ export default function FiliereDetails() {
           }
         `}
       </style>
-
-      
 
       {/* Filière Title */}
       <Typography
@@ -272,7 +265,9 @@ export default function FiliereDetails() {
           ) : (
             <div className="no-results">
               <Typography variant="h6" color="textSecondary">
-                Aucun module trouvé pour "{searchQuery}"
+                {searchQuery.length > 0
+                  ? `Aucun module trouvé pour la recherche : ${searchQuery}`
+                  : "Aucun module disponible dans cette filière"}
               </Typography>
             </div>
           )}
