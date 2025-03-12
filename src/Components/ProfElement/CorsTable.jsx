@@ -207,24 +207,26 @@ const CorsTable = () => {
         <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
       )}
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleOpenAddDialog}
-        sx={{ m: 2 }}
-        data-aos="fade-down"
-      >
-        Add Course
-      </Button>
+      <Box style={{display:"flex",justifyContent:"space-between"}}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenAddDialog}
+          sx={{ m: 2 }}
+          data-aos="fade-down"
+        >
+          Add Course
+        </Button>
 
-      <TextField
-        label="Search Courses"
-        variant="outlined"
-        value={searchTerm}
-        onChange={handleSearchChange}
-        sx={{ m: 2, width: "300px" }}
-        data-aos="fade-down"
-      />
+        <TextField
+          label="Search Courses"
+          variant="outlined"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          sx={{ m: 2, width: "300px" }}
+          data-aos="fade-down"
+        />
+      </Box>
 
       <TableContainer component={Paper} sx={{ m: 2 }} data-aos="fade-up">
         <Table>

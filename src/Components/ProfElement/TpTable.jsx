@@ -20,7 +20,6 @@ import {
   Select,
   LinearProgress,
   Typography,
-  CircularProgress,
   TablePagination,
   Box,
   Chip,
@@ -44,7 +43,6 @@ const TpTable = () => {
   const [selectedModule, setSelectedModule] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [fileName, setFileName] = useState("");
-  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -62,47 +60,35 @@ const TpTable = () => {
   }, []);
 
   useEffect(() => {
-    fetchData();
+    fetchResources();
+    fetchModules();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      await Promise.all([fetchResources(), fetchModules()]);
-    } catch (error) {
-      console.error("Failed to fetch data.");
-    } finally {
-      setLoading(false);
-    }
+  const fetchResources = () => {
+    axios
+      .get(`${baseUrl}/api/professeur/getAllResources/${profId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setResource(response.data);
+        setTps(response.data.filter((r) => r.type === "TP")); // Filter for TPs
+      })
+      .catch((error) => {
+        console.error("Error fetching resources:", error);
+      });
   };
 
-  const fetchResources = async () => {
-    try {
-      const response = await axios.get(
-        `${baseUrl}/api/professeur/getAllResources/${profId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setResource(response.data);
-      setTps(response.data.filter((r) => r.type === "TP")); // Filter for TPs
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const fetchModules = async () => {
-    try {
-      const response = await axios.get(
-        `${baseUrl}/api/professeur/getAllModuleByProfId/${profId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setModules(response.data);
-    } catch (error) {
-      console.error(error);
-    }
+  const fetchModules = () => {
+    axios
+      .get(`${baseUrl}/api/professeur/getAllModuleByProfId/${profId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setModules(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching modules:", error);
+      });
   };
 
   const handleSearchChange = (event) => {
@@ -173,6 +159,87 @@ const TpTable = () => {
     }
   };
 
+  const handleSave = async (tpData, isEdit = false) => {
+    if (
+      !tpData.name ||
+      !selectedModule ||
+      (tpData.dataType === "VIDEO" && !tpData.url) ||
+      (tpData.dataType === "FICHIER" && !tpData.file && !isEdit)
+    ) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
+
+    // Start the upload process
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    const formData = new FormData();
+    formData.append("nom", tpData.name);
+    formData.append("type", "TP");
+    formData.append("dataType", tpData.dataType);
+
+    if (tpData.dataType === "VIDEO") {
+      formData.append("lien", tpData.url);
+    } else if (tpData.dataType === "FICHIER" && tpData.file) {
+      formData.append("data", tpData.file);
+    }
+
+    const selectedModuleObj = modules.find((m) => m.name === selectedModule);
+    if (selectedModuleObj) {
+      formData.append("moduleId", selectedModuleObj.id);
+    }
+    formData.append("professorId", profId);
+
+    if (isEdit && tpData.id) {
+      formData.append("id", tpData.id);
+    }
+
+    const url = isEdit
+      ? `${baseUrl}/api/professeur/updateResource`
+      : `${baseUrl}/api/professeur/addResource`;
+
+    const method = isEdit ? "put" : "post";
+
+    try {
+      await axios[method](url, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round(
+            (progressEvent.loaded / progressEvent.total) * 100
+          );
+          setUploadProgress(progress);
+        },
+      });
+
+      toast.success(`TP ${isEdit ? "updated" : "added"} successfully!`);
+      fetchResources();
+      handleCloseDialogs();
+    } catch (error) {
+      toast.error(`Failed to ${isEdit ? "update" : "add"} TP.`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDelete = () => {
+    axios
+      .delete(`${baseUrl}/api/professeur/deleteResource/${selectedTp.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => {
+        toast.success("TP deleted successfully!");
+        fetchResources();
+        handleCloseDialogs();
+      })
+      .catch((error) => {
+        toast.error("Failed to delete TP.");
+      });
+  };
+
   return (
     <>
       <ToastContainer
@@ -185,9 +252,6 @@ const TpTable = () => {
         position="top-center"
         zIndex={9999}
       />
-      {loading && (
-        <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
-      )}
 
       <Button
         variant="contained"
@@ -250,8 +314,8 @@ const TpTable = () => {
                   <Button
                     onClick={() => handleOpenDeleteDialog(tp)}
                     color="secondary"
-                    sx={{ ml: 1 }}
                     variant="outlined"
+                    sx={{ ml: 1 }}
                   >
                     Delete
                   </Button>
@@ -273,27 +337,23 @@ const TpTable = () => {
         data-aos="fade-up"
       />
 
-      <TpFormDialog
+      <AddDialog
         open={openAddDialog}
         onClose={handleCloseDialogs}
+        onSave={handleSave}
         modules={modules}
         selectedModule={selectedModule}
         setSelectedModule={setSelectedModule}
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
-        fetchResources={fetchResources}
-        baseUrl={baseUrl}
-        token={token}
-        profId={profId}
-        mode="add"
         isUploading={isUploading}
-        setIsUploading={setIsUploading}
       />
 
-      <TpFormDialog
+      <EditDialog
         open={openEditDialog}
         onClose={handleCloseDialogs}
+        onSave={handleSave}
         tp={selectedTp}
         modules={modules}
         selectedModule={selectedModule}
@@ -301,22 +361,14 @@ const TpTable = () => {
         fileName={fileName}
         setFileName={setFileName}
         uploadProgress={uploadProgress}
-        fetchResources={fetchResources}
-        baseUrl={baseUrl}
-        token={token}
-        profId={profId}
-        mode="edit"
         isUploading={isUploading}
-        setIsUploading={setIsUploading}
       />
 
       <DeleteDialog
         open={openDeleteDialog}
         onClose={handleCloseDialogs}
+        onDelete={handleDelete}
         tp={selectedTp}
-        fetchResources={fetchResources}
-        baseUrl={baseUrl}
-        token={token}
       />
 
       {/* PDF Dialog */}
@@ -357,106 +409,34 @@ const TpTable = () => {
   );
 };
 
-const TpFormDialog = ({
+const AddDialog = ({
   open,
   onClose,
-  tp,
+  onSave,
   modules,
   selectedModule,
   setSelectedModule,
   fileName,
   setFileName,
   uploadProgress,
-  fetchResources,
-  baseUrl,
-  token,
-  profId,
-  mode,
   isUploading,
-  setIsUploading,
 }) => {
   const [tpData, setTpData] = useState({
-    id: tp?.id || "",
-    name: tp?.nom || "",
-    dataType: tp?.dataType || "",
-    lien: tp?.lien || "",
+    name: "",
+    dataType: "",
+    url: "",
     file: null,
   });
 
-  useEffect(() => {
-    if (tp) {
-      setTpData({
-        id: tp.id,
-        name: tp.nom,
-        dataType: tp.dataType,
-        lien: tp.lien,
-        file: null,
-      });
-      setSelectedModule(tp.moduleName);
-      setFileName("");
-    }
-  }, [tp]);
-
-  const handleSave = async () => {
-    if (
-      !tpData.name ||
-      !selectedModule ||
-      (tpData.dataType === "VIDEO" && !tpData.lien) ||
-      (tpData.dataType === "FICHIER" && !tpData.file)
-    ) {
+  const handleSave = () => {
+    if (!tpData.name || !tpData.dataType || (!tpData.url && !tpData.file)) {
       toast.error("Please fill all required fields.");
       return;
     }
 
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    const formData = new FormData();
-    formData.append("id", tpData.id);
-    formData.append("nom", tpData.name);
-    formData.append("type", "TP");
-    formData.append("dataType", tpData.dataType);
-
-    if (tpData.dataType === "VIDEO") {
-      formData.append("lien", tpData.lien);
-    } else if (tpData.dataType === "FICHIER") {
-      formData.append("data", tpData.file);
-    }
-
-    const selectedModuleObj = modules.find((m) => m.name === selectedModule);
-    if (selectedModuleObj) {
-      formData.append("moduleId", selectedModuleObj.id);
-    }
-    formData.append("professorId", profId);
-
-    try {
-      const url =
-        mode === "add"
-          ? `${baseUrl}/api/professeur/addResource`
-          : `${baseUrl}/api/professeur/updateResource`;
-      const method = mode === "add" ? "post" : "put";
-
-      await axios[method](url, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (progressEvent) => {
-          const progress = Math.round(
-            (progressEvent.loaded / progressEvent.total) * 100
-          );
-          setUploadProgress(progress);
-        },
-      });
-
-      toast.success(`TP ${mode === "add" ? "added" : "updated"} successfully!`);
-      fetchResources();
-      onClose();
-    } catch (error) {
-      toast.error(`Failed to ${mode === "add" ? "add" : "update"} TP.`);
-    } finally {
-      setIsUploading(false);
-    }
+    onSave(tpData);
+    setTpData({ name: "", dataType: "", url: "", file: null });
+    setFileName("");
   };
 
   const handleFileChange = (e) => {
@@ -486,7 +466,7 @@ const TpFormDialog = ({
           textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
         }}
       >
-        {mode === "add" ? "Add TP" : "Edit TP"}
+        Add TP
       </DialogTitle>
       <DialogContent>
         <TextField
@@ -512,8 +492,8 @@ const TpFormDialog = ({
             <TextField
               label="Video URL"
               fullWidth
-              value={tpData.lien}
-              onChange={(e) => setTpData({ ...tpData, lien: e.target.value })}
+              value={tpData.url}
+              onChange={(e) => setTpData({ ...tpData, url: e.target.value })}
               disabled={isUploading}
               sx={{ mb: 2 }}
             />
@@ -558,9 +538,9 @@ const TpFormDialog = ({
           options={modules}
           getOptionLabel={(option) => option.name}
           value={modules.find((m) => m.name === selectedModule) || null}
-          onChange={(e, newValue) =>
-            setSelectedModule(newValue ? newValue.name : "")
-          }
+          onChange={(e, newValue) => {
+            setSelectedModule(newValue ? newValue.name : "");
+          }}
           disabled={isUploading}
           renderInput={(params) => (
             <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
@@ -578,8 +558,8 @@ const TpFormDialog = ({
         </Button>
         <Button
           onClick={handleSave}
-          color="success"
           variant="outlined"
+          color="success"
           disabled={isUploading}
         >
           Save
@@ -606,27 +586,184 @@ const TpFormDialog = ({
   );
 };
 
-const DeleteDialog = ({
+const EditDialog = ({
   open,
   onClose,
+  onSave,
   tp,
-  fetchResources,
-  baseUrl,
-  token,
+  modules,
+  selectedModule,
+  setSelectedModule,
+  fileName,
+  setFileName,
+  uploadProgress,
+  isUploading,
 }) => {
-  const handleDelete = async () => {
-    try {
-      await axios.delete(`${baseUrl}/api/professeur/deleteResource/${tp.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+  const [tpData, setTpData] = useState({
+    id: tp?.id || "",
+    name: tp?.nom || "",
+    dataType: tp?.dataType || "",
+    url: tp?.lien || "",
+    file: null,
+  });
+
+  useEffect(() => {
+    if (tp) {
+      setTpData({
+        id: tp.id,
+        name: tp.nom,
+        dataType: tp.dataType,
+        url: tp.lien,
+        file: null,
       });
-      toast.success("TP deleted successfully!");
-      fetchResources();
-      onClose();
-    } catch (error) {
-      toast.error("Failed to delete TP.");
+      setSelectedModule(tp.moduleName);
+      setFileName("");
+    }
+  }, [tp]);
+
+  const handleSave = () => {
+    onSave(tpData, true);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setTpData({ ...tpData, file });
+      setFileName(file.name);
+    } else {
+      setFileName("");
     }
   };
 
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      data-aos="zoom-in"
+      disableEscapeKeyDown={isUploading}
+      disableBackdropClick={isUploading}
+    >
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+      >
+        Edit TP
+      </DialogTitle>
+      <DialogContent>
+        <TextField
+          label="TP Name"
+          fullWidth
+          value={tpData.name}
+          onChange={(e) => setTpData({ ...tpData, name: e.target.value })}
+          disabled={isUploading}
+          sx={{ mb: 2, mt: 2 }}
+        />
+        <FormControl fullWidth sx={{ mb: 2 }} disabled={isUploading}>
+          <InputLabel>Type</InputLabel>
+          <Select
+            value={tpData.dataType}
+            onChange={(e) => setTpData({ ...tpData, dataType: e.target.value })}
+          >
+            <MenuItem value="VIDEO">Video</MenuItem>
+            <MenuItem value="FICHIER">PDF</MenuItem>
+          </Select>
+        </FormControl>
+        {tpData.dataType === "VIDEO" ? (
+          <TextField
+            label="Video URL"
+            fullWidth
+            value={tpData.url}
+            onChange={(e) => setTpData({ ...tpData, url: e.target.value })}
+            disabled={isUploading}
+            sx={{ mb: 2 }}
+          />
+        ) : (
+          <>
+            <Button
+              variant="outlined"
+              component="label"
+              fullWidth
+              sx={{ mb: 1 }}
+              disabled={isUploading}
+              color={fileName ? "success" : "primary"}
+            >
+              {fileName ? "Change PDF" : "Upload PDF"}
+              <input
+                type="file"
+                hidden
+                onChange={handleFileChange}
+                accept="application/pdf"
+                disabled={isUploading}
+              />
+            </Button>
+            {fileName && (
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Selected file: <Chip label={fileName} color="primary" />
+              </Typography>
+            )}
+            {uploadProgress > 0 && (
+              <LinearProgress variant="determinate" value={uploadProgress} />
+            )}
+          </>
+        )}
+        <Autocomplete
+          options={modules}
+          getOptionLabel={(option) => option.name}
+          value={modules.find((m) => m.name === selectedModule) || null}
+          onChange={(e, newValue) => {
+            setSelectedModule(newValue ? newValue.name : "");
+          }}
+          disabled={isUploading}
+          renderInput={(params) => (
+            <TextField {...params} label="Module" fullWidth sx={{ mb: 2 }} />
+          )}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          color="info"
+          disabled={isUploading}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSave}
+          variant="outlined"
+          color="success"
+          disabled={isUploading}
+        >
+          Save
+        </Button>
+      </DialogActions>
+      {isUploading && (
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: "background.paper",
+            borderTop: "1px solid rgba(0,0,0,0.1)",
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="primary"
+            sx={{ fontWeight: "medium" }}
+          >
+            Please wait while your file uploads. Do not close this dialog.
+          </Typography>
+        </Box>
+      )}
+    </Dialog>
+  );
+};
+
+const DeleteDialog = ({ open, onClose, onDelete, tp }) => {
   return (
     <Dialog open={open} onClose={onClose} data-aos="zoom-in">
       <DialogTitle
@@ -634,14 +771,14 @@ const DeleteDialog = ({
           background: "linear-gradient(to right,rgb(171, 0, 0), #01162e)",
           color: "white",
           fontWeight: "bold",
-          mb: 1,
+          mb: 2,
           textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
         }}
       >
         Delete TP
       </DialogTitle>
       <DialogContent>
-        <DialogContentText color="error" sx={{ mt: 2 }}>
+        <DialogContentText color="error">
           Are you sure you want to delete this TP: <strong>{tp?.nom}</strong>?
         </DialogContentText>
       </DialogContent>
@@ -649,7 +786,7 @@ const DeleteDialog = ({
         <Button onClick={onClose} variant="outlined" color="info">
           Cancel
         </Button>
-        <Button onClick={handleDelete} color="error" variant="contained">
+        <Button onClick={onDelete} color="error" variant="contained">
           Delete
         </Button>
       </DialogActions>
