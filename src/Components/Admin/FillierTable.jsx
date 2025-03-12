@@ -219,7 +219,7 @@ const FiliereTable = () => {
         </Box>
       )}
 
-      <Box sx={{display:"flex",justifyContent:"space-between"}}>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Button
           variant="contained"
           color="primary"
@@ -302,21 +302,40 @@ const FiliereTable = () => {
 
       {/* Dialogs for Add, Edit, and Delete */}
       <Dialog open={openDelete} onClose={handleClose}>
-        <DialogTitle>Delete Filière</DialogTitle>
+        <DialogTitle
+          sx={{
+            background: "linear-gradient(to right,rgb(171, 0, 0), #01162e)",
+            color: "white",
+            fontWeight: "bold",
+            mb: 1,
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          Delete Filière
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this filière? This action cannot be
-            undone.
+          <DialogContentText color="red">
+            Are you sure you want to delete this filière?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleDeleteAgree}>Delete</Button>
+          <Button color="info" variant="outlined" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button color="error" variant="contained" onClick={handleDeleteAgree}>
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={openEdit} onClose={handleClose}>
-        <DialogTitle>Edit Filière</DialogTitle>
+        <DialogTitle sx={{
+          background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }} >Edit Filière</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Enter the new name for the filière:
@@ -335,13 +354,27 @@ const FiliereTable = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleEditAgree}>Save</Button>
+          <Button color="info" variant="outlined" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button color="success" variant="outlined" onClick={handleEditAgree}>
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={openAdd} onClose={handleClose}>
-        <DialogTitle>Add Filière</DialogTitle>
+        <DialogTitle
+          sx={{
+            background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+            color: "white",
+            fontWeight: "bold",
+            mb: 1,
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          Add Filière
+        </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -357,8 +390,12 @@ const FiliereTable = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleAddAgree}>Add</Button>
+          <Button color="info" variant="outlined" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button color="success" variant="outlined" onClick={handleAddAgree}>
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
     </>

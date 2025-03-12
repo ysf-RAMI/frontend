@@ -265,7 +265,7 @@ const ProfTable = () => {
               color="primary"
               onClick={() => setOpenAdd(true)}
               data-aos="fade-down"
-              sx={{pt:0.5,pb:0.5}}
+              sx={{ pt: 0.5, pb: 0.5 }}
             >
               Ajouter un Professeur
             </Button>
@@ -288,7 +288,7 @@ const ProfTable = () => {
             <>
               <TableContainer
                 component={Paper}
-                sx={{  maxHeight: "calc(100vh - 200px)" }} // Adjust height to fit screen
+                sx={{ maxHeight: "calc(100vh - 200px)" }} // Adjust height to fit screen
                 data-aos="fade-up"
               >
                 <Table>
@@ -364,22 +364,40 @@ const ProfTable = () => {
 
       {/* Dialogs for Delete, Edit, Add, and Change Password */}
       <Dialog open={openDelete} onClose={handleClose} data-aos="zoom-in">
-        <DialogTitle>Supprimer Professeur</DialogTitle>
+        <DialogTitle sx={{
+          background: "linear-gradient(to right,rgb(171, 0, 0), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }} >Supprimer Professeur</DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText color="error">
             Êtes-vous sûr de vouloir supprimer ce professeur ?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Annuler</Button>
-          <Button onClick={handleDeleteAgree} color="error">
+          <Button onClick={handleClose} color="info" variant="outlined">
+            Annuler
+          </Button>
+          <Button onClick={handleDeleteAgree} color="error" variant="contained">
             Supprimer
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={openEdit} onClose={handleClose} data-aos="zoom-in">
-        <DialogTitle>Modifier Professeur</DialogTitle>
+        <DialogTitle
+          sx={{
+            background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+            color: "white",
+            fontWeight: "bold",
+            mb: 1,
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          Modifier Professeur
+        </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -408,15 +426,27 @@ const ProfTable = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Annuler</Button>
-          <Button onClick={handleEditAgree} color="primary">
+          <Button onClick={handleClose} color="info" variant="outlined">
+            Annuler
+          </Button>
+          <Button onClick={handleEditAgree} color="success" variant="outlined">
             Enregistrer
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={openAdd} onClose={handleClose} data-aos="zoom-in">
-        <DialogTitle>Ajouter un Professeur</DialogTitle>
+        <DialogTitle
+          sx={{
+            background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+            color: "white",
+            fontWeight: "bold",
+            mb: 1,
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          Ajouter un Professeur
+        </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -466,8 +496,10 @@ const ProfTable = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Annuler</Button>
-          <Button onClick={handleAddAgree} color="primary">
+          <Button onClick={handleClose} color="info" variant="outlined">
+            Annuler
+          </Button>
+          <Button onClick={handleAddAgree} color="success" variant="outlined">
             Ajouter
           </Button>
         </DialogActions>
@@ -478,7 +510,13 @@ const ProfTable = () => {
         onClose={handleClose}
         data-aos="zoom-in"
       >
-        <DialogTitle>Changer le mot de passe</DialogTitle>
+        <DialogTitle sx={{
+          background: "linear-gradient(to right,rgb(0, 80, 171), #01162e)",
+          color: "white",
+          fontWeight: "bold",
+          mb: 1,
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}>Changer le mot de passe</DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
@@ -528,11 +566,18 @@ const ProfTable = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Annuler</Button>
+          <Button onClick={handleClose} 
+            color="info"
+            variant="outlined"
+            sx={{ ml: 0.5 }}
+          >Annuler</Button>
           <Button
             onClick={handleChangePasswordAgree}
-            color="primary"
+            color="success"
             disabled={!newPassword || newPassword !== confirmPassword}
+            variant="outlined"
+            sx={{ ml: 0.5 }}
+            
           >
             Enregistrer
           </Button>
