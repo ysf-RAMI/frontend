@@ -190,7 +190,7 @@ const AnnouncementsPage = () => {
                         width: "100%",
                       }}
                     />
-                    <CardContent sx={{ flexGrow: 1 ,backgroundColor:"rgb(224, 224, 224)"}}>
+                    <CardContent sx={{ flexGrow: 1 ,backgroundColor:"rgb(251, 251, 251)",borderTop:"1px solid black"}}>
                       <Box
                         sx={{ display: "flex", alignItems: "center", mb: 2 }}
                       >
